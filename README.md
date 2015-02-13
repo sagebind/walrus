@@ -1,2 +1,2 @@
-# decaf-scanner
-Lexical scanner for Decaf
+# Walrus
+A lightweight compiler for the Decaf programming language.
