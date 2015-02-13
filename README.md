@@ -1,7 +1,7 @@
 # Walrus
 A lightweight compiler for the Decaf programming language.
 
-# Compiling
+## Compiling
 
 ```sh
 make
@@ -9,7 +9,7 @@ make
 
 That's it. No crazy stuff.
 
-# Usage
+## Usage
 
 ```sh
 bin/walrus inputfile1 inputfile2...
