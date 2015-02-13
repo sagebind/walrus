@@ -14,16 +14,16 @@
  */
 int main(int argc, char* const* argv)
 {
-    const char* helpText = "Usage: walrus [options] file1 [file2 [...]]\r\n"
-                           "A lightweight compiler for the Decaf programming language\r\n"
-                           "Options:\r\n\r\n"
-                           "  --help\t\tDisplays this help message, but you already knew that\r\n"
-                           "  -s\t\t\tScan only; do not parse or assemble\r\n"
-                           "  -T\t\t\tPrint out tokens as they are scanned\r\n\r\n";
+    // parse the arguments into options
     Options options = parse_options(argc, argv);
 
     if (options.help) {
-        printf("%s", helpText);
+        printf("Usage: walrus [options] file1 [file2 [...]]\r\n"
+               "A lightweight compiler for the Decaf programming language\r\n"
+               "Options:\r\n\r\n"
+               "  --help                   Displays this help message, but you already knew that\r\n"
+               "  -s                       Scan only; do not parse or assemble\r\n"
+               "  -T, --print-tokens       Print out tokens as they are scanned\r\n\r\n");
         return 0;
     }
 
@@ -49,7 +49,8 @@ Options parse_options(int argc, char* const* argv)
     // define our getopt specs
     const char* short_options = "sT";
     static struct option long_options[] = {
-        {"help", no_argument, 0, 0},
+        {"help",         no_argument, 0, 0},
+        {"print-tokens", no_argument, 0, 'T'},
         {0, 0, 0, 0}
     };
     int option_index = 0;
@@ -62,6 +63,8 @@ Options parse_options(int argc, char* const* argv)
             case 0:
                 if (long_options[option_index].name == "help") {
                     options.help = true;
+                } else if (long_options[option_index].name == "print-tokens") {
+                    options.print_tokens = true;
                 }
                 break;
             case 's':
