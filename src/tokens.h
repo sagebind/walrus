@@ -1,6 +1,8 @@
 #ifndef TOKENS_H
 #define TOKENS_H
 
+#include "error.h"
+
 /**
  * Types of lexical tokens.
  */
@@ -72,6 +74,7 @@ typedef struct {
 
 Token token_create(int, int, TokenType, char*);
 TokenStream* token_stream_create(int);
-void token_stream_destroy(TokenStream*);
+Error token_stream_destroy(TokenStream*);
+Error token_stream_push(TokenStream*, Token);
 
 #endif
