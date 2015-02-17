@@ -1,5 +1,5 @@
-#ifndef ERROR_H
-#define ERROR_H
+#ifndef WALRUS_ERROR_H
+#define WALRUS_ERROR_H
 
 typedef enum {
     E_SUCCESS,

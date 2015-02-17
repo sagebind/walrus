@@ -1,5 +1,5 @@
-#ifndef SCANNER_H
-#define SCANNER_H
+#ifndef WALRUS_SCANNER_H
+#define WALRUS_SCANNER_H
 
 #include "tokens.h"
 

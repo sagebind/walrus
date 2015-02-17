@@ -1,5 +1,5 @@
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef WALRUS_MAIN_H
+#define WALRUS_MAIN_H
 
 #include <stdbool.h>
 

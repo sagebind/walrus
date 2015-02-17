@@ -1,5 +1,5 @@
-#ifndef TOKENS_H
-#define TOKENS_H
+#ifndef WALRUS_TOKENS_H
+#define WALRUS_TOKENS_H
 
 #include "error.h"
 
