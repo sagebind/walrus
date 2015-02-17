@@ -4,8 +4,6 @@
 
 /**
  * Prints some tokens to standard output.
- *
- * @param tokens A stream of tokens to print.
  */
 void lexer_print_tokens(TokenStream* tokens)
 {
