@@ -1,13 +1,11 @@
 #include <stdio.h>
-#include "scanner.h"
+#include "lexer.h"
 #include "tokens.h"
 
 /**
  * Prints some tokens to standard output.
- *
- * @param tokens A stream of tokens to print.
  */
-void scanner_print_tokens(TokenStream* tokens)
+void lexer_print_tokens(TokenStream* tokens)
 {
     // loop over each token in the stream
     for (int i = 0; i < tokens->length; ++i) {

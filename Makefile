@@ -1,23 +1,27 @@
-SRC_DIR := src
-OBJ_DIR := obj
-SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
-OBJ_FILES := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC_FILES))
+SRC_FILES := $(wildcard src/*.c)
+OBJ_FILES := $(patsubst src/%.c, obj/%.o, $(SRC_FILES))
 LD_FLAGS :=
 CC_FLAGS := -x c -MMD -std=c11 -Wstrict-prototypes
+SCANNER_TESTS := $(wildcard tests/scanner/*)
 
 all: bin/walrus
+
+bin/walrus: bin $(OBJ_FILES)
+	gcc $(LD_FLAGS) -o $@ $(OBJ_FILES) $(LIB_FILES)
 
 bin:
 	mkdir bin
 
-$(OBJ_DIR):
-	mkdir $(OBJ_DIR)
+obj:
+	mkdir obj
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(OBJ_DIR)
+obj/%.o: src/%.c obj
 	gcc $(CC_FLAGS) -c -o $@ $<
 
-bin/walrus: bin $(OBJ_FILES)
-	gcc $(LD_FLAGS) -o $@ $(OBJ_FILES)
+test: $(SCANNER_TESTS)
+
+tests/scanner/%: tests/scanner/output/%.out bin/walrus
+	bin/walrus -s $@ | diff $< -
 
 clean:
-	rm -R $(OBJ_DIR) bin
+	rm -R obj bin

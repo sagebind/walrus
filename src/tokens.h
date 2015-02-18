@@ -1,5 +1,5 @@
-#ifndef TOKENS_H
-#define TOKENS_H
+#ifndef WALRUS_TOKENS_H
+#define WALRUS_TOKENS_H
 
 #include "error.h"
 
@@ -72,9 +72,40 @@ typedef struct {
     int size;
 } TokenStream;
 
-Token token_create(int, int, TokenType, char*);
-TokenStream* token_stream_create(int);
-Error token_stream_destroy(TokenStream*);
-Error token_stream_push(TokenStream*, Token);
+/**
+ * Creates a new token.
+ *
+ * @param  line   The line number of the token.
+ * @param  column The column number of the token.
+ * @param  type   The token type.
+ * @param  lexeme The token lexeme.
+ * @return        A newly created token.
+ */
+Token token_create(int line, int column, TokenType type, char* lexeme);
+
+/**
+ * Creates a new token stream of a given size.
+ *
+ * @param  size The size of the token stream, or the max number of tokens it can hold.
+ * @return      A shiny new token stream.
+ */
+TokenStream* token_stream_create(int size);
+
+/**
+ * Destroys a token stream and all its tokens and frees its memory.
+ *
+ * @param  stream The token stream to destroy.
+ * @return        An error code.
+ */
+Error token_stream_destroy(TokenStream* stream);
+
+/**
+ * Pushes a token onto the end of a token stream.
+ *
+ * @param  stream The stream to push onto.
+ * @param  token  The token to push.
+ * @return        An error code.
+ */
+Error token_stream_push(TokenStream* stream, Token token);
 
 #endif
