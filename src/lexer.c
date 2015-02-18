@@ -1,6 +1,87 @@
+#include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "lexer.h"
 #include "tokens.h"
+
+/**
+ * Parses the next token from a scanner context.
+ */
+Token lexer_next(ScannerContext* context)
+{
+    // the current character being examined
+    char current_char;
+
+    // loop until we reach the end of file
+    while ((current_char = scanner_next(context)) != EOF) {
+        switch (current_char) {
+            // single-character operators ;)
+            case '*': case '/': case '%':
+                return token_create(
+                    context->line,
+                    context->column,
+                    T_OPERATOR,
+                    scanner_get_string(context, -1) // get the string from position-1 to position
+                );
+
+            // + +=
+            case '+':
+                break; // @todo
+
+            // - -=
+            case '-':
+                break; // @todo
+
+            // = ==
+            case '=': // @todo
+                break;
+
+            // looks like the beginning of a char
+            case '\'':
+                //return lexer_lex_char(context); @todo
+                break;
+
+            // looks like the beginning of a string
+            case '"':
+                //return lexer_lex_string(context); @todo
+                break;
+
+            // > >=
+            case '>':
+                break;
+
+            // < <=
+            case '<':
+                break;
+
+            // &&
+            case '&':
+                break;
+
+            // ||
+            case '|':
+                break;
+
+            // nothing matched so far, try variable matching
+            default:
+                // looks like the start of an identifier
+                if (isalpha(current_char) || current_char == '_') {
+                    // todo
+                }
+
+                // we tried everything, lets call it a day
+                return token_create(
+                    context->line,
+                    context->column,
+                    T_ILLEGAL,
+                    scanner_get_string(context, -1)
+                );
+        }
+    }
+
+    // we reached the end-of-file and cannot find a proper token
+    return token_create(context->line, context->column, T_EOF, 0);
+}
 
 /**
  * Prints some tokens to standard output.
