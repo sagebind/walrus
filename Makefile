@@ -1,7 +1,7 @@
 SRC_FILES := $(wildcard src/*.c)
 OBJ_FILES := $(patsubst src/%.c, obj/%.o, $(SRC_FILES))
 LD_FLAGS :=
-CC_FLAGS := -x c -MMD -std=c11 -Wstrict-prototypes
+CC_FLAGS := -x c -MMD -std=c11 -Wstrict-prototypes -D_GNU_SOURCE
 SCANNER_TESTS := $(wildcard tests/scanner/*)
 
 all: bin/walrus
@@ -21,7 +21,7 @@ obj/%.o: src/%.c obj
 test: $(SCANNER_TESTS)
 
 tests/scanner/%: tests/scanner/output/%.out bin/walrus
-	bin/walrus -s $@ | diff $< -
+	bin/walrus -s -T $@ | diff $< -
 
 clean:
 	rm -R obj bin
