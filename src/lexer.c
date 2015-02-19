@@ -80,7 +80,7 @@ Token lexer_next(ScannerContext* context)
     }
 
     // we reached the end-of-file and cannot find a proper token
-    return token_create(context->line, context->column, T_EOF, 0);
+    return token_create(context->line, context->column, T_EOF, " ");
 }
 
 /**
@@ -90,7 +90,7 @@ void lexer_print_tokens(TokenStream* tokens)
 {
     // loop over each token in the stream
     for (int i = 0; i < tokens->length; ++i) {
-        printf("%.2d ", tokens->tokens[i].line);
+        printf("%d ", tokens->tokens[i].line);
 
         if (tokens->tokens[i].type == T_BOOLEAN_LITERAL) {
             printf("BOOLEANLITERAL ");
