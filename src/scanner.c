@@ -45,6 +45,74 @@ ScannerContext* scanner_open_string(char* string)
 }
 
 /**
+ * Gets the next character in the stream.
+ *
+ * Does not work on multibyte characters.
+ */
+char scanner_next(ScannerContext* context)
+{
+    char character = fgetc(context->stream);
+
+    // new line reached
+    if (character == '\n') {
+        context->line++;
+        context->column = 0;
+    } else {
+        context->column++;
+    }
+
+    return character;
+}
+
+/**
+ * Reads a character from a scanner context relative to the current position.
+ */
+char scanner_peek(ScannerContext* context, long int offset)
+{
+    // move to offset
+    fseek(context->stream, offset, SEEK_CUR);
+
+    // get the character
+    char character = fgetc(context->stream);
+
+    // return to previous position
+    fseek(context->stream, 1 - offset, SEEK_CUR);
+
+    return character;
+}
+
+/**
+ * Gets the string of characters between a given offset and the current position.
+ */
+char* scanner_get_string(ScannerContext* context, long int offset)
+{
+    assert(offset != 0);
+
+    // where are we?
+    long int position = ftell(context->stream);
+    // how many chars we will get
+    long int length = labs(offset);
+    // allocate the string
+    char* string = malloc(length + 1);
+
+    // if offset is negative, seek backwards
+    if (offset < 0) {
+        fseek(context->stream, offset, SEEK_CUR);
+    }
+
+    // and append current char
+    for (int i = 0; i < length; ++i) {
+        string[i] = fgetc(context->stream);
+    }
+    // add string terminator
+    string[length] = '\0';
+
+    // move back to original position
+    fseek(context->stream, position, SEEK_SET);
+    return string;
+}
+
+/**
  * Closes a scanner context and its associated input stream.
  */
 Error scanner_close(ScannerContext* context)
