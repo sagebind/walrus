@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "main.h"
+#include "lexer.h"
+#include "tokens.h"
+#include "scanner.h"
 
 /**
  * Main entry point for the application. Parses options and invokes the compiler.
@@ -27,19 +30,27 @@ int main(int argc, char* const* argv)
         return 0;
     }
 
-    if (options.print_tokens) {
-        printf("Will print tokens.\r\n");
+    if (options.files_count < 1) {
+        printf("No input files.\r\n");
+        abort();
     }
+
+    // scan input files
+    TokenStream* tokens = token_stream_create(1);
+    ScannerContext* context = scanner_open(options.files[0]);
+    Token token;
+    while (token.type != T_EOF) {
+        token = lexer_next(context);
+        token_stream_push(tokens, token);
+    }
+    scanner_close(context);
+    lexer_print_tokens(tokens);
 
     return 0;
 }
 
 /**
- * Parses command-line arguments and returns an options struct containing the meaning of the arguments.
- *
- * @param  argc The number of arguments.
- * @param  argv The argument strings.
- * @return      An options struct.
+ * Parses command-line arguments using getopt.
  */
 Options parse_options(int argc, char* const* argv)
 {
@@ -91,7 +102,7 @@ Options parse_options(int argc, char* const* argv)
 
     // add each file parameter to options
     for (int i = 0; i < options.files_count; i++) {
-        options.files[i] = (char*)malloc(sizeof(char) * strlen(argv[optind + i]));
+        options.files[i] = (char*)malloc(strlen(argv[optind + i]) + 1);
         strcpy(options.files[i], argv[optind + i]);
     }
 
