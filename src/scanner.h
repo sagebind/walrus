@@ -49,12 +49,22 @@ ScannerContext* scanner_open_string(char* string);
 char scanner_next(ScannerContext* context);
 
 /**
- * Reads a next character from a scanner context without advancing to it.
+ * Reads a character from a scanner context relative to the current position.
  *
  * @param  context An open scanner context.
+ * @param  offset  The character offset from the current position.
  * @return         The next character in the stream.
  */
-char scanner_peek(ScannerContext* context);
+char scanner_peek(ScannerContext* context, long int offset);
+
+/**
+ * Gets the string of characters between a given offset and the current position.
+ *
+ * @param  context An open scanner context.
+ * @param  offset  The character offset from the current position.
+ * @return         A string of characters.
+ */
+char* scanner_get_string(ScannerContext* context, long int offset);
 
 /**
  * Closes a scanner context.
