@@ -21,7 +21,7 @@ obj/%.o: src/%.c obj
 test: $(SCANNER_TESTS)
 
 tests/scanner/%: tests/scanner/output/%.out bin/walrus
-	bin/walrus -s -T $@ | diff $< -
+	bin/walrus -s -T $@ | diff -u $< -
 
 clean:
 	rm -R obj bin
