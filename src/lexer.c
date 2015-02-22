@@ -71,8 +71,8 @@ Token lexer_next(ScannerContext* context)
             // = ==
             case '=': 
 				//check next token to see if it's an equal sign
-				if(scanner_next(context) == '=') {
-					return token_create(
+                if(scanner_next(context) == '=') {
+                    return token_create(
 						context->line,
 						context->column,
 						T_OPERATOR,
