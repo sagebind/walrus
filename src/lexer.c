@@ -173,7 +173,7 @@ Token lexer_next(ScannerContext* context)
                         context->line,
                         context->column,
                         T_OPERATOR,
-                        """
+                        "|"
                    );
                 }
 
@@ -199,7 +199,7 @@ Token lexer_next(ScannerContext* context)
 }
 
 /**
- * Prints some tokens to standard output.
+ * Prints tokens to standard output.
  */
 void lexer_print_tokens(TokenStream* tokens)
 {
