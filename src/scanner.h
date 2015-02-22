@@ -22,6 +22,11 @@ typedef struct {
      * The current text column in the source file.
      */
     int column;
+
+    /**
+     * Indicates if we are approaching the end of a line.
+     */
+    bool eol;
 } ScannerContext;
 
 /**

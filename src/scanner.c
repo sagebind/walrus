@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,8 +18,9 @@ ScannerContext* scanner_open(char* filename)
 
     // create a context pointer
     ScannerContext* context = (ScannerContext*)malloc(sizeof(ScannerContext));
-    context->line = 0;
-    context->column = 0;
+    context->line = 1;
+    context->column = 1;
+    context->eol = false;
     context->stream = stream;
 
     return context;
@@ -37,8 +39,9 @@ ScannerContext* scanner_open_string(char* string)
 
     // create a context pointer
     ScannerContext* context = (ScannerContext*)malloc(sizeof(ScannerContext));
-    context->line = 0;
-    context->column = 0;
+    context->line = 1;
+    context->column = 1;
+    context->eol = false;
     context->stream = stream;
 
     return context;
@@ -51,14 +54,22 @@ ScannerContext* scanner_open_string(char* string)
  */
 char scanner_next(ScannerContext* context)
 {
+    // read the next char
     char character = fgetc(context->stream);
 
-    // new line reached
-    if (character == '\n') {
+    // if previous char was an EOL, char is at start of next line
+    if (context->eol) {
         context->line++;
-        context->column = 0;
+        context->column = 1;
+        context->eol = false;
     } else {
+        // advance to next column
         context->column++;
+    }
+
+    // LF puts next char on new line; CR not recognized here
+    if (character == '\n') {
+        context->eol = true;
     }
 
     return character;
@@ -69,6 +80,8 @@ char scanner_next(ScannerContext* context)
  */
 char scanner_peek(ScannerContext* context, long int offset)
 {
+    assert(offset != 0);
+
     // move to offset
     fseek(context->stream, offset, SEEK_CUR);
 
