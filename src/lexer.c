@@ -141,10 +141,41 @@ Token lexer_next(ScannerContext* context)
 
             // &&
             case '&':
-                break;
+                if(scanner_next(context) == '&') {
+                    return token_create(
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        "&&"
+                    );
+                } else {
+                    scanner_backtrack(context, 1);
+                    return token_create(
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        "&"
+                   );
+                }
 
             // ||
             case '|':
+                if(scanner_next(context) == '|') {
+                    return token_create(
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        "||"
+                    );
+                } else {
+                    scanner_backtrack(context, 1);
+                    return token_create(
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        """
+                   );
+                }
                 break;
 
             // nothing matched so far, try variable matching
