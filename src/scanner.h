@@ -58,6 +58,15 @@ char scanner_next(ScannerContext* context);
 char scanner_peek(ScannerContext* context, long int offset);
 
 /**
+ * Moves the current position from the current one by an offset.
+ *
+ * @param  context An open scanner context.
+ * @param  offset  The character offset from the current position.
+ * @return         An error code.
+ */
+Error scanner_backtrack(ScannerContext* context, long int offset);
+
+/**
  * Gets the string of characters between a given offset and the current position.
  *
  * @param  context An open scanner context.
