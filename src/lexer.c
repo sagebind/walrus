@@ -26,6 +26,24 @@ Token lexer_next(ScannerContext* context)
 
             // + +=
             case '+':
+				//check next token to see if it's an equal sign
+				if(scanner_next(context) == '=') {
+					return token_create(
+						context->line,
+						context->column,
+						T_OPERATOR,
+						'+='
+					);
+				} else {
+					//next token was not an equal sign - move context column back one space and create a '+' token
+					context->column = context->column - 1;
+					return token_create(
+						context->line,
+						context->column,
+						T_OPERATOR,
+						'+'
+					)
+				}
                 break; // @todo
 
             // - -=
