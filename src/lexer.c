@@ -176,7 +176,6 @@ Token lexer_next(ScannerContext* context)
                         """
                    );
                 }
-                break;
 
             // nothing matched so far, try variable matching
             default:
