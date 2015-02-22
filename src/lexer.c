@@ -32,7 +32,7 @@ Token lexer_next(ScannerContext* context)
 						context->line,
 						context->column,
 						T_OPERATOR,
-						'+='
+						"+="
 					);
 				} else {
 					//next token was not an equal sign - move context column back one space and create a '+' token
@@ -41,7 +41,7 @@ Token lexer_next(ScannerContext* context)
 						context->line,
 						context->column,
 						T_OPERATOR,
-						'+'
+						"+"
 					)
 				}
 
@@ -53,7 +53,7 @@ Token lexer_next(ScannerContext* context)
                         context->line,
                         context->column,
                         T_OPERATOR,
-                        '-='
+                        "-="
                     );
                 } else {
                     //next token was not an equal sign - move context column back one space and create a '-' token
@@ -62,7 +62,7 @@ Token lexer_next(ScannerContext* context)
                         context->line,
                         context->column,
                         T_OPERATOR,
-                        '-'
+                        "-"
                     );
                 }
 
@@ -74,7 +74,7 @@ Token lexer_next(ScannerContext* context)
                         context->line,
                         context->column,
                         T_OPERATOR,
-                        '=='
+                        "=="
                     );
                 } else {
                     //next token was not an equal sign - move context column back one space and create a '=' token
@@ -83,7 +83,7 @@ Token lexer_next(ScannerContext* context)
                         context->line,
                         context->column,
                         T_OPERATOR,
-                        '='
+                        "="
                     );
                 }
 
@@ -105,7 +105,7 @@ Token lexer_next(ScannerContext* context)
                         context->line,
                         context->column,
                         T_OPERATOR,
-                        '>='
+                        ">="
                     );
                 } else {
                 //next token was not an equal sign - move context column back one space and create a '>' token
@@ -114,7 +114,7 @@ Token lexer_next(ScannerContext* context)
                         context->line,
                         context->column,
                         T_OPERATOR,
-                        '>'
+                        ">"
                     );
                 }
 
@@ -126,7 +126,7 @@ Token lexer_next(ScannerContext* context)
                     context->line,
                     context->column,
                     T_OPERATOR,
-                    '<='
+                    "<="
                 );
                 } else {
                     //next token was not an equal sign - move context column back one space and create a '<' token
@@ -135,7 +135,7 @@ Token lexer_next(ScannerContext* context)
                         context->line,
                         context->column,
                         T_OPERATOR,
-                        '<'
+                        "<"
                     );
                 }
 
