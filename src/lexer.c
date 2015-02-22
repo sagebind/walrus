@@ -44,52 +44,48 @@ Token lexer_next(ScannerContext* context)
 						'+'
 					)
 				}
-                break;
 
             // - -=
             case '-':
-				//check next token to see if it's an equal sign
-				if(scanner_next(context) == '=') {
-					return token_create(
-						context->line,
-						context->column,
-						T_OPERATOR,
-						'-='
-					);
-				} else {
-					//next token was not an equal sign - move context column back one space and create a '-' token
-					scanner_backtrack(context, 1);
-					return token_create(
-						context->line,
-						context->column,
-						T_OPERATOR,
-						'-'
-					)
-				}
-                break;
+                //check next token to see if it's an equal sign
+                if(scanner_next(context) == '=') {
+                    return token_create(
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        '-='
+                    );
+                } else {
+                    //next token was not an equal sign - move context column back one space and create a '-' token
+                    scanner_backtrack(context, 1);
+                    return token_create(
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        '-'
+                    );
+                }
 
             // = ==
             case '=': 
-				//check next token to see if it's an equal sign
+                //check next token to see if it's an equal sign
                 if(scanner_next(context) == '=') {
                     return token_create(
-						context->line,
-						context->column,
-						T_OPERATOR,
-						'=='
-					);
-				} else {
-					//next token was not an equal sign - move context column back one space and create a '=' token
-					scanner_backtrack(context, 1);
-					return token_create(
-						context->line,
-						context->column,
-						T_OPERATOR,
-						'='
-					)
-				}
-
-                break;
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        '=='
+                    );
+                } else {
+                    //next token was not an equal sign - move context column back one space and create a '=' token
+                    scanner_backtrack(context, 1);
+                    return token_create(
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        '='
+                    );
+                }
 
             // looks like the beginning of a char
             case '\'':
@@ -103,48 +99,45 @@ Token lexer_next(ScannerContext* context)
 
             // > >=
             case '>':
-				//check next token to see if it's an equal sign
-				if(scanner_next(context) == '=') {
-					return token_create(
-						context->line,
-						context->column,
-						T_OPERATOR,
-						'>='
-					);
-				} else {
-					//next token was not an equal sign - move context column back one space and create a '>' token
-					scanner_backtrack(context, 1);
-					return token_create(
-						context->line,
-						context->column,
-						T_OPERATOR,
-						'>'
-					)
-				}
-
-                break;
+                //check next token to see if it's an equal sign
+                if(scanner_next(context) == '=') {
+                    return token_create(
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        '>='
+                    );
+                } else {
+                //next token was not an equal sign - move context column back one space and create a '>' token
+                scanner_backtrack(context, 1);
+                    return token_create(
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        '>'
+                    );
+                }
 
             // < <=
             case '<':
-				//check next token to see if it's an equal sign
-				if(scanner_next(context) == '<') {
-					return token_create(
-						context->line,
-						context->column,
-						T_OPERATOR,
-						'<='
-					);
-				} else {
-					//next token was not an equal sign - move context column back one space and create a '<' token
-					scanner_backtrack(context, 1);
-					return token_create(
-						context->line,
-						context->column,
-						T_OPERATOR,
-						'<'
-					)
-				}
-                break;
+                //check next token to see if it's an equal sign
+                if(scanner_next(context) == '<') {
+                return token_create(
+                    context->line,
+                    context->column,
+                    T_OPERATOR,
+                    '<='
+                );
+                } else {
+                    //next token was not an equal sign - move context column back one space and create a '<' token
+                    scanner_backtrack(context, 1);
+                    return token_create(
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        '<'
+                    );
+                }
 
             // &&
             case '&':
