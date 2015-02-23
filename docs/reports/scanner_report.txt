@@ -15,7 +15,7 @@ to the project.
 Rather than a formal divison of the work where each member is assigned a certain part of the project, we all
 jumped in and contributed as all of our schedules and knowledge of where to go next allowed.  We were working 
 on the project well before the deadline, and this allowed us a lot of flexibility and discussion in creation of 
-this first part of the project.
+this first part of the overall project.
 
 Stephen: Created much of the early compiler structure and utility functions
 Tyler: Contributed to lexer recognition of some tokens, helped write report
@@ -42,10 +42,10 @@ include any changes you made to previous parts and why they were necessary.
 Our design for this portion of the project is centered around two main components - the scanner and the lexer.
 The scanner's job is to open the source file(s) or string and feed characters to whatever is using it (in our case, the lexer).
 It does this through the management of a struct called ScannerContext that it opens when a file or string stream is opened.
-The ScannerContext keeps track of the line, column, current file stream, and whether or not we have hit the end of a line.
+The ScannerContext keeps track of the line, column, and whether or not we have hit the end of a line within the open stream.
 Through methods such as scanner_next and scanner_backtrack, we are able to feed character by character to the lexer.
 
-The lexer's job is to grab tokens from the scanner and tries to return a token (in the form of a struct) to whatever is using it.  
+The lexer's job is to grab tokens from the scanner and try to return a token (in the form of a struct) to whatever is using it.  
 Information stored within this token struct include the line number and column it was found on, the token 
 type (T_BOOLEAN, T_CHAR_LITERAL, etc), and the lexeme of the token.  If it receives a token from the scanner that it can't match to 
 a type, it is assigned a type of T_ILLEGAL - in other words, a syntax error.
