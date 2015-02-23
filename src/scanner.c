@@ -105,7 +105,9 @@ char scanner_advance(ScannerContext* context, long int offset)
 char scanner_peek(ScannerContext* context, long int offset)
 {
     // move to offset
-    fseek(context->stream, offset, SEEK_CUR);
+    if (offset != 0) {
+        fseek(context->stream, offset, SEEK_CUR);
+    }
 
     // get the character
     char character = fgetc(context->stream);
