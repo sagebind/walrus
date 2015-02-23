@@ -36,13 +36,8 @@ int main(int argc, char* const* argv)
     }
 
     // scan input files
-    TokenStream* tokens = token_stream_create(1);
     ScannerContext* context = scanner_open(options.files[0]);
-    Token token;
-    while (token.type != T_EOF) {
-        token = lexer_next(context);
-        token_stream_push(tokens, token);
-    }
+    TokenStream* tokens = lexer_tokenize(context);
     scanner_close(context);
     lexer_print_tokens(tokens);
 

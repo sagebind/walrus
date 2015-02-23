@@ -5,6 +5,27 @@
 #include "tokens.h"
 
 /**
+ * Tokenizes source code read from a scanner context.
+ */
+TokenStream* lexer_tokenize(ScannerContext* context)
+{
+    TokenStream* tokens = token_stream_create(1);
+    Token token;
+    while (token.type != T_EOF) {
+        token = lexer_next(context);
+
+        if (token.type == T_ILLEGAL) {
+            fprintf(stderr, "Error: Illegal token at line %d, column %d: %s\n", token.line, token.column, token.lexeme);
+            exit(1);
+        }
+
+        token_stream_push(tokens, token);
+    }
+
+    return tokens;
+}
+
+/**
  * Parses the next token from a scanner context.
  */
 Token lexer_next(ScannerContext* context)
@@ -17,7 +38,6 @@ Token lexer_next(ScannerContext* context)
     do {
         // get the next char from the scanner
         character = scanner_next(context);
-        printf("%d\n", ftell(context->stream)); if (ftell(context->stream) == 46) {exit(1);} // prevent endless loop
 
         // try to match normal whitespace and skip it
         if (isspace(character)) {
@@ -36,7 +56,7 @@ Token lexer_next(ScannerContext* context)
             case '/':
                 // comment line?
                 if (scanner_peek(context, 0) == '/') {
-                    while (!context->eol && !feof(context->stream)) {
+                    while (!context->eol && !context->eof) {
                         scanner_next(context);
                     }
                     token = token_create(context->line, context->column, T_WHITESPACE, " ");
@@ -128,6 +148,13 @@ Token lexer_next(ScannerContext* context)
                         T_CHAR_LITERAL,
                         scanner_get_string(context, -3)
                     );
+                } else {
+                    token = token_create(
+                        context->line,
+                        context->column,
+                        T_ILLEGAL,
+                        scanner_get_string(context, -3)
+                    );
                 }
                 break;
 
@@ -141,6 +168,13 @@ Token lexer_next(ScannerContext* context)
                         context->column,
                         T_STRING_LITERAL,
                         "\""
+                    );
+                } else {
+                    token = token_create(
+                        context->line,
+                        context->column,
+                        T_ILLEGAL,
+                        scanner_get_string(context, -1)
                     );
                 }
                 break;
@@ -242,7 +276,7 @@ Token lexer_next(ScannerContext* context)
                     scanner_get_string(context, -1)
                 );
         }
-    } while (token.type == T_WHITESPACE);
+    } while (token.type == T_WHITESPACE && !context->eof);
 
     return token;
 }
