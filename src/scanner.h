@@ -1,6 +1,7 @@
 #ifndef WALRUS_SCANNER_H
 #define WALRUS_SCANNER_H
 
+#include <stdbool.h>
 #include <stdio.h>
 #include "error.h"
 
