@@ -27,7 +27,8 @@ Token lexer_next(ScannerContext* context)
             // + +=
             case '+':
                 //check next token to see if it's an equal sign
-                if(scanner_next(context) == '=') {
+                if(scanner_peek(context, 0) == '=') {
+                    scanner_advance(context, 1);
                     return token_create(
                         context->line,
                         context->column,
@@ -35,8 +36,6 @@ Token lexer_next(ScannerContext* context)
                         "+="
                     );
                 } else {
-                    //next token was not an equal sign - move context column back one space and create a '+' token
-                    scanner_backtrack(context, 1);
                     return token_create(
                         context->line,
                         context->column,
@@ -48,7 +47,8 @@ Token lexer_next(ScannerContext* context)
             // - -=
             case '-':
                 //check next token to see if it's an equal sign
-                if(scanner_next(context) == '=') {
+                if(scanner_peek(context, 0) == '=') {
+                    scanner_advance(context, 1);
                     return token_create(
                         context->line,
                         context->column,
@@ -56,8 +56,6 @@ Token lexer_next(ScannerContext* context)
                         "-="
                     );
                 } else {
-                    //next token was not an equal sign - move context column back one space and create a '-' token
-                    scanner_backtrack(context, 1);
                     return token_create(
                         context->line,
                         context->column,
@@ -69,7 +67,8 @@ Token lexer_next(ScannerContext* context)
             // = ==
             case '=': 
                 //check next token to see if it's an equal sign
-                if(scanner_next(context) == '=') {
+                if(scanner_peek(context, 0) == '=') {
+                    scanner_advance(context, 1);
                     return token_create(
                         context->line,
                         context->column,
@@ -77,8 +76,6 @@ Token lexer_next(ScannerContext* context)
                         "=="
                     );
                 } else {
-                    //next token was not an equal sign - move context column back one space and create a '=' token
-                    scanner_backtrack(context, 1);
                     return token_create(
                         context->line,
                         context->column,
@@ -90,8 +87,8 @@ Token lexer_next(ScannerContext* context)
             // looks like the beginning of a char
             case '\'':
                 //return lexer_lex_char(context); @todo
-				
-				if(scanner_next(context) == '*') {
+				if(scanner_peek(context, 0) == '*') {
+                    scanner_advance(context, 1);
                     return token_create(
                         context->line,
                         context->column,
@@ -99,7 +96,6 @@ Token lexer_next(ScannerContext* context)
                         "\*"
                     );
                 } else {
-                    scanner_backtrack(context, 1);
                     return token_create(
                         context->line,
                         context->column,
@@ -107,13 +103,12 @@ Token lexer_next(ScannerContext* context)
                         '\'
                     );
                 }
-				
-                break;
 
             // looks like the beginning of a string
             case '"':
                 //return lexer_lex_string(context); @todo
-				if(scanner_next(context) == '*') {
+				if(scanner_peek(context, 0) == '*') {
+                    scanner_advance(context, 1);
                     return token_create(
                         context->line,
                         context->column,
@@ -121,12 +116,12 @@ Token lexer_next(ScannerContext* context)
                         '"'
                     );
                 } 
-                break;
 
             // > >=
             case '>':
                 //check next token to see if it's an equal sign
-                if(scanner_next(context) == '=') {
+                if(scanner_peek(context, 0) == '=') {
+                    scanner_advance(context, 1);
                     return token_create(
                         context->line,
                         context->column,
@@ -134,8 +129,6 @@ Token lexer_next(ScannerContext* context)
                         ">="
                     );
                 } else {
-                //next token was not an equal sign - move context column back one space and create a '>' token
-                scanner_backtrack(context, 1);
                     return token_create(
                         context->line,
                         context->column,
@@ -147,7 +140,8 @@ Token lexer_next(ScannerContext* context)
             // < <=
             case '<':
                 //check next token to see if it's an equal sign
-                if(scanner_next(context) == '<') {
+                if(scanner_peek(context, 0) == '=') {
+                    scanner_advance(context, 1);
                     return token_create(
                         context->line,
                         context->column,
@@ -155,8 +149,6 @@ Token lexer_next(ScannerContext* context)
                         "<="
                     );
                 } else {
-                    //next token was not an equal sign - move context column back one space and create a '<' token
-                    scanner_backtrack(context, 1);
                     return token_create(
                         context->line,
                         context->column,
@@ -167,7 +159,8 @@ Token lexer_next(ScannerContext* context)
 
             // &&
             case '&':
-                if(scanner_next(context) == '&') {
+                if(scanner_peek(context, 0) == '&') {
+                    scanner_advance(context, 1);
                     return token_create(
                         context->line,
                         context->column,
@@ -175,7 +168,6 @@ Token lexer_next(ScannerContext* context)
                         "&&"
                     );
                 } else {
-                    scanner_backtrack(context, 1);
                     return token_create(
                         context->line,
                         context->column,
@@ -186,7 +178,8 @@ Token lexer_next(ScannerContext* context)
 
             // ||
             case '|':
-                if(scanner_next(context) == '|') {
+                if(scanner_peek(context, 0) == '|') {
+                    scanner_advance(context, 1);
                     return token_create(
                         context->line,
                         context->column,
@@ -194,7 +187,6 @@ Token lexer_next(ScannerContext* context)
                         "||"
                     );
                 } else {
-                    scanner_backtrack(context, 1);
                     return token_create(
                         context->line,
                         context->column,
