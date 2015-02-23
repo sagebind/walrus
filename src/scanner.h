@@ -28,6 +28,11 @@ typedef struct {
      * Indicates if we are approaching the end of a line.
      */
     bool eol;
+
+    /**
+     * Indicates if we have reached the end of the file.
+     */
+    bool eof;
 } ScannerContext;
 
 /**

@@ -21,6 +21,7 @@ ScannerContext* scanner_open(char* filename)
     context->line = 1;
     context->column = 1;
     context->eol = false;
+    context->eof = false;
     context->stream = stream;
 
     return context;
@@ -42,6 +43,7 @@ ScannerContext* scanner_open_string(char* string)
     context->line = 1;
     context->column = 1;
     context->eol = false;
+    context->eof = false;
     context->stream = stream;
 
     return context;
@@ -54,6 +56,11 @@ ScannerContext* scanner_open_string(char* string)
  */
 char scanner_next(ScannerContext* context)
 {
+    // report end-of-file if we finished the stream
+    if (context->eof) {
+        return EOF;
+    }
+
     // read the next char
     char character = fgetc(context->stream);
 
@@ -70,6 +77,11 @@ char scanner_next(ScannerContext* context)
     // LF puts next char on new line; CR not recognized here
     if (character == '\n') {
         context->eol = true;
+    }
+
+    // handle the end of stream
+    if (character == EOF) {
+        context->eof = true;
     }
 
     return character;
@@ -106,7 +118,10 @@ char scanner_peek(ScannerContext* context, long int offset)
 {
     // move to offset
     if (offset != 0) {
-        fseek(context->stream, offset, SEEK_CUR);
+        if (fseek(context->stream, offset, SEEK_CUR) != 0) {
+            // seek is out of bounds
+            return EOF;
+        }
     }
 
     // get the character
