@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "lexer.h"
@@ -140,7 +141,7 @@ Token lexer_next(ScannerContext* context)
 
             // looks like the beginning of a char
             case '\'':
-    			if (scanner_peek(context, 0) != '\'' && scanner_peek(context, 1) == '\'') {
+                if (scanner_peek(context, 0) != '\'' && scanner_peek(context, 1) == '\'') {
                     scanner_advance(context, 2);
                     token = token_create(
                         context->line,
@@ -160,23 +161,7 @@ Token lexer_next(ScannerContext* context)
 
             // looks like the beginning of a string
             case '"':
-                //return lexer_lex_string(context); @todo
-    			if(scanner_peek(context, 0) == '*') {
-                    scanner_advance(context, 1);
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        T_STRING_LITERAL,
-                        "\""
-                    );
-                } else {
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        T_ILLEGAL,
-                        scanner_get_string(context, -1)
-                    );
-                }
+                token = lexer_lex_string(context);
                 break;
 
             // > >=
@@ -279,6 +264,32 @@ Token lexer_next(ScannerContext* context)
     } while (token.type == T_WHITESPACE && !context->eof);
 
     return token;
+}
+
+/**
+ * Reads a string token in the current context.
+ */
+Token lexer_lex_string(ScannerContext* context)
+{
+    int i = 0;
+    for (i = 0; !context->eof; ++i) {
+        if (scanner_peek(context, i) == '\"') {
+            scanner_advance(context, i + 1);
+            return token_create(
+                context->line,
+                context->column,
+                T_STRING_LITERAL,
+                scanner_get_string(context, -1 - i)
+            );
+        }
+    }
+
+    return token_create(
+        context->line,
+        context->column,
+        T_ILLEGAL,
+        scanner_get_string(context, -1 - i)
+    );
 }
 
 /**
