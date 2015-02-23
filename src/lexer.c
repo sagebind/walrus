@@ -100,7 +100,7 @@ Token lexer_next(ScannerContext* context)
                         context->line,
                         context->column,
                         T_OPERATOR,
-                        '\'
+                        '\''
                     );
                 }
 
@@ -112,7 +112,7 @@ Token lexer_next(ScannerContext* context)
                     return token_create(
                         context->line,
                         context->column,
-                        T_STRING_LITERAL
+                        T_STRING_LITERAL,
                         '"'
                     );
                 } 
