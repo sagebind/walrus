@@ -16,7 +16,24 @@ Token lexer_next(ScannerContext* context)
     while ((current_char = scanner_next(context)) != EOF) {
         switch (current_char) {
             // single-character operators ;)
-            case '*': case '/': case '%':
+            case '*': 
+			if(scanner_next(context) == '/'){
+				return token_create(
+                    context->line,
+                    context->column,
+                    T_OPERATOR,
+                    scanner_get_string('*/') // get the string from position-1 to position
+                );
+			}else{
+				   return token_create(
+                    context->line,
+                    context->column,
+                    T_OPERATOR,
+                    scanner_get_string(context, -1) // get the string from position-1 to position
+                );
+			}
+			
+			case '/':	case '%':
                 return token_create(
                     context->line,
                     context->column,
@@ -113,14 +130,42 @@ Token lexer_next(ScannerContext* context)
             // looks like the beginning of a string
             case '"':
                 //return lexer_lex_string(context); @todo
-				if(scanner_next(context) == '*') {
+				
+				    return token_create(
+                        context->line,
+                        context->column,
+                        T_STRING_LITERAL
+                        '"'
+                    );
+					
+				while(scanner_peek(context, 1)!='"'){
+					
+					if(scanner_peek(context, 1)=='"'){
+					return token_create(
+                        context->line,
+                        context->column,
+                        T_STRING_LITERAL
+                        '"'
+						
+                    );
+					}else{
+						
+					return token_create(
+                        context->line,
+                        context->column,
+                        T_CHAR_LITERAL
+                        current_char
+                    );
+						
+						{
+				}
                     return token_create(
                         context->line,
                         context->column,
                         T_STRING_LITERAL
                         '"'
                     );
-                } 
+                
                 break;
 
             // > >=
