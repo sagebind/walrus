@@ -27,7 +27,8 @@ typedef enum {
     T_RETURN,
     T_STRING_LITERAL,
     T_TRUE,
-    T_VOID
+    T_VOID,
+    T_WHITESPACE
 } TokenType;
 
 /**
