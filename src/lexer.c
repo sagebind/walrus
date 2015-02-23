@@ -65,7 +65,7 @@ Token lexer_next(ScannerContext* context)
                 }
 
             // = ==
-            case '=': 
+            case '=':
                 //check next token to see if it's an equal sign
                 if(scanner_peek(context, 0) == '=') {
                     scanner_advance(context, 1);
@@ -86,23 +86,16 @@ Token lexer_next(ScannerContext* context)
 
             // looks like the beginning of a char
             case '\'':
-                //return lexer_lex_char(context); @todo
-				if(scanner_peek(context, 0) == '*') {
-                    scanner_advance(context, 1);
+				if (scanner_peek(context, 0) != '\'' && scanner_peek(context, 1) == '\'') {
+                    scanner_advance(context, 2);
                     return token_create(
                         context->line,
                         context->column,
-                        T_OPERATOR,
-                        "\*"
-                    );
-                } else {
-                    return token_create(
-                        context->line,
-                        context->column,
-                        T_OPERATOR,
-                        '\''
+                        T_CHAR_LITERAL,
+                        scanner_get_string(context, -3)
                     );
                 }
+                break;
 
             // looks like the beginning of a string
             case '"':
@@ -113,9 +106,10 @@ Token lexer_next(ScannerContext* context)
                         context->line,
                         context->column,
                         T_STRING_LITERAL,
-                        '"'
+                        "\""
                     );
-                } 
+                }
+                break;
 
             // > >=
             case '>':
