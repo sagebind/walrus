@@ -141,26 +141,11 @@ Token lexer_next(ScannerContext* context)
 
             // looks like the beginning of a char
             case '\'':
-                if (scanner_peek(context, 0) != '\'' && scanner_peek(context, 1) == '\'') {
-                    scanner_advance(context, 2);
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        T_CHAR_LITERAL,
-                        scanner_get_string(context, -3)
-                    );
-                } else {
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        T_ILLEGAL,
-                        scanner_get_string(context, -3)
-                    );
-                }
+                token = lexer_lex_char(context);
                 break;
 
             // looks like the beginning of a string
-            case '"':
+            case '\"':
                 token = lexer_lex_string(context);
                 break;
 
@@ -270,6 +255,40 @@ Token lexer_next(ScannerContext* context)
     } while (token.type == T_WHITESPACE && !context->eof);
 
     return token;
+}
+
+/**
+ * Reads a char token in the current context.
+ */
+Token lexer_lex_char(ScannerContext* context)
+{
+    // get the actual character in the char literal
+    char character = scanner_next(context);
+
+    // char is escaped
+    if (character == '\\') {
+        character = lexer_scan_escaped(context);
+    }
+
+    // invalid character
+    else if (character < 32 || character > 126 || character == '\'' || character == '"') {
+        throw_error(E_LEXER_ERROR, "Illegal character in char literal", context->line, context->column);
+    }
+
+    // char literal must close here
+    if (scanner_next(context) != '\'') {
+        throw_error(E_LEXER_ERROR, "Char literal must contain only one character", context->line, context->column);
+    }
+
+    // if we made it this far, the char literal must be valid!
+    char lexeme[4];
+    sprintf(lexeme, "'%c'", character); // we can't use scanner_get_string() because of escaped char
+    return token_create(
+        context->line,
+        context->column,
+        T_CHAR_LITERAL,
+        lexeme
+    );
 }
 
 /**
