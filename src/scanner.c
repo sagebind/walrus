@@ -76,6 +76,30 @@ char scanner_next(ScannerContext* context)
 }
 
 /**
+ * Advances the scanner ahead by a number of characters.
+ *
+ * Does not work on multibyte characters.
+ */
+char scanner_advance(ScannerContext* context, long int offset)
+{
+    assert(offset > 0);
+
+    // current char
+    char character;
+
+    // move next for given offset
+    for (int i = 0; i < offset; ++i) {
+        character = scanner_next(context);
+        // stop if we reach the end of file
+        if (character == EOF) {
+            return character;
+        }
+    }
+
+    return character;
+}
+
+/**
  * Reads a character from a scanner context relative to the current position.
  */
 char scanner_peek(ScannerContext* context, long int offset)

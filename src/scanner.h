@@ -54,6 +54,15 @@ ScannerContext* scanner_open_string(char* string);
 char scanner_next(ScannerContext* context);
 
 /**
+ * Advances the scanner ahead by a number of characters.
+ *
+ * @param  context An open scanner context.
+ * @param  offset  The number of characters to advance from the current position.
+ * @return         The last character advanced past.
+ */
+char scanner_advance(ScannerContext* context, long int offset);
+
+/**
  * Reads a character from a scanner context relative to the current position.
  *
  * @param  context An open scanner context.
