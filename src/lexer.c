@@ -299,6 +299,29 @@ Token lexer_lex_string(ScannerContext* context)
 }
 
 /**
+ * Scans an escaped character and returns the actual character, or -1 if the char is invalid.
+ */
+char lexer_scan_escaped(ScannerContext* context)
+{
+    char escape_modifier = scanner_next(context);
+
+    switch (escape_modifier) {
+        case '"':
+            return '"';
+        case '\'':
+            return '\'';
+        case '\\':
+            return '\\';
+        case 't':
+            return '\t';
+        case 'n':
+            return '\n';
+    }
+
+    return -1;
+}
+
+/**
  * Prints tokens to standard output.
  */
 void lexer_print_tokens(TokenStream* tokens)

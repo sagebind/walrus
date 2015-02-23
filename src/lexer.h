@@ -29,6 +29,14 @@ Token lexer_next(ScannerContext* context);
 Token lexer_lex_string(ScannerContext* context);
 
 /**
+ * Scans an escaped character and returns the actual character, or -1 if the char is invalid.
+ *
+ * @param  context The scanner context to read from.
+ * @return         The escaped character.
+ */
+char lexer_scan_escaped(ScannerContext* context);
+
+/**
  * Prints some tokens to standard output.
  *
  * @param tokens A stream of tokens to print.
