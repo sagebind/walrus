@@ -9,13 +9,44 @@
  */
 Token lexer_next(ScannerContext* context)
 {
-    // the current character being examined
-    char current_char;
+    // the current matching token
+    Token token;
+    char character;
 
-    // loop until we reach the end of file
-    while ((current_char = scanner_next(context)) != EOF) {
-        switch (current_char) {
+    // attempt to match a token until a non-whitespace token is found
+    do {
+        // get the next char from the scanner
+        character = scanner_next(context);
+        printf("%d\n", ftell(context->stream)); if (ftell(context->stream) == 46) {exit(1);} // prevent endless loop
+
+        // try to match normal whitespace and skip it
+        if (isspace(character)) {
+            token = token_create(context->line, context->column, T_WHITESPACE, " ");
+            continue;
+        }
+
+        // branch into attempts at matching different token types
+        switch (character) {
+            // end of file
+            case EOF:
+                token = token_create(context->line, context->column, T_EOF, " ");
+                break;
+
+            // / //
+            case '/':
+                // comment line?
+                if (scanner_peek(context, 0) == '/') {
+                    while (!context->eol && !feof(context->stream)) {
+                        scanner_next(context);
+                    }
+                    token = token_create(context->line, context->column, T_WHITESPACE, " ");
+                } else {
+                    token = token_create(context->line, context->column, T_OPERATOR, "/");
+                }
+                break;
+
             // single-character operators ;)
+<<<<<<< HEAD
             case '*': 
 			if(scanner_next(context) == '/'){
 				return token_create(
@@ -35,101 +66,97 @@ Token lexer_next(ScannerContext* context)
 			
 			case '/':	case '%':
                 return token_create(
+=======
+            case '*': case '%':
+                token = token_create(
+>>>>>>> origin/master
                     context->line,
                     context->column,
                     T_OPERATOR,
                     scanner_get_string(context, -1) // get the string from position-1 to position
                 );
+                break;
 
             // + +=
             case '+':
                 //check next token to see if it's an equal sign
-                if(scanner_next(context) == '=') {
-                    return token_create(
+                if(scanner_peek(context, 0) == '=') {
+                    scanner_advance(context, 1);
+                    token = token_create(
                         context->line,
                         context->column,
                         T_OPERATOR,
                         "+="
                     );
                 } else {
-                    //next token was not an equal sign - move context column back one space and create a '+' token
-                    scanner_backtrack(context, 1);
-                    return token_create(
+                    token = token_create(
                         context->line,
                         context->column,
                         T_OPERATOR,
                         "+"
                     );
                 }
+                break;
 
             // - -=
             case '-':
                 //check next token to see if it's an equal sign
-                if(scanner_next(context) == '=') {
-                    return token_create(
+                if(scanner_peek(context, 0) == '=') {
+                    scanner_advance(context, 1);
+                    token = token_create(
                         context->line,
                         context->column,
                         T_OPERATOR,
                         "-="
                     );
                 } else {
-                    //next token was not an equal sign - move context column back one space and create a '-' token
-                    scanner_backtrack(context, 1);
-                    return token_create(
+                    token = token_create(
                         context->line,
                         context->column,
                         T_OPERATOR,
                         "-"
                     );
                 }
+                break;
 
             // = ==
-            case '=': 
+            case '=':
                 //check next token to see if it's an equal sign
-                if(scanner_next(context) == '=') {
-                    return token_create(
+                if(scanner_peek(context, 0) == '=') {
+                    scanner_advance(context, 1);
+                    token = token_create(
                         context->line,
                         context->column,
                         T_OPERATOR,
                         "=="
                     );
                 } else {
-                    //next token was not an equal sign - move context column back one space and create a '=' token
-                    scanner_backtrack(context, 1);
-                    return token_create(
+                    token = token_create(
                         context->line,
                         context->column,
                         T_OPERATOR,
                         "="
                     );
                 }
+                break;
 
             // looks like the beginning of a char
             case '\'':
-                //return lexer_lex_char(context); @todo
-				
-				if(scanner_next(context) == '*') {
-                    return token_create(
+    			if (scanner_peek(context, 0) != '\'' && scanner_peek(context, 1) == '\'') {
+                    scanner_advance(context, 2);
+                    token = token_create(
                         context->line,
                         context->column,
-                        T_OPERATOR,
-                        "\*"
-                    );
-                } else {
-                    scanner_backtrack(context, 1);
-                    return token_create(
-                        context->line,
-                        context->column,
-                        T_OPERATOR,
-                        '\'
+                        T_CHAR_LITERAL,
+                        scanner_get_string(context, -3)
                     );
                 }
-				
                 break;
 
             // looks like the beginning of a string
             case '"':
                 //return lexer_lex_string(context); @todo
+<<<<<<< HEAD
 				
 				    return token_create(
                         context->line,
@@ -160,113 +187,123 @@ Token lexer_next(ScannerContext* context)
 						{
 				}
                     return token_create(
+=======
+    			if(scanner_peek(context, 0) == '*') {
+                    scanner_advance(context, 1);
+                    token = token_create(
+>>>>>>> origin/master
                         context->line,
                         context->column,
-                        T_STRING_LITERAL
-                        '"'
+                        T_STRING_LITERAL,
+                        "\""
                     );
+<<<<<<< HEAD
                 
+=======
+                }
+>>>>>>> origin/master
                 break;
 
             // > >=
             case '>':
                 //check next token to see if it's an equal sign
-                if(scanner_next(context) == '=') {
-                    return token_create(
+                if(scanner_peek(context, 0) == '=') {
+                    scanner_advance(context, 1);
+                    token = token_create(
                         context->line,
                         context->column,
                         T_OPERATOR,
                         ">="
                     );
                 } else {
-                //next token was not an equal sign - move context column back one space and create a '>' token
-                scanner_backtrack(context, 1);
-                    return token_create(
+                    token = token_create(
                         context->line,
                         context->column,
                         T_OPERATOR,
                         ">"
                     );
                 }
+                break;
 
             // < <=
             case '<':
                 //check next token to see if it's an equal sign
-                if(scanner_next(context) == '<') {
-                    return token_create(
+                if(scanner_peek(context, 0) == '=') {
+                    scanner_advance(context, 1);
+                    token = token_create(
                         context->line,
                         context->column,
                         T_OPERATOR,
                         "<="
                     );
                 } else {
-                    //next token was not an equal sign - move context column back one space and create a '<' token
-                    scanner_backtrack(context, 1);
-                    return token_create(
+                    token = token_create(
                         context->line,
                         context->column,
                         T_OPERATOR,
                         "<"
                     );
                 }
+                break;
 
             // &&
             case '&':
-                if(scanner_next(context) == '&') {
-                    return token_create(
+                if(scanner_peek(context, 0) == '&') {
+                    scanner_advance(context, 1);
+                    token = token_create(
                         context->line,
                         context->column,
                         T_OPERATOR,
                         "&&"
                     );
                 } else {
-                    scanner_backtrack(context, 1);
-                    return token_create(
+                    token = token_create(
                         context->line,
                         context->column,
                         T_OPERATOR,
                         "&"
                    );
                 }
+                break;
 
             // ||
             case '|':
-                if(scanner_next(context) == '|') {
-                    return token_create(
+                if(scanner_peek(context, 0) == '|') {
+                    scanner_advance(context, 1);
+                    token = token_create(
                         context->line,
                         context->column,
                         T_OPERATOR,
                         "||"
                     );
                 } else {
-                    scanner_backtrack(context, 1);
-                    return token_create(
+                    token = token_create(
                         context->line,
                         context->column,
                         T_OPERATOR,
                         "|"
                    );
                 }
+                break;
 
             // nothing matched so far, try variable matching
             default:
                 // looks like the start of an identifier
-                if (isalpha(current_char) || current_char == '_') {
+                if (isalpha(character) || character == '_') {
                     // todo
                 }
 
                 // we tried everything, lets call it a day
-                return token_create(
+                token = token_create(
                     context->line,
                     context->column,
                     T_ILLEGAL,
                     scanner_get_string(context, -1)
                 );
         }
-    }
+    } while (token.type == T_WHITESPACE);
 
-    // we reached the end-of-file and cannot find a proper token
-    return token_create(context->line, context->column, T_EOF, " ");
+    return token;
 }
 
 /**
@@ -276,6 +313,10 @@ void lexer_print_tokens(TokenStream* tokens)
 {
     // loop over each token in the stream
     for (int i = 0; i < tokens->length; ++i) {
+        if (tokens->tokens[i].type == T_EOF) {
+            continue;
+        }
+
         printf("%d ", tokens->tokens[i].line);
 
         if (tokens->tokens[i].type == T_BOOLEAN_LITERAL) {
@@ -286,8 +327,10 @@ void lexer_print_tokens(TokenStream* tokens)
             printf("INTLITERAL ");
         } else if (tokens->tokens[i].type == T_STRING_LITERAL) {
             printf("STRINGLITERAL ");
+        } else if (tokens->tokens[i].type == T_ILLEGAL) {
+            printf("ILLEGAL ");
         }
 
-        printf("%s\r\n", tokens->tokens[i].lexeme);
+        printf("%s\n", tokens->tokens[i].lexeme);
     }
 }
