@@ -66,28 +66,6 @@ Token lexer_next(ScannerContext* context)
                     );
                 }
 
-            // ! !=
-            case '!': 
-                //check next token to see if it's an equal sign
-                if(scanner_next(context) == '=') {
-                    return token_create(
-                        context->line,
-                        context->column,
-                        T_OPERATOR,
-                        "!="
-                    );
-                } else {
-                    //next token was not an equal sign - move context column back one space and create a '!' token
-                    scanner_backtrack(context, 1);
-                    return token_create(
-                        context->line,
-                        context->column,
-                        T_OPERATOR,
-                        "!"
-                    );
-                }
-
-
             // = ==
             case '=': 
                 //check next token to see if it's an equal sign
@@ -112,11 +90,37 @@ Token lexer_next(ScannerContext* context)
             // looks like the beginning of a char
             case '\'':
                 //return lexer_lex_char(context); @todo
+				
+				if(scanner_next(context) == '*') {
+                    return token_create(
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        "\*"
+                    );
+                } else {
+                    scanner_backtrack(context, 1);
+                    return token_create(
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        '\'
+                    );
+                }
+				
                 break;
 
             // looks like the beginning of a string
             case '"':
                 //return lexer_lex_string(context); @todo
+				if(scanner_next(context) == '*') {
+                    return token_create(
+                        context->line,
+                        context->column,
+                        T_STRING_LITERAL
+                        '"'
+                    );
+                } 
                 break;
 
             // > >=
