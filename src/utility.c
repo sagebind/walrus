@@ -8,17 +8,6 @@
  */
 bool isReserved(char* inString)
 {
-    switch(inString) {
-    	case "boolean": case "int":
-    	case "break":   case "continue":
-    	case "callout": case "class":
-		case "if":      case "else":
-    	case "true":    case "false": 
-    	case "for":     case "return":
-    	case "void":
-    		return true;
-    		
-    	default:
-    		return false;
-    }
+    return(inString=="boolean"||inString=="int"||inString=="break"||inString=="continue"||inString=="callout"||inString=="class"||inString=="if"||
+            inString=="else"||inString=="true"||inString=="false"||inString=="for"||inString=="return"||inString=="void");
 }
