@@ -5,10 +5,20 @@
 
 /**
  * Checks to see if the input string is a reserved keyword.
- * TODO
  */
-bool isReserved(char* inputString)
+bool isReserved(char* inString)
 {
-    //trevor = loser, and I will fight him
-    return false;
+    switch(inString) {
+    	case "boolean": case "int":
+    	case "break":   case "continue":
+    	case "callout": case "class":
+		case "if":      case "else":
+    	case "true":    case "false": 
+    	case "for":     case "return":
+    	case "void":
+    		return true;
+    		
+    	default:
+    		return false;
+    }
 }

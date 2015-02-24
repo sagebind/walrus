@@ -258,26 +258,30 @@ Token lexer_next(ScannerContext* context)
  */
 Token lexer_lex_identifier(ScannerContext* context)
 {
-    // todo add the method to check if identifier is not reserved needs to go around here somewhere
     char* identifier;
     identifier[0] = scanner_peek(context, -1);
     char secondChar = scanner_peek(context, 0);
 
-    if(!isspace(secondChar)) {
+    if(isspace(secondChar) || secondChar == ';') {
+        identifier[1] = '\0';
+        //valid identifier - create token
+        return token_create(
+            context->line,
+            context->column,
+            T_IDENTIFIER,
+            identifier
+        );
+    } else {
         scanner_advance(context, 1);
         identifier[1] = secondChar;
         //start counter at 2 since we already have the first and second positions of identifier filled
         int counter = 2;
         while (!context->eol && !context->eof) {
             char nextChar = scanner_peek(context, 0);
-            if(!isspace(nextChar)) {
-                scanner_advance(context, 1);
-                identifier[counter] = scanner_next(context);
-                counter++;
-            } else {
+            if(isspace(nextChar) || nextChar == ';') {
                 //end of identifier - check it against reserved keywords and then create token
                 identifier[counter] = '\0';
-                if(/*!isReserved(identifier)*/true) {
+                if(!isReserved(identifier)) {
                     //valid identifier - create token
                     return token_create(
                         context->line,
@@ -285,7 +289,6 @@ Token lexer_lex_identifier(ScannerContext* context)
                         T_IDENTIFIER,
                         identifier
                     );
-                    break;
                 } else {
                     lexer_error("Illegal name for identifier - same name as a reserved keyword", context);
                     return token_create(
@@ -295,17 +298,13 @@ Token lexer_lex_identifier(ScannerContext* context)
                         identifier
                     );
                 }
+            } else { 
+                //current char is non-terminating and valid, continue building identifier
+                scanner_advance(context, 1);
+                identifier[counter] = scanner_next(context);
+                counter++;
             }
         }
-    } else {
-        identifier[1] = '\0';
-        //valid identifier - create token
-        return token_create(
-            context->line,
-            context->column,
-            T_IDENTIFIER,
-            identifier
-        );
     }
 }
 

@@ -8,6 +8,6 @@
  *
  * @param inputString The string to check.
  */
-bool isReserved(char* inputString);
+bool isReserved(char* inString);
 
 #endif
