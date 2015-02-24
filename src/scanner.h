@@ -15,6 +15,11 @@ typedef struct {
     FILE* stream;
 
     /**
+     * The name of the file.
+     */
+    char* name;
+
+    /**
      * The current line in the source file.
      */
     int line;
