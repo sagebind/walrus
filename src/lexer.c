@@ -236,55 +236,8 @@ Token lexer_next(ScannerContext* context)
             default:
                 // looks like the start of an identifier
                 if (isalpha(character) || character == '_') {
-                    // todo add the method to check if identifier is not reserved needs to go around here somewhere
-                    //char* identifier[0] = character;
-                    //char secondChar = scanner_peek(context, 0);
-
-                    //if(!isspace(secondChar) {
-                    //    scanner_advance(context, 1);
-                    //    identifier[1] = secondChar;
-                    //    //start counter at 2 since we already have the first and second positions of identifier filled
-                    //    int counter = 2;
-                    //    while (!context->eol && !context->eof) {
-                    //        char nextChar = scanner_peek(context, 0);
-                    //        if(!isspace(nextChar)) {
-                    //            scanner_advance(context, 1);
-                    //            identifier[counter] = scanner_next(context);
-                    //            counter++;
-                    //        } else {
-                    //            //end of identifier - check it against reserved keywords and then create token
-                    //            identifier[counter] = '\0';
-                    //            if(!isReserved(identifier)) {
-                    //                //valid identifier - create token
-                    //                token = token_create(
-                    //                    context->line,
-                    //                    context->column,
-                    //                    T_IDENTIFIER,
-                    //                    identifier
-                    //                );
-                    //                break;
-                    //            } else {
-                    //                lexer_error("Illegal name for identifier - same name as a reserved keyword", context);
-                    //                token = token_create(
-                    //                    context->line,
-                    //                    context->column,
-                    //                    T_ILLEGAL,
-                    //                    identifier
-                    //                );
-                    //                break;
-                    //            }
-                    //        }    
-                    //    }
-                    //} else {
-                    //    identifier[1] = '\0';
-                    //    //valid identifier - create token
-                    //    token = token_create(
-                    //        context->line,
-                    //        context->column,
-                    //        T_IDENTIFIER,
-                    //        identifier
-                    //    );
-                    //}
+                    token = lexer_lex_identifier(context);
+                    break;
                 }
 
                 // we tried everything, lets call it a day
@@ -298,6 +251,62 @@ Token lexer_next(ScannerContext* context)
     } while (token.type == T_WHITESPACE && !context->eof);
 
     return token;
+}
+
+/**
+ * Reads an identifier token in the current context.
+ */
+Token lexer_lex_identifier(ScannerContext* context)
+{
+    // todo add the method to check if identifier is not reserved needs to go around here somewhere
+    char* identifier;
+    identifier[0] = scanner_peek(context, -1);
+    char secondChar = scanner_peek(context, 0);
+
+    if(!isspace(secondChar)) {
+        scanner_advance(context, 1);
+        identifier[1] = secondChar;
+        //start counter at 2 since we already have the first and second positions of identifier filled
+        int counter = 2;
+        while (!context->eol && !context->eof) {
+            char nextChar = scanner_peek(context, 0);
+            if(!isspace(nextChar)) {
+                scanner_advance(context, 1);
+                identifier[counter] = scanner_next(context);
+                counter++;
+            } else {
+                //end of identifier - check it against reserved keywords and then create token
+                identifier[counter] = '\0';
+                if(/*!isReserved(identifier)*/true) {
+                    //valid identifier - create token
+                    return token_create(
+                        context->line,
+                        context->column,
+                        T_IDENTIFIER,
+                        identifier
+                    );
+                    break;
+                } else {
+                    lexer_error("Illegal name for identifier - same name as a reserved keyword", context);
+                    return token_create(
+                        context->line,
+                        context->column,
+                        T_ILLEGAL,
+                        identifier
+                    );
+                }
+            }
+        }
+    } else {
+        identifier[1] = '\0';
+        //valid identifier - create token
+        return token_create(
+            context->line,
+            context->column,
+            T_IDENTIFIER,
+            identifier
+        );
+    }
 }
 
 /**

@@ -21,6 +21,14 @@ TokenStream* lexer_tokenize(ScannerContext* context);
 Token lexer_next(ScannerContext* context);
 
 /**
+ * Reads an identifier token in the current context.
+ *
+ * @param  context The scanner context to read from.
+ * @return         A matched char token, or an illegal token.
+ */
+Token lexer_lex_identifier(ScannerContext* context);
+
+/**
  * Reads a char token in the current context.
  *
  * @param  context The scanner context to read from.
