@@ -14,12 +14,8 @@ typedef enum {
 /**
  * Exits the program with an error message.
  *
- * @param code   The error code.
- * @param error  The error message to display.
- * @param line   The line number the error occurred at.
- * @param column The column number the error occurred at.
+ * @param code The error code to exit with.
  */
-void throw_error(Error code, char* error, int line, int column);
-
+void error_exit(Error code);
 
 #endif
