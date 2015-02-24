@@ -368,3 +368,11 @@ void lexer_print_tokens(TokenStream* tokens)
         printf("%s\n", tokens->tokens[i].lexeme);
     }
 }
+
+/**
+ * Displays an error message for syntax errors.
+ */
+void lexer_error(char* message, ScannerContext* context)
+{
+    printf("%s line %d:%d: %s\n", context->name, context->line, context->column, message);
+}

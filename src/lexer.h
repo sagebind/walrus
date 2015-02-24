@@ -51,4 +51,12 @@ char lexer_scan_escaped(ScannerContext* context);
  */
 void lexer_print_tokens(TokenStream*);
 
+/**
+ * Displays an error message for lexing errors.
+ *
+ * @param message The error message.
+ * @param context The scanner context the error occurred at.
+ */
+void lexer_error(char* message, ScannerContext* context);
+
 #endif
