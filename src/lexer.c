@@ -266,28 +266,40 @@ Token lexer_lex_char(ScannerContext* context)
     char character = scanner_next(context);
 
     // char is escaped
+    bool is_escaped = false;
     if (character == '\\') {
         character = lexer_scan_escaped(context);
+        is_escaped = true;
     }
 
     // invalid character
     else if (character < 32 || character > 126 || character == '\'' || character == '"') {
-        throw_error(E_LEXER_ERROR, "Illegal character in char literal", context->line, context->column);
+        lexer_error("Illegal character in char literal", context);
+        return token_create(
+            context->line,
+            context->column,
+            T_ILLEGAL,
+            scanner_get_string(context, -2)
+        );
     }
 
     // char literal must close here
     if (scanner_next(context) != '\'') {
-        throw_error(E_LEXER_ERROR, "Char literal must contain only one character", context->line, context->column);
+        lexer_error("Char literal must contain only one character", context);
+        return token_create(
+            context->line,
+            context->column,
+            T_ILLEGAL,
+            scanner_get_string(context, -2)
+        );
     }
 
     // if we made it this far, the char literal must be valid!
-    char lexeme[4];
-    sprintf(lexeme, "'%c'", character); // we can't use scanner_get_string() because of escaped char
     return token_create(
         context->line,
         context->column,
         T_CHAR_LITERAL,
-        lexeme
+        scanner_get_string(context, is_escaped ? -4 : -3)
     );
 }
 
