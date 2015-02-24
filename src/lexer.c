@@ -236,12 +236,12 @@ Token lexer_next(ScannerContext* context)
                 // looks like the start of an identifier
                 if (isalpha(character) || character == '_') {
                     // todo add the method to check if identifier is not reserved needs to go around here somewhere
-				token = token_create(
-                    context->line,
-                    context->column,
-                    T_CHAR_LITERAL,
-                    scanner_get_string(context, -1)
-                );
+				    token = token_create(
+                        context->line,
+                        context->column,
+                        T_CHAR_LITERAL,
+                        scanner_get_string(context, -1)
+                    );
                 }
 
                 // we tried everything, lets call it a day
