@@ -335,14 +335,14 @@ Token lexer_lex_identifier(ScannerContext* context)
                             context->line,
                             context->column,
                             T_PROGRAM,
-                            identifier
+                            scanner_get_string(context, -1*counter)
                         );
                     } else {
                         return token_create(
                             context->line,
                             context->column,
                             T_IDENTIFIER,
-                            identifier
+                            scanner_get_string(context, -1*counter)
                         );
                     }
                 } else {
@@ -356,7 +356,6 @@ Token lexer_lex_identifier(ScannerContext* context)
                 }
             } else {
                 //current char is non-terminating and valid, continue building identifier
-                scanner_advance(context, 1);
                 identifier[counter] = scanner_next(context);
                 counter++;
             }
