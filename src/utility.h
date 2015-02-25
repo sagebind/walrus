@@ -2,14 +2,15 @@
 #define WALRUS_UTILITY_H
 
 #include <stdbool.h>
+#include <string.h>
 #include "tokens.h"
 #include "scanner.h"
 /**
  * Checks to see if the input string is a reserved keyword.
  *
- * @param inputString The string to check.
+ * @param inString The string to check.
  */
-bool is_reserved(char* inString);
+bool is_keyword(char* inString);
 
 /**
  * Creates a token based on the passed in keyword
@@ -17,6 +18,6 @@ bool is_reserved(char* inString);
  * @param keyword The input keyword
  * @param context The current context of the scanner
  */
-Token create_keyword_token(char** in_keyword, ScannerContext* context);
+Token create_keyword_token(char* in_keyword, ScannerContext* context);
 
 #endif
