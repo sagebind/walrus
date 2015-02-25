@@ -15,6 +15,14 @@ typedef struct {
 } Options;
 
 /**
+ * Scans a file only.
+ *
+ * @param filename The name of the file to scan.
+ * @param options  Compiler flags and options.
+ */
+void walrus_scan(char* filename, Options options);
+
+/**
  * Parses command-line arguments and returns an options struct containing the meaning of the arguments.
  *
  * @param  argc The number of arguments.

@@ -9,6 +9,28 @@
 #include "scanner.h"
 
 /**
+ * Scans a file only.
+ */
+void walrus_scan(char* filename, Options options)
+{
+    ScannerContext* context = scanner_open(filename);
+    int error_count = 0;
+
+    Token token;
+    while (token.type != T_EOF) {
+        token = lexer_next(context);
+
+        if (token.type == T_ILLEGAL) {
+            error_count++;
+        } else if (options.print_tokens && token.type != T_EOF) {
+            lexer_print_token(token);
+        }
+    }
+
+    scanner_close(context);
+}
+
+/**
  * Main entry point for the application. Parses options and invokes the compiler.
  *
  * @param  argc The number of arguments.
@@ -25,7 +47,7 @@ int main(int argc, char* const* argv)
                "A lightweight compiler for the Decaf programming language\r\n"
                "Options:\r\n\r\n"
                "  --help                   Displays this help message, but you already knew that\r\n"
-               "  -s                       Scan only; do not parse or assemble\r\n"
+               "  -s                       Scan only; do not parse or compile\r\n"
                "  -T, --print-tokens       Print out tokens as they are scanned\r\n\r\n");
         return 0;
     }
@@ -35,11 +57,10 @@ int main(int argc, char* const* argv)
         abort();
     }
 
-    // scan input files
-    ScannerContext* context = scanner_open(options.files[0]);
-    TokenStream* tokens = lexer_tokenize(context);
-    scanner_close(context);
-    lexer_print_tokens(tokens);
+    if (options.scan_only) {
+        walrus_scan(options.files[0], options);
+        exit(0);
+    }
 
     return 0;
 }
