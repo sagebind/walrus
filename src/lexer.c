@@ -270,8 +270,22 @@ Token lexer_next(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
-                        T_OPERATOR,
+                        T_BRACE_LEFT,
                         "{"
+						
+						
+                break;
+				
+			case '}':
+              
+                    scanner_advance(context, 1);
+                    token = token_create(
+                        context->line,
+                        context->column,
+                        T_BRACE_RIGHT,
+						"}"
+						
+						
                 break;
 
 
