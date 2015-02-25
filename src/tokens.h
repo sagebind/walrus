@@ -9,6 +9,8 @@
 typedef enum {
     T_BOOLEAN,
     T_BOOLEAN_LITERAL,
+    T_BRACE_LEFT,
+    T_BRACE_RIGHT,
     T_BREAK,
     T_CALLOUT,
     T_CHAR_LITERAL,
@@ -25,6 +27,7 @@ typedef enum {
     T_INT_LITERAL,
     T_OPERATOR,
     T_RETURN,
+    T_STATEMENT_END,
     T_STRING_LITERAL,
     T_TRUE,
     T_VOID,
