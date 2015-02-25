@@ -31,4 +31,13 @@ void walrus_scan(char* filename, Options options);
  */
 Options parse_options(int argc, char* const* argv);
 
+/**
+ * Main entry point for the application.
+ *
+ * @param  argc The number of arguments.
+ * @param  argv The argument strings.
+ * @return      The exit status.
+ */
+int main(int argc, char* const* argv);
+
 #endif

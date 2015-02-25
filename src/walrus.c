@@ -3,10 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "main.h"
 #include "lexer.h"
 #include "tokens.h"
 #include "scanner.h"
+#include "walrus.h"
 
 /**
  * Scans a file only.
@@ -28,41 +28,6 @@ void walrus_scan(char* filename, Options options)
     }
 
     scanner_close(context);
-}
-
-/**
- * Main entry point for the application. Parses options and invokes the compiler.
- *
- * @param  argc The number of arguments.
- * @param  argv The argument strings.
- * @return      The exit status.
- */
-int main(int argc, char* const* argv)
-{
-    // parse the arguments into options
-    Options options = parse_options(argc, argv);
-
-    if (options.help) {
-        printf("Usage: walrus [options] file1 [file2 [...]]\r\n"
-               "A lightweight compiler for the Decaf programming language\r\n"
-               "Options:\r\n\r\n"
-               "  --help                   Displays this help message, but you already knew that\r\n"
-               "  -s                       Scan only; do not parse or compile\r\n"
-               "  -T, --print-tokens       Print out tokens as they are scanned\r\n\r\n");
-        return 0;
-    }
-
-    if (options.files_count < 1) {
-        printf("No input files.\r\n");
-        abort();
-    }
-
-    if (options.scan_only) {
-        walrus_scan(options.files[0], options);
-        exit(0);
-    }
-
-    return 0;
 }
 
 /**
@@ -123,4 +88,35 @@ Options parse_options(int argc, char* const* argv)
     }
 
     return options;
+}
+
+/**
+ * Main entry point for the application. Parses options and invokes the compiler.
+ */
+int main(int argc, char* const* argv)
+{
+    // parse the arguments into options
+    Options options = parse_options(argc, argv);
+
+    if (options.help) {
+        printf("Usage: walrus [options] file1 [file2 [...]]\r\n"
+               "A lightweight compiler for the Decaf programming language\r\n"
+               "Options:\r\n\r\n"
+               "  --help                   Displays this help message, but you already knew that\r\n"
+               "  -s                       Scan only; do not parse or compile\r\n"
+               "  -T, --print-tokens       Print out tokens as they are scanned\r\n\r\n");
+        return 0;
+    }
+
+    if (options.files_count < 1) {
+        printf("No input files.\r\n");
+        abort();
+    }
+
+    if (options.scan_only) {
+        walrus_scan(options.files[0], options);
+        exit(0);
+    }
+
+    return 0;
 }
