@@ -251,6 +251,29 @@ Token lexer_next(ScannerContext* context)
                    );
                 }
                 break;
+				
+			            // ;
+            case ';':
+              
+                    scanner_advance(context, 1);
+                    token = token_create(
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        ";"
+                break;
+				
+						            // ;
+            case '{':
+              
+                    scanner_advance(context, 1);
+                    token = token_create(
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        "{"
+                break;
+
 
             // nothing matched so far, try variable matching
             default:
