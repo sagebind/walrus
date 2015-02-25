@@ -5,14 +5,6 @@
 #include "scanner.h"
 
 /**
- * Tokenizes source code read from a scanner context.
- *
- * @param  context The scanner context to read from.
- * @return         A stream of tokens that represent the given source code.
- */
-TokenStream* lexer_tokenize(ScannerContext* context);
-
-/**
  * Parses the next token from a scanner context.
  *
  * @param  context The scanner context to read from.

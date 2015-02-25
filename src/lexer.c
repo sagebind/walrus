@@ -7,26 +7,6 @@
 #include "utility.h"
 
 /**
- * Tokenizes source code read from a scanner context.
- */
-TokenStream* lexer_tokenize(ScannerContext* context)
-{
-    TokenStream* tokens = token_stream_create(1);
-
-    Token token;
-    while (token.type != T_EOF) {
-        token = lexer_next(context);
-        token_stream_push(tokens, token);
-
-        if (token.type != T_EOF) {
-            lexer_print_token(token);
-        }
-    }
-
-    return tokens;
-}
-
-/**
  * Parses the next token from a scanner context.
  */
 Token lexer_next(ScannerContext* context)
@@ -251,10 +231,10 @@ Token lexer_next(ScannerContext* context)
                    );
                 }
                 break;
-				
+
 			            // ;
             case ';':
-              
+
                     scanner_advance(context, 1);
                     token = token_create(
                         context->line,
@@ -263,10 +243,10 @@ Token lexer_next(ScannerContext* context)
                         ";"
                     );
                 break;
-				
+
 						            // ;
             case '{':
-              
+
                     scanner_advance(context, 1);
                     token = token_create(
                         context->line,
@@ -274,12 +254,12 @@ Token lexer_next(ScannerContext* context)
                         T_BRACE_LEFT,
                         "{"
                     );
-						
-						
+
+
                 break;
-				
+
 			case '}':
-              
+
                     scanner_advance(context, 1);
                     token = token_create(
                         context->line,
@@ -287,8 +267,8 @@ Token lexer_next(ScannerContext* context)
                         T_BRACE_RIGHT,
 						"}"
                     );
-						
-						
+
+
                 break;
 
 
