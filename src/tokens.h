@@ -28,6 +28,7 @@ typedef enum {
     T_STRING_LITERAL,
     T_TRUE,
     T_VOID,
+    T_PROGRAM,
     T_WHITESPACE
 } TokenType;
 
