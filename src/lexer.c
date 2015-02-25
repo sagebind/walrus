@@ -328,7 +328,7 @@ Token lexer_lex_identifier(ScannerContext* context)
             if(isspace(nextChar) || nextChar == ';') {
                 //end of identifier - check it against reserved keywords and then create token
                 identifier[counter] = '\0';
-                if(!isReserved(identifier)) {
+                if(!is_reserved(identifier)) {
                     //valid identifier - check to see if is the 'Program' special identifier
                     if(strcmp(identifier, "Program") == 0) {
                         return token_create(
