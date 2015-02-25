@@ -305,46 +305,23 @@ Token lexer_next(ScannerContext* context)
  */
 Token lexer_lex_identifier(ScannerContext* context)
 {
-    char* identifier = malloc(50);
-    identifier[0] = scanner_peek(context, -1);
-    char secondChar = scanner_peek(context, 0);
+    // continuously peek then advance by one until a non-alphanumeric character is found
+    for (int length = 1; !context->eof; length++) {
+        if (!isalnum(scanner_peek(context, 0))) {
+            char* identifier = scanner_get_string(context, 0 - length);
 
-    if(isspace(secondChar) || secondChar == ';') {
-        identifier[1] = '\0';
-        //valid identifier - create token
-        return token_create(
-            context->line,
-            context->column,
-            T_IDENTIFIER,
-            identifier
-        );
-    } else {
-        scanner_advance(context, 1);
-        identifier[1] = secondChar;
-        //start counter at 2 since we already have the first and second positions of identifier filled
-        int counter = 2;
-        while (!context->eol && !context->eof) {
-            char nextChar = scanner_peek(context, 0);
-            if(isspace(nextChar) || nextChar == ';') {
-                //end of identifier - check it against reserved keywords and then create token
-                identifier[counter] = '\0';
-                if(!is_keyword(identifier)) {
-                    //valid, non keyword identifier - create a token
-                    return token_create(
-                               context->line,
-                               context->column,
-                               T_IDENTIFIER,
-                               scanner_get_string(context, -1*counter)
-                           );
-                } else {
-                    return create_keyword_token(identifier, context);
-                }
-            } else {
-                //current char is non-terminating and valid, continue building identifier with next char
-                identifier[counter] = scanner_next(context);
-                counter++;
+            if (!is_keyword(identifier)) {
+                //valid, non keyword identifier - create a token
+                return token_create(
+                    context->line,
+                    context->column,
+                    T_IDENTIFIER,
+                    identifier
+                );
             }
+            return create_keyword_token(identifier, context);
         }
+        scanner_advance(context, 1);
     }
 }
 
