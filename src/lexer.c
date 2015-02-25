@@ -299,7 +299,7 @@ Token lexer_next(ScannerContext* context)
  */
 Token lexer_lex_identifier(ScannerContext* context)
 {
-    char* identifier;
+    char* identifier = malloc(50);
     identifier[0] = scanner_peek(context, -1);
     char secondChar = scanner_peek(context, 0);
 
