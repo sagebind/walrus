@@ -5,7 +5,7 @@ your project, your group gets a Fix & Resubmit grade for the project.)
 ----------------------------------------------------------------------------------------------------------
 
 In order to build our project from source, ensure that you have a GNU compiler installed, navigate to the root 
-directory of the project, and type 'make' in the command line.  
+directory of the project, and type 'make' in the command line.  To run the test cases, type 'make test'.
 
 QUESTION 2. A brief description of how your group divided the work. Summarize each group member’s contribution
 to the project.
