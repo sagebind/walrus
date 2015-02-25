@@ -19,98 +19,98 @@ Token create_keyword_token(char* in_keyword, ScannerContext* context)
 {
     Token token;
     //check in_keyword against list of all keywords here; if a match is found, return the appropriate token
-    if(strcmp(in_keyword, "boolean")) {
+    if(strcmp(in_keyword, "boolean")==0) {
         token = token_create(
             context->line,
 	    context->column,
             T_BOOLEAN,
             in_keyword
         );
-    } else if (strcmp(in_keyword, "int")) {
+    } else if (strcmp(in_keyword, "int")==0) {
         token = token_create(
             context->line,
             context->column,
             T_INT,
             in_keyword
         );
-    } else if (strcmp(in_keyword, "break")) {
+    } else if (strcmp(in_keyword, "break")==0) {
         token = token_create(
             context->line,
             context->column,
             T_BOOLEAN,
             in_keyword
         );
-    } else if (strcmp(in_keyword, "continue")) {
+    } else if (strcmp(in_keyword, "continue")==0) {
         token = token_create(
             context->line,
             context->column,
             T_CONTINUE,
             in_keyword
         );
-    } else if (strcmp(in_keyword, "callout")) {
+    } else if (strcmp(in_keyword, "callout")==0) {
         token = token_create(
             context->line,
             context->column,
             T_CALLOUT,
             in_keyword
         );
-    } else if (strcmp(in_keyword, "class")) {
+    } else if (strcmp(in_keyword, "class")==0) {
         token = token_create(
             context->line,
             context->column,
             T_CLASS,
             in_keyword
         );
-    } else if (strcmp(in_keyword, "if")) {
+    } else if (strcmp(in_keyword, "if")==0) {
         token = token_create(
             context->line,
             context->column,
             T_IF,
             in_keyword
         );
-    } else if (strcmp(in_keyword, "else")) {
+    } else if (strcmp(in_keyword, "else")==0) {
         token = token_create(
             context->line,
             context->column,
             T_ELSE,
             in_keyword
         );
-    } else if (strcmp(in_keyword, "true")) {
+    } else if (strcmp(in_keyword, "true")==0) {
         token = token_create(
             context->line,
             context->column,
             T_BOOLEAN_LITERAL,
             in_keyword
         );
-    } else if (strcmp(in_keyword, "false")) {
+    } else if (strcmp(in_keyword, "false")==0) {
         token = token_create(
             context->line,
             context->column,
             T_BOOLEAN_LITERAL,
             in_keyword
         );
-    } else if (strcmp(in_keyword, "for")) {
+    } else if (strcmp(in_keyword, "for")==0) {
         token = token_create(
             context->line,
             context->column,
             T_FOR,
             in_keyword
         );
-    } else if (strcmp(in_keyword, "return")) {
+    } else if (strcmp(in_keyword, "return")==0) {
         token = token_create(
             context->line,
             context->column,
             T_BREAK,
             in_keyword
         );
-    } else if (strcmp(in_keyword, "Program")) {
+    } else if (strcmp(in_keyword, "Program")==0) {
         token = token_create(
             context->line,
             context->column,
             T_PROGRAM,
             in_keyword
         );
-    } else if(strcmp(in_keyword, "void")) {
+    } else if(strcmp(in_keyword, "void")==0) {
 	token = token_create(
             context->line,
             context->column,
