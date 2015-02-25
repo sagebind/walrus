@@ -6,6 +6,8 @@ SCANNER_TESTS := $(wildcard tests/scanner/*)
 
 .PHONY: all test clean
 
+.FORCE:
+
 all: bin/walrus
 
 bin/walrus: bin $(OBJ_FILES)
@@ -22,7 +24,7 @@ obj/%.o: src/%.c | obj
 
 test: $(SCANNER_TESTS)
 
-tests/scanner/%: tests/scanner/output/%.out bin/walrus
+tests/scanner/%: tests/scanner/output/%.out bin/walrus .FORCE
 	bin/walrus -s -T $@ | diff -u $< -
 
 clean:
