@@ -8,6 +8,7 @@ typedef enum {
     E_SUCCESS,
     E_UNKNOWN,
     E_BAD_POINTER,
+    E_NO_INPUT_FILES,
     E_LEXER_ERROR
 } Error;
 
@@ -15,7 +16,8 @@ typedef enum {
  * Exits the program with an error message.
  *
  * @param code The error code to exit with.
+ * @param code The error message.
  */
-void error_exit(Error code);
+void error_exit(Error code, char* message);
 
 #endif

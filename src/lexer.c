@@ -281,6 +281,12 @@ Token lexer_next(ScannerContext* context)
                     break;
                 }
 
+                // start of an int literal
+                if (isdigit(character)) {
+                    token = lexer_lex_int(context);
+                    break;
+                }
+
                 // we tried everything, lets call it a day
                 token = token_create(
                     context->line,
@@ -334,13 +340,69 @@ Token lexer_lex_identifier(ScannerContext* context)
                     return create_keyword_token(identifier, context);
                 }
             } else {
-                //current char is non-terminating and valid, continue building identifier
-                scanner_advance(context, 1);
+                //current char is non-terminating and valid, continue building identifier with next char
                 identifier[counter] = scanner_next(context);
                 counter++;
             }
         }
     }
+}
+
+/**
+ * Reads an int literal token in the current context.
+ */
+Token lexer_lex_int(ScannerContext* context)
+{
+    bool hexadecimal = false;
+    int length = 1; // we already consumed the first digit
+
+    // consume chars until we hit a non-int character
+    while (true) {
+        // peek ahead
+        char c = scanner_peek(context, 0);
+
+        // is it the start of a hex literal?
+        if (c == 'x') {
+            if (length == 1 && scanner_peek(context, -1) == '0') {
+                hexadecimal = true;
+            } else {
+                break;
+            }
+        }
+
+        // is it a digit?
+        else if (!isdigit(c)) {
+            // it's OK if it is hexadecimal
+            if (!hexadecimal || strchr("ABCDEFabcdef", c) == NULL) {
+                // nvm, not even OK for hexadecimal
+                break;
+            }
+        }
+
+        // move ahead 1 char
+        scanner_advance(context, 1);
+        length++;
+    }
+
+    // check to make sure that a hex string is at least 3 characters long
+    if (hexadecimal && length <= 2) {
+        lexer_error("unexpected char", context);
+
+        return token_create(
+            context->line,
+            context->column,
+            T_ILLEGAL,
+            scanner_get_string(context, 0 - length)
+        );
+    }
+
+    // we made it! return the token
+    return token_create(
+        context->line,
+        context->column,
+        T_INT_LITERAL,
+        scanner_get_string(context, 0 - length)
+    );
 }
 
 /**
