@@ -27,6 +27,7 @@ typedef enum {
     T_INT_LITERAL,
     T_OPERATOR,
     T_PROGRAM,
+    T_RESERVED,
     T_RETURN,
     T_STATEMENT_END,
     T_STRING_LITERAL,
