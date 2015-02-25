@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "lexer.h"
 #include "tokens.h"
 #include "utility.h"
