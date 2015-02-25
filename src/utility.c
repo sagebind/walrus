@@ -8,8 +8,8 @@
  */
 bool is_keyword(char* inString)
 {
-    return(inString=="boolean"||inString=="int"||inString=="break"||inString=="continue"||inString=="callout"||inString=="class"||inString=="if"||
-            inString=="else"||inString=="true"||inString=="false"||inString=="for"||inString=="return"||inString=="void"||inString=="Program");
+ return((strcmp(inString, "boolean")==0)||(strcmp(inString, "int")==0)||(strcmp(inString, "break")==0)||(strcmp(inString, "continue")==0)||(strcmp(inString, "callout")==0)||(strcmp(inString, "class")==0)||(strcmp(inString, "if")==0)||
++            (strcmp(inString, "else")==0)||(strcmp(inString, "true")==0)||(strcmp(inString, "false")==0)||(strcmp(inString, "for")==0)||(strcmp(inString, "return")==0)||(strcmp(inString, "void")==0)||(strcmp(inString, "Program")==0));
 }
 
 /**
