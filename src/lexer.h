@@ -21,6 +21,14 @@ Token lexer_next(ScannerContext* context);
 Token lexer_lex_identifier(ScannerContext* context);
 
 /**
+ * Reads an integer literal token in the current context.
+ *
+ * @param  context The scanner context to read from.
+ * @return         A matched integer token, or an illegal token.
+ */
+Token lexer_lex_int(ScannerContext* context);
+
+/**
  * Reads a char token in the current context.
  *
  * @param  context The scanner context to read from.
