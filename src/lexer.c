@@ -380,24 +380,45 @@ Token lexer_lex_char(ScannerContext* context)
  */
 Token lexer_lex_string(ScannerContext* context)
 {
-    int i = 0;
-    for (i = 0; !context->eof; ++i) {
-        if (scanner_peek(context, i) == '\"') {
-            scanner_advance(context, i + 1);
+    char character;
+    int length = 0; // length of string
+
+    // consumes next char until end of string or file
+    while (!context->eof) {
+        character = scanner_next(context);
+
+        // end of string?
+        if (character == '"') {
+            break;
+        }
+
+        length++;
+
+        // char is escaped
+        if (character == '\\') {
+            character = lexer_scan_escaped(context);
+            length++;
+        }
+
+        // invalid character
+        else if (character < 32 || character > 126 || character == '\'') {
+            lexer_error("Illegal character in string literal", context);
             return token_create(
                 context->line,
                 context->column,
-                T_STRING_LITERAL,
-                scanner_get_string(context, -1 - i)
+                T_ILLEGAL,
+                scanner_get_string(context, -2 - length)
             );
         }
+
     }
 
+    // we made it this far; must be OK
     return token_create(
         context->line,
         context->column,
-        T_ILLEGAL,
-        scanner_get_string(context, -1 - i)
+        T_STRING_LITERAL,
+        scanner_get_string(context, -2 - length)
     );
 }
 
