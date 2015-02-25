@@ -140,6 +140,27 @@ Token lexer_next(ScannerContext* context)
                 }
                 break;
 
+            // ! !=
+            case '!':
+                //check next token to see if it's an equal sign
+                if(scanner_peek(context, 0) == '=') {
+                    scanner_advance(context, 1);
+                    token = token_create(
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        "!="
+                    );
+                } else {
+                    token = token_create(
+                        context->line,
+                        context->column,
+                        T_OPERATOR,
+                        "="
+                    );
+                }
+                break;
+
             // looks like the beginning of a char
             case '\'':
                 token = lexer_lex_char(context);
