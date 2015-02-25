@@ -18,7 +18,7 @@ bool is_keyword(char* inString)
 Token create_keyword_token(char* in_keyword, ScannerContext* context)
 {
     Token token;
-    //check in_keyword against list of all keywords here; if a match is found, return the appropriate token	
+    //check in_keyword against list of all keywords here; if a match is found, return the appropriate token
     if(strcmp(in_keyword, "boolean")) {
         token = token_create(
             context->line,
@@ -79,14 +79,14 @@ Token create_keyword_token(char* in_keyword, ScannerContext* context)
         token = token_create(
             context->line,
             context->column,
-            T_TRUE,
+            T_BOOLEAN_LITERAL,
             in_keyword
         );
     } else if (strcmp(in_keyword, "false")) {
         token = token_create(
             context->line,
             context->column,
-            T_FALSE,
+            T_BOOLEAN_LITERAL,
             in_keyword
         );
     } else if (strcmp(in_keyword, "for")) {

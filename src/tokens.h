@@ -18,7 +18,6 @@ typedef enum {
     T_CONTINUE,
     T_ELSE,
     T_EOF,
-    T_FALSE,
     T_FOR,
     T_IDENTIFIER,
     T_IF,
@@ -31,7 +30,6 @@ typedef enum {
     T_RETURN,
     T_STATEMENT_END,
     T_STRING_LITERAL,
-    T_TRUE,
     T_VOID,
     T_WHITESPACE
 } TokenType;
