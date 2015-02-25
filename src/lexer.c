@@ -328,35 +328,19 @@ Token lexer_lex_identifier(ScannerContext* context)
             if(isspace(nextChar) || nextChar == ';') {
                 //end of identifier - check it against reserved keywords and then create token
                 identifier[counter] = '\0';
-                if(!is_reserved(identifier)) {
-                    //valid identifier - check to see if is the 'Program' special identifier
-                    if(strcmp(identifier, "Program") == 0) {
-                        return token_create(
-                            context->line,
-                            context->column,
-                            T_PROGRAM,
-                            identifier
-                        );
-                    } else {
-                        return token_create(
-                            context->line,
-                            context->column,
-                            T_IDENTIFIER,
-                            identifier
-                        );
-                    }
-                } else {
-                    lexer_error("Illegal name for identifier - same name as a reserved keyword", context);
+                if(!is_keyword(identifier)) {
+                    //valid, non keyword identifier - create a token
                     return token_create(
-                        context->line,
-                        context->column,
-                        T_ILLEGAL,
-                        identifier
-                    );
+                               context->line,
+                               context->column,
+                               T_IDENTIFIER,
+                               scanner_get_string(context, -1*counter)
+                           );
+                } else {
+                    return create_keyword_token(identifier, context);
                 }
             } else {
-                //current char is non-terminating and valid, continue building identifier
-                scanner_advance(context, 1);
+                //current char is non-terminating and valid, continue building identifier with next char
                 identifier[counter] = scanner_next(context);
                 counter++;
             }

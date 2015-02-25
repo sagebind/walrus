@@ -26,12 +26,13 @@ typedef enum {
     T_INT,
     T_INT_LITERAL,
     T_OPERATOR,
+    T_PROGRAM,
+    T_RESERVED,
     T_RETURN,
     T_STATEMENT_END,
     T_STRING_LITERAL,
     T_TRUE,
     T_VOID,
-    T_PROGRAM,
     T_WHITESPACE
 } TokenType;
 
