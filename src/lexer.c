@@ -12,16 +12,15 @@
 TokenStream* lexer_tokenize(ScannerContext* context)
 {
     TokenStream* tokens = token_stream_create(1);
+
     Token token;
     while (token.type != T_EOF) {
         token = lexer_next(context);
-
-        if (token.type == T_ILLEGAL) {
-            fprintf(stderr, "Error: Illegal token at line %d, column %d: %s\n", token.line, token.column, token.lexeme);
-            exit(1);
-        }
-
         token_stream_push(tokens, token);
+
+        if (token.type != T_EOF) {
+            lexer_print_token(token);
+        }
     }
 
     return tokens;
@@ -319,7 +318,7 @@ Token lexer_lex_identifier(ScannerContext* context)
                         identifier
                     );
                 }
-            } else { 
+            } else {
                 //current char is non-terminating and valid, continue building identifier
                 scanner_advance(context, 1);
                 identifier[counter] = scanner_next(context);
@@ -407,7 +406,7 @@ Token lexer_lex_string(ScannerContext* context)
                 context->line,
                 context->column,
                 T_ILLEGAL,
-                scanner_get_string(context, -2 - length)
+                scanner_get_string(context, -1 - length)
             );
         }
 
@@ -446,32 +445,27 @@ char lexer_scan_escaped(ScannerContext* context)
 }
 
 /**
- * Prints tokens to standard output.
+ * Prints a token to standard output.
  */
-void lexer_print_tokens(TokenStream* tokens)
+void lexer_print_token(Token token)
 {
-    // loop over each token in the stream
-    for (int i = 0; i < tokens->length; ++i) {
-        if (tokens->tokens[i].type == T_EOF) {
-            continue;
-        }
+    printf("%d ", token.line);
 
-        printf("%d ", tokens->tokens[i].line);
-
-        if (tokens->tokens[i].type == T_BOOLEAN_LITERAL) {
-            printf("BOOLEANLITERAL ");
-        } else if (tokens->tokens[i].type == T_CHAR_LITERAL) {
-            printf("CHARLITERAL ");
-        } else if (tokens->tokens[i].type == T_INT_LITERAL) {
-            printf("INTLITERAL ");
-        } else if (tokens->tokens[i].type == T_STRING_LITERAL) {
-            printf("STRINGLITERAL ");
-        } else if (tokens->tokens[i].type == T_ILLEGAL) {
-            printf("ILLEGAL ");
-        }
-
-        printf("%s\n", tokens->tokens[i].lexeme);
+    if (token.type == T_BOOLEAN_LITERAL) {
+        printf("BOOLEANLITERAL ");
+    } else if (token.type == T_CHAR_LITERAL) {
+        printf("CHARLITERAL ");
+    } else if (token.type == T_INT_LITERAL) {
+        printf("INTLITERAL ");
+    } else if (token.type == T_STRING_LITERAL) {
+        printf("STRINGLITERAL ");
+    } else if (token.type == T_IDENTIFIER) {
+        printf("IDENTIFIER ");
+    } else if (token.type == T_ILLEGAL) {
+        printf("ILLEGAL ");
     }
+
+    printf("%s\n", token.lexeme);
 }
 
 /**

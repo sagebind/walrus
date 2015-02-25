@@ -53,11 +53,11 @@ Token lexer_lex_string(ScannerContext* context);
 char lexer_scan_escaped(ScannerContext* context);
 
 /**
- * Prints some tokens to standard output.
+ * Prints a token to standard output.
  *
- * @param tokens A stream of tokens to print.
+ * @param tokens A token to print.
  */
-void lexer_print_tokens(TokenStream*);
+void lexer_print_token(Token);
 
 /**
  * Displays an error message for lexing errors.
