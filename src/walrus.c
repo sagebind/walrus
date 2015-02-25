@@ -109,8 +109,7 @@ int main(int argc, char* const* argv)
     }
 
     if (options.files_count < 1) {
-        printf("No input files.\r\n");
-        abort();
+        error_exit(E_NO_INPUT_FILES, "No input files given.");
     }
 
     if (options.scan_only) {

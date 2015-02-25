@@ -5,8 +5,8 @@
 /**
  * Exits the program with an error message.
  */
-void error_exit(Error code)
+void error_exit(Error code, char* message)
 {
-    fprintf(stderr, "Exited with error code %d\n", code);
+    fprintf(stderr, "Error(%d): %s\n", code, message);
     exit(code);
 }
