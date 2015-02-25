@@ -61,23 +61,33 @@ typedef struct {
 } Token;
 
 /**
+ * A node in the token stream linked list.
+ */
+typedef struct TokenStreamNode {
+    /**
+     * Pointer to the next node in the stream.
+     */
+    struct TokenStreamNode* next;
+
+    /**
+     * The token at the current node.
+     */
+    Token token;
+} TokenStreamNode;
+
+/**
  * A structure storing a stream of tokens.
  */
 typedef struct {
     /**
-     * A pointer to the start of an array of token objects.
+     * A pointer to the first node in the stream.
      */
-    Token* tokens;
+    TokenStreamNode* head;
 
     /**
      * The number of tokens in the token stream.
      */
     int length;
-
-    /**
-     * The maximum size of the token stream.
-     */
-    int size;
 } TokenStream;
 
 /**
@@ -94,18 +104,9 @@ Token token_create(int line, int column, TokenType type, char* lexeme);
 /**
  * Creates a new token stream of a given size.
  *
- * @param  size The size of the token stream, or the max number of tokens it can hold.
  * @return      A shiny new token stream.
  */
-TokenStream* token_stream_create(int size);
-
-/**
- * Destroys a token stream and all its tokens and frees its memory.
- *
- * @param  stream The token stream to destroy.
- * @return        An error code.
- */
-Error token_stream_destroy(TokenStream* stream);
+TokenStream* token_stream_create(void);
 
 /**
  * Pushes a token onto the end of a token stream.
@@ -115,5 +116,13 @@ Error token_stream_destroy(TokenStream* stream);
  * @return        An error code.
  */
 Error token_stream_push(TokenStream* stream, Token token);
+
+/**
+ * Destroys a token stream and all its tokens and frees its memory.
+ *
+ * @param  stream The token stream to destroy.
+ * @return        An error code.
+ */
+Error token_stream_destroy(TokenStream* stream);
 
 #endif

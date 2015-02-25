@@ -19,38 +19,14 @@ Token token_create(int line, int column, TokenType type, char* lexeme)
 }
 
 /**
- * Creates a new token stream of a given size.
+ * Creates a new token stream.
  */
-TokenStream* token_stream_create(int size)
+TokenStream* token_stream_create()
 {
     // allocate the stream object
     TokenStream* stream = (TokenStream*)malloc(sizeof(TokenStream));
-    stream->size = size;
     stream->length = 0;
-
-    // allocate tokens for the given size
-    stream->tokens = (Token*)malloc(sizeof(Token) * size);
-
     return stream;
-}
-
-/**
- * Destroys a token stream and all its tokens and frees its memory.
- */
-Error token_stream_destroy(TokenStream* stream)
-{
-    // make sure pointer isn't null
-    if (stream == NULL) {
-        return E_BAD_POINTER;
-    }
-
-    // free memory for tokens
-    free(stream->tokens);
-
-    // free memory for stream
-    free(stream);
-
-    return E_SUCCESS;
 }
 
 /**
@@ -63,12 +39,49 @@ Error token_stream_push(TokenStream* stream, Token token)
         return E_BAD_POINTER;
     }
 
-    // not enough room, reallocate to make more room
-    if (stream->length >= stream->size) {
-        stream->size *= 2; // increase size 2x
-        stream->tokens = (Token*)realloc(stream->tokens, sizeof(Token) * stream->size);
+    if (stream->head == NULL) {
+        stream->head = (TokenStreamNode*)malloc(sizeof(TokenStreamNode));
+        stream->head->token = token;
+    } else {
+        TokenStreamNode* current = stream->head;
+
+        while (current->next != NULL) {
+            current = current->next;
+        }
+
+        current->next = (TokenStreamNode*)malloc(sizeof(TokenStreamNode));
+        current->next->token = token;
     }
 
-    stream->tokens[stream->length++] = token;
+    return E_SUCCESS;
+}
+
+/**
+ * Destroys a token stream and all its tokens and frees its memory.
+ */
+Error token_stream_destroy(TokenStream* stream)
+{
+    // make sure pointer isn't null
+    if (stream == NULL) {
+        return E_BAD_POINTER;
+    }
+
+    // make pointers to the nodes we are currently at
+    TokenStreamNode* current = stream->head;
+    TokenStreamNode* next;
+
+    // run until the last node
+    while (current != NULL) {
+        // advance to the next node
+        next = current->next;
+        // destroy current node
+        free(current);
+        // get the next node before we destroy the current
+        current = next;
+    }
+
+    // free memory for stream
+    free(stream);
+
     return E_SUCCESS;
 }
