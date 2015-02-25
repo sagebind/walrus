@@ -136,21 +136,6 @@ char scanner_peek(ScannerContext* context, long int offset)
 }
 
 /**
- * Moves the current position from the current one by an offset.
- */
-Error scanner_backtrack(ScannerContext* context, long int offset)
-{
-    // context shouldn't be null
-    assert(context != NULL);
-
-    if (fseek(context->stream, 0 - offset, SEEK_CUR) != 0) {
-        return E_UNKNOWN;
-    }
-
-    return E_SUCCESS;
-}
-
-/**
  * Gets the string of characters between a given offset and the current position.
  */
 char* scanner_get_string(ScannerContext* context, long int offset)
