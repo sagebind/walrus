@@ -261,6 +261,7 @@ Token lexer_next(ScannerContext* context)
                         context->column,
                         T_STATEMENT_END,
                         ";"
+                    );
                 break;
 				
 						            // ;
@@ -272,6 +273,7 @@ Token lexer_next(ScannerContext* context)
                         context->column,
                         T_BRACE_LEFT,
                         "{"
+                    );
 						
 						
                 break;
@@ -284,6 +286,7 @@ Token lexer_next(ScannerContext* context)
                         context->column,
                         T_BRACE_RIGHT,
 						"}"
+                    );
 						
 						
                 break;
