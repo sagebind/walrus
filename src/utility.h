@@ -17,6 +17,6 @@ bool is_reserved(char* inString);
  * @param keyword The input keyword
  * @param context The current context of the scanner
  */
-Token create_keyword_token(char** in_keyword, ScannerContext* context);
+Token create_keyword_token(char* in_keyword, ScannerContext* context);
 
 #endif
