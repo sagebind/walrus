@@ -345,12 +345,19 @@ Token lexer_lex_identifier(ScannerContext* context)
                             scanner_get_string(context, -1*counter)
                         );
                     }
+                } else if(strcmp(identifier, "true") == 0||strcmp(identifier, "false") == 0) {
+                    return token_create(
+                            context->line,
+                            context->column,
+                            T_BOOLEAN_LITERAL,
+                            scanner_get_string(context, -1*counter)
+                        );
                 } else {
-                    lexer_error("Illegal name for identifier - same name as a reserved keyword", context);
+                    //lexer_error("Illegal name for identifier - same name as a reserved keyword", context);
                     return token_create(
                         context->line,
                         context->column,
-                        T_ILLEGAL,
+                        T_RESERVED,
                         identifier
                     );
                 }
