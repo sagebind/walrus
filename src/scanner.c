@@ -11,7 +11,7 @@
 ScannerContext* scanner_open(char* filename)
 {
     // open the given file
-    FILE* stream = fopen(filename, "r");
+    FILE* stream = fopen(filename, "rb");
     if (stream == NULL) {
         return NULL;
     }
@@ -25,6 +25,12 @@ ScannerContext* scanner_open(char* filename)
     context->eof = false;
     context->stream = stream;
 
+    // find out the size of the file so we know when we have
+    // reached the end when reading later
+    fseek(context->stream, 0, SEEK_END);
+    context->size = ftell(context->stream);
+    fseek(context->stream, 0, SEEK_SET);
+
     return context;
 }
 
@@ -34,7 +40,7 @@ ScannerContext* scanner_open(char* filename)
 ScannerContext* scanner_open_string(char* string)
 {
     // create a stream for the char array
-    FILE* stream = fmemopen(string, strlen(string), "r");
+    FILE* stream = fmemopen(string, strlen(string), "rb");
     if (stream == NULL) {
         return NULL;
     }
@@ -47,6 +53,7 @@ ScannerContext* scanner_open_string(char* string)
     context->eol = false;
     context->eof = false;
     context->stream = stream;
+    context->size = strlen(string);
 
     return context;
 }
@@ -64,7 +71,7 @@ char scanner_next(ScannerContext* context)
     }
 
     // read the next char
-    char character = fgetc(context->stream);
+    int character = fgetc(context->stream);
 
     // if previous char was an EOL, char is at start of next line
     if (context->eol) {
@@ -81,8 +88,14 @@ char scanner_next(ScannerContext* context)
         context->eol = true;
     }
 
-    // handle the end of stream
-    if (character == EOF) {
+    /* Check if we have reached the end of the stream. Note that
+     * we are comparing the current reported position in the stream
+     * with the size of the file (which was determined when it was
+     * opened). This is a workaround for a strange bug that occurs
+     * with files that don't end with a newline on Linux, where EOF
+     * is never reported and the last character is read repeatedly.
+     */
+    if (character == EOF || ftell(context->stream) == context->size) {
         context->eof = true;
     }
 
@@ -118,12 +131,15 @@ char scanner_advance(ScannerContext* context, long int offset)
  */
 char scanner_peek(ScannerContext* context, long int offset)
 {
-    // move to offset
-    if (offset != 0) {
-        if (fseek(context->stream, offset, SEEK_CUR) != 0) {
-            // seek is out of bounds
-            return EOF;
-        }
+    // report end-of-file if we already are at the end
+    if (context->eof) {
+        return EOF;
+    }
+
+    // move to offset if not zero
+    if (offset != 0 && fseek(context->stream, offset, SEEK_CUR) != 0) {
+        // seek is out of bounds
+        return EOF;
     }
 
     // get the character

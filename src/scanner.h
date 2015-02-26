@@ -38,6 +38,11 @@ typedef struct {
      * Indicates if we have reached the end of the file.
      */
     bool eof;
+
+    /**
+     * The total number of bytes in the source file.
+     */
+    long int size;
 } ScannerContext;
 
 /**
