@@ -1,7 +1,7 @@
 SRC_FILES := $(wildcard src/*.c)
 OBJ_FILES := $(patsubst src/%.c, obj/%.o, $(SRC_FILES))
 LD_FLAGS :=
-CC_FLAGS := -x c -MMD -std=c11 -Wstrict-prototypes -D_GNU_SOURCE
+CC_FLAGS := -x c -MMD -std=c99 -Wstrict-prototypes -D_GNU_SOURCE
 SCANNER_TESTS := $(wildcard tests/scanner/*)
 
 .PHONY: all test clean
