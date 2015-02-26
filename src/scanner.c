@@ -18,7 +18,7 @@ ScannerContext* scanner_open(char* filename)
 
     // create a context pointer
     ScannerContext* context = (ScannerContext*)malloc(sizeof(ScannerContext));
-    context->name = filename;
+    context->name = basename(filename);
     context->line = 1;
     context->column = 1;
     context->eol = false;
