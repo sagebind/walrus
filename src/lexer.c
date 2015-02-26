@@ -15,6 +15,7 @@ Token lexer_next(ScannerContext* context)
     // the current matching token
     Token token;
     char character;
+    bool hacky_boolean_variable = true;
 
     // attempt to match a token until a non-whitespace token is found
     do {
@@ -295,7 +296,9 @@ Token lexer_next(ScannerContext* context)
                     scanner_get_string(context, -1)
                 );
         }
-    } while (token.type == T_WHITESPACE && !context->eof);
+        if(context->eof)
+            hacky_boolean_variable = false;
+    } while (token.type == T_WHITESPACE && !context->eof && hacky_boolean_variable);
 
     return token;
 }
