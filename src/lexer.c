@@ -15,24 +15,17 @@ Token lexer_next(ScannerContext* context)
     // the current matching token
     Token token;
     char character;
-    bool hacky_boolean_variable = true;
 
     // attempt to match a token until a non-whitespace token is found
     do {
         // get the next char from the scanner
         character = scanner_next(context);
 
-        // try to match normal whitespace and skip it
-        if (isspace(character)) {
-            token = token_create(context->line, context->column, T_WHITESPACE, " ");
-            continue;
-        }
-
         // branch into attempts at matching different token types
         switch (character) {
             // end of file
             case EOF:
-                token = token_create(context->line, context->column, T_EOF, " ");
+                token = token_create(context->line, context->column, T_EOF, "EOF");
                 break;
 
             // / //
@@ -276,6 +269,12 @@ Token lexer_next(ScannerContext* context)
 
             // nothing matched so far, try variable matching
             default:
+                // try to match normal whitespace to skip it
+                if (isspace(character)) {
+                    token = token_create(context->line, context->column, T_WHITESPACE, " ");
+                    break;
+                }
+
                 // looks like the start of an identifier
                 if (isalpha(character) || character == '_') {
                     token = lexer_lex_identifier(context);
@@ -296,9 +295,7 @@ Token lexer_next(ScannerContext* context)
                     scanner_get_string(context, -1)
                 );
         }
-        if(context->eof)
-            hacky_boolean_variable = false;
-    } while (token.type == T_WHITESPACE && !context->eof && hacky_boolean_variable);
+    } while (token.type == T_WHITESPACE);
 
     return token;
 }
