@@ -77,4 +77,4 @@ cases, then you will not be penalized for it.
 
 ----------------------------------------------------------------------------------------------------------
 
-We were unable to complete the String table, one or two tests do not show the exact expected results, we also needed a hacky workaround for displaying '\n' instead of 0xA. If it didn't work in hidden test cases it would be unsurprising.
+We were unable to complete the String table, one or two tests do not show the exact expected results, most likely due to our use of peeking. We also needed a hacky workaround for displaying '\n' instead of 0xA. If it didn't work in hidden test cases it would be unsurprising.
