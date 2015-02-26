@@ -77,4 +77,4 @@ cases, then you will not be penalized for it.
 
 ----------------------------------------------------------------------------------------------------------
 
-TODO
+We were unable to complete the String table, one or two tests do not show the exact expected results, we also needed a hacky workaround for displaying '\n' instead of 0xA. If it didn't work in hidden test cases it would be unsurprising. Also we were unable to finish invalid escaped characters.
