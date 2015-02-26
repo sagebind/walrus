@@ -456,7 +456,7 @@ Token lexer_lex_string(ScannerContext* context)
 
         // invalid character
         else if (character < 32 || character > 126 || character == '\'') {
-            lexer_error(context, character, -1);
+            lexer_error(context, character, '\"');
             return token_create(
                 context->line,
                 context->column,
@@ -543,7 +543,9 @@ char* lexer_char_printable(char character)
 void lexer_error(ScannerContext* context, char unexpected, char expected)
 {
     printf("%s line %d:%d: ", context->name, context->line, context->column);
-    if (expected >= 0) {
+    if (unexpected==0xA&&expected>=0) {
+        printf("expecting %s, found %s\n", lexer_char_printable(expected), "'\\n'");
+    } else if (expected >= 0) {
         printf("expecting %s, found %s\n", lexer_char_printable(expected), lexer_char_printable(unexpected));
     } else {
         printf("unexpected char: %s\n", lexer_char_printable(unexpected));
