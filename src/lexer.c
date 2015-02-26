@@ -307,9 +307,15 @@ Token lexer_lex_identifier(ScannerContext* context)
 {
     // continuously peek then advance by one until a non-alphanumeric character is found
     for (int length = 1; !context->eof; length++) {
-        if (!isalnum(scanner_peek(context, 0))) {
+        // peek ahead at the next char
+        char c = scanner_peek(context, 0);
+
+        // is the next character the end of the identifier?
+        if (!isalnum(c) && c != '_') {
+            // get the entire identifier string
             char* identifier = scanner_get_string(context, 0 - length);
 
+            // make sure it isn't a keyword
             if (!is_keyword(identifier)) {
                 //valid, non keyword identifier - create a token
                 return token_create(
@@ -321,6 +327,8 @@ Token lexer_lex_identifier(ScannerContext* context)
             }
             return create_keyword_token(identifier, context);
         }
+
+        // consume the peeked char
         scanner_advance(context, 1);
     }
 }
