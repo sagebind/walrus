@@ -537,14 +537,22 @@ void lexer_print_token(Token token)
 /**
  * Turns a character into a printable string.
  */
-char* lexer_char_printable(char character)
+char* lexer_char_printable(char character, bool quoted)
 {
     char* string = malloc(sizeof(char) * 6);
-    if (isprint(character)) {
+
+    if (quoted && character == '\\') {
+        strcpy(string, "'\\\\'");
+    } else if (quoted && character == '\t') {
+        strcpy(string, "'\\t'");
+    } else if (quoted && character == '\n') {
+        strcpy(string, "'\\n'");
+    } else if (isprint(character)) {
         sprintf(string, "'%c'", character);
     } else {
         sprintf(string, "0x%X", character);
     }
+
     return string;
 }
 
@@ -554,11 +562,9 @@ char* lexer_char_printable(char character)
 void lexer_error(ScannerContext* context, char unexpected, char expected)
 {
     printf("%s line %d:%d: ", context->name, context->line, context->column);
-    if (unexpected==0xA&&expected>=0) {
-        printf("expecting %s, found %s\n", lexer_char_printable(expected), "'\\n'");
-    } else if (expected >= 0) {
-        printf("expecting %s, found %s\n", lexer_char_printable(expected), lexer_char_printable(unexpected));
+    if (expected >= 0) {
+        printf("expecting %s, found %s\n", lexer_char_printable(expected, true), lexer_char_printable(unexpected, true));
     } else {
-        printf("unexpected char: %s\n", lexer_char_printable(unexpected));
+        printf("unexpected char: %s\n", lexer_char_printable(unexpected, false));
     }
 }
