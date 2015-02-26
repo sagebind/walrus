@@ -15,6 +15,7 @@ Token lexer_next(ScannerContext* context)
     // the current matching token
     Token token;
     char character;
+    bool hacky_boolean_variable = true;
 
     // attempt to match a token until a non-whitespace token is found
     do {
@@ -30,7 +31,7 @@ Token lexer_next(ScannerContext* context)
         // branch into attempts at matching different token types
         switch (character) {
             // end of file
-            case EOF:
+            case EOF: case '\0':
                 token = token_create(context->line, context->column, T_EOF, " ");
                 break;
 
@@ -60,7 +61,7 @@ Token lexer_next(ScannerContext* context)
             // + +=
             case '+':
                 //check next token to see if it's an equal sign
-                if(scanner_peek(context, 0) == '=') {
+                if(scanner_peek(context, -1) == '=') {
                     scanner_advance(context, 1);
                     token = token_create(
                         context->line,
@@ -295,7 +296,9 @@ Token lexer_next(ScannerContext* context)
                     scanner_get_string(context, -1)
                 );
         }
-    } while (token.type == T_WHITESPACE && !context->eof);
+        if(context->eof)
+            hacky_boolean_variable = false;
+    } while (token.type == T_WHITESPACE && !context->eof && hacky_boolean_variable);
 
     return token;
 }
