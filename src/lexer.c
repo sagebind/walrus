@@ -263,7 +263,7 @@ Token lexer_next(ScannerContext* context)
             // nothing matched so far, try variable matching
             default:
                 // try to match normal whitespace to skip it
-                if (isspace(character)) {
+                if (isspace(character) && character != 0xC) {
                     token = token_create(context->line, context->column, T_WHITESPACE, " ");
                     break;
                 }
@@ -393,8 +393,18 @@ Token lexer_lex_char(ScannerContext* context)
     // char is escaped
     bool is_escaped = false;
     if (character == '\\') {
-        character = lexer_scan_escaped(context);
         is_escaped = true;
+        character = lexer_scan_escaped(context);
+
+        // was it a valid escape char?
+        if (character == -1) {
+            return token_create(
+                context->line,
+                context->column,
+                T_ILLEGAL,
+                scanner_get_string(context, -2)
+            );
+        }
     }
 
     // invalid character
@@ -496,6 +506,7 @@ char lexer_scan_escaped(ScannerContext* context)
             return '\n';
     }
 
+    lexer_error(context, escape_modifier, -1);
     return -1;
 }
 
