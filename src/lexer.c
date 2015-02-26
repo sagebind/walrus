@@ -334,22 +334,20 @@ Token lexer_lex_int(ScannerContext* context)
     bool hexadecimal = false;
     int length = 1; // we already consumed the first digit
 
+    // is it the start of a hex literal?
+    if (scanner_peek(context, 0) == 'x' && scanner_peek(context, -1) == '0') {
+        hexadecimal = true;
+        scanner_advance(context, 1);
+        length++;
+    }
+
     // consume chars until we hit a non-int character
     while (true) {
         // peek ahead
         char c = scanner_peek(context, 0);
 
-        // is it the start of a hex literal?
-        if (c == 'x') {
-            if (length == 1 && scanner_peek(context, -1) == '0') {
-                hexadecimal = true;
-            } else {
-                break;
-            }
-        }
-
         // is it a digit?
-        else if (!isdigit(c)) {
+        if (!isdigit(c)) {
             // it's OK if it is hexadecimal
             if (!hexadecimal || strchr("ABCDEFabcdef", c) == NULL) {
                 // nvm, not even OK for hexadecimal
@@ -364,7 +362,7 @@ Token lexer_lex_int(ScannerContext* context)
 
     // check to make sure that a hex string is at least 3 characters long
     if (hexadecimal && length <= 2) {
-        lexer_error(context, scanner_peek(context, -1), -1);
+        lexer_error(context, scanner_next(context), -1);
 
         return token_create(
             context->line,
