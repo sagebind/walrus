@@ -281,6 +281,7 @@ Token lexer_next(ScannerContext* context)
                 }
 
                 // we tried everything, lets call it a day
+                lexer_error(context, character, -1);
                 token = token_create(
                     context->line,
                     context->column,
