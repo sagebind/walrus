@@ -528,7 +528,7 @@ void lexer_print_token(Token token)
  */
 char* lexer_char_printable(char character)
 {
-    char* string = malloc(4);
+    char* string = malloc(sizeof(char) * 6);
     if (isprint(character)) {
         sprintf(string, "'%c'", character);
     } else {
