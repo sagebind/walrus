@@ -33,6 +33,10 @@ Token lexer_next(ScannerContext* context)
                 token = token_create(context->line, context->column, T_STATEMENT_END, ";");
                 break;
 
+            case ',':
+                token = token_create(context->line, context->column, T_COMMA, ",");
+                break;
+
             case '{':
                 token = token_create(context->line, context->column, T_BRACE_LEFT, "{");
                 break;

@@ -17,6 +17,7 @@ typedef enum {
     T_CALLOUT,
     T_CHAR_LITERAL,
     T_CLASS,
+    T_COMMA,
     T_CONTINUE,
     T_ELSE,
     T_EOF,
