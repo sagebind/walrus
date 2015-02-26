@@ -28,6 +28,35 @@ Token lexer_next(ScannerContext* context)
                 token = token_create(context->line, context->column, T_EOF, "EOF");
                 break;
 
+            // simple single-character tokens
+            case ';':
+                token = token_create(context->line, context->column, T_STATEMENT_END, ";");
+                break;
+
+            case '{':
+                token = token_create(context->line, context->column, T_BRACE_LEFT, "{");
+                break;
+
+            case '}':
+                token = token_create(context->line, context->column, T_BRACE_RIGHT, "}");
+                break;
+
+            case '[':
+                token = token_create(context->line, context->column, T_BRACKET_LEFT, "[");
+                break;
+
+            case ']':
+                token = token_create(context->line, context->column, T_BRACKET_RIGHT, "]");
+                break;
+
+            case '(':
+                token = token_create(context->line, context->column, T_PAREN_LEFT, "(");
+                break;
+
+            case ')':
+                token = token_create(context->line, context->column, T_PAREN_RIGHT, ")");
+                break;
+
             // / //
             case '/':
                 // comment line?
@@ -53,8 +82,8 @@ Token lexer_next(ScannerContext* context)
 
             // + +=
             case '+':
-                //check next token to see if it's an equal sign
-                if(scanner_peek(context, 0) == '=') {
+                // check next token to see if it's an equal sign
+                if (scanner_peek(context, 0) == '=') {
                     scanner_advance(context, 1);
                     token = token_create(
                         context->line,
@@ -74,8 +103,8 @@ Token lexer_next(ScannerContext* context)
 
             // - -=
             case '-':
-                //check next token to see if it's an equal sign
-                if(scanner_peek(context, 0) == '=') {
+                // check next token to see if it's an equal sign
+                if (scanner_peek(context, 0) == '=') {
                     scanner_advance(context, 1);
                     token = token_create(
                         context->line,
@@ -95,8 +124,8 @@ Token lexer_next(ScannerContext* context)
 
             // = ==
             case '=':
-                //check next token to see if it's an equal sign
-                if(scanner_peek(context, 0) == '=') {
+                // check next token to see if it's an equal sign
+                if (scanner_peek(context, 0) == '=') {
                     scanner_advance(context, 1);
                     token = token_create(
                         context->line,
@@ -116,8 +145,8 @@ Token lexer_next(ScannerContext* context)
 
             // ! !=
             case '!':
-                //check next token to see if it's an equal sign
-                if(scanner_peek(context, 0) == '=') {
+                // check next token to see if it's an equal sign
+                if (scanner_peek(context, 0) == '=') {
                     scanner_advance(context, 1);
                     token = token_create(
                         context->line,
@@ -135,20 +164,10 @@ Token lexer_next(ScannerContext* context)
                 }
                 break;
 
-            // looks like the beginning of a char
-            case '\'':
-                token = lexer_lex_char(context);
-                break;
-
-            // looks like the beginning of a string
-            case '\"':
-                token = lexer_lex_string(context);
-                break;
-
             // > >=
             case '>':
-                //check next token to see if it's an equal sign
-                if(scanner_peek(context, 0) == '=') {
+                // check next token to see if it's an equal sign
+                if (scanner_peek(context, 0) == '=') {
                     scanner_advance(context, 1);
                     token = token_create(
                         context->line,
@@ -168,8 +187,8 @@ Token lexer_next(ScannerContext* context)
 
             // < <=
             case '<':
-                //check next token to see if it's an equal sign
-                if(scanner_peek(context, 0) == '=') {
+                // check next token to see if it's an equal sign
+                if (scanner_peek(context, 0) == '=') {
                     scanner_advance(context, 1);
                     token = token_create(
                         context->line,
@@ -189,7 +208,7 @@ Token lexer_next(ScannerContext* context)
 
             // &&
             case '&':
-                if(scanner_peek(context, 0) == '&') {
+                if (scanner_peek(context, 0) == '&') {
                     scanner_advance(context, 1);
                     token = token_create(
                         context->line,
@@ -209,7 +228,7 @@ Token lexer_next(ScannerContext* context)
 
             // ||
             case '|':
-                if(scanner_peek(context, 0) == '|') {
+                if (scanner_peek(context, 0) == '|') {
                     scanner_advance(context, 1);
                     token = token_create(
                         context->line,
@@ -227,45 +246,15 @@ Token lexer_next(ScannerContext* context)
                 }
                 break;
 
-			            // ;
-            case ';':
-
-                    scanner_advance(context, 1);
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        T_STATEMENT_END,
-                        ";"
-                    );
+            // looks like the beginning of a char
+            case '\'':
+                token = lexer_lex_char(context);
                 break;
 
-						            // ;
-            case '{':
-
-                    scanner_advance(context, 1);
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        T_BRACE_LEFT,
-                        "{"
-                    );
-
-
+            // looks like the beginning of a string
+            case '\"':
+                token = lexer_lex_string(context);
                 break;
-
-			case '}':
-
-                    scanner_advance(context, 1);
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        T_BRACE_RIGHT,
-						"}"
-                    );
-
-
-                break;
-
 
             // nothing matched so far, try variable matching
             default:
