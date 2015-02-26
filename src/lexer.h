@@ -65,6 +65,6 @@ void lexer_print_token(Token);
  * @param message The error message.
  * @param context The scanner context the error occurred at.
  */
-void lexer_error(char* message, ScannerContext* context);
+void lexer_error(ScannerContext* context, char unexpected, char expected);
 
 #endif

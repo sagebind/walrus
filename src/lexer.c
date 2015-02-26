@@ -360,7 +360,7 @@ Token lexer_lex_int(ScannerContext* context)
 
     // check to make sure that a hex string is at least 3 characters long
     if (hexadecimal && length <= 2) {
-        lexer_error("unexpected char", context);
+        lexer_error(context, scanner_peek(context, -1), -1);
 
         return token_create(
             context->line,
@@ -396,7 +396,7 @@ Token lexer_lex_char(ScannerContext* context)
 
     // invalid character
     else if (character < 32 || character > 126 || character == '\'' || character == '"') {
-        lexer_error("Illegal character in char literal", context);
+        lexer_error(context, character, -1);
         return token_create(
             context->line,
             context->column,
@@ -406,8 +406,9 @@ Token lexer_lex_char(ScannerContext* context)
     }
 
     // char literal must close here
-    if (scanner_next(context) != '\'') {
-        lexer_error("Char literal must contain only one character", context);
+    character = scanner_next(context);
+    if (character != '\'') {
+        lexer_error(context, character, '\'');
         return token_create(
             context->line,
             context->column,
@@ -452,7 +453,7 @@ Token lexer_lex_string(ScannerContext* context)
 
         // invalid character
         else if (character < 32 || character > 126 || character == '\'') {
-            lexer_error("Illegal character in string literal", context);
+            lexer_error(context, character, -1);
             return token_create(
                 context->line,
                 context->column,
@@ -520,9 +521,28 @@ void lexer_print_token(Token token)
 }
 
 /**
- * Displays an error message for syntax errors.
+ * Turns a character into a printable string.
  */
-void lexer_error(char* message, ScannerContext* context)
+char* lexer_char_printable(char character)
 {
-    printf("%s line %d:%d: %s\n", context->name, context->line, context->column, message);
+    char* string = malloc(4);
+    if (isprint(character)) {
+        sprintf(string, "'%c'", character);
+    } else {
+        sprintf(string, "0x%X", character);
+    }
+    return string;
+}
+
+/**
+ * Displays an error message for an invalid character.
+ */
+void lexer_error(ScannerContext* context, char unexpected, char expected)
+{
+    printf("%s line %d:%d: ", context->name, context->line, context->column);
+    if (expected >= 0) {
+        printf("expecting %s, found %s\n", lexer_char_printable(expected), lexer_char_printable(unexpected));
+    } else {
+        printf("unexpected char: %s\n", lexer_char_printable(unexpected));
+    }
 }
