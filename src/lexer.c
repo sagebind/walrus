@@ -31,7 +31,7 @@ Token lexer_next(ScannerContext* context)
         // branch into attempts at matching different token types
         switch (character) {
             // end of file
-            case EOF: case '\0':
+            case EOF:
                 token = token_create(context->line, context->column, T_EOF, " ");
                 break;
 
@@ -61,7 +61,7 @@ Token lexer_next(ScannerContext* context)
             // + +=
             case '+':
                 //check next token to see if it's an equal sign
-                if(scanner_peek(context, -1) == '=') {
+                if(scanner_peek(context, 0) == '=') {
                     scanner_advance(context, 1);
                     token = token_create(
                         context->line,
