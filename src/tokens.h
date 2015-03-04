@@ -127,6 +127,6 @@ Error token_stream_push(TokenStream* stream, Token token);
  * @param  stream The token stream to destroy.
  * @return        An error code.
  */
-Error token_stream_destroy(TokenStream* stream);
+Error token_stream_destroy(TokenStream** stream);
 
 #endif

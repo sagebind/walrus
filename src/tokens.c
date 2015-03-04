@@ -59,7 +59,7 @@ Error token_stream_push(TokenStream* stream, Token token)
 /**
  * Destroys a token stream and all its tokens and frees its memory.
  */
-Error token_stream_destroy(TokenStream* stream)
+Error token_stream_destroy(TokenStream** stream)
 {
     // make sure pointer isn't null
     if (stream == NULL) {
@@ -67,7 +67,7 @@ Error token_stream_destroy(TokenStream* stream)
     }
 
     // make pointers to the nodes we are currently at
-    TokenStreamNode* current = stream->head;
+    TokenStreamNode* current = (*stream)->head;
     TokenStreamNode* next;
 
     // run until the last node
@@ -81,7 +81,8 @@ Error token_stream_destroy(TokenStream* stream)
     }
 
     // free memory for stream
-    free(stream);
+    free(*stream);
+    *stream = NULL;
 
     return E_SUCCESS;
 }

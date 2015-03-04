@@ -102,6 +102,6 @@ char* scanner_get_string(ScannerContext* context, long int offset);
  * @param  context An open scanner context to close.
  * @return         An error code.
  */
-Error scanner_close(ScannerContext* context);
+Error scanner_close(ScannerContext** context);
 
 #endif

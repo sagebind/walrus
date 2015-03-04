@@ -187,16 +187,17 @@ char* scanner_get_string(ScannerContext* context, long int offset)
 /**
  * Closes a scanner context and its associated input stream.
  */
-Error scanner_close(ScannerContext* context)
+Error scanner_close(ScannerContext** context)
 {
     // context shouldn't be null
     assert(context != NULL);
 
     // close the stream handle
-    fclose(context->stream);
+    fclose((*context)->stream);
 
     // free the pointer
-    free(context);
+    free(*context);
+    *context = NULL;
 
     return E_SUCCESS;
 }

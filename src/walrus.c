@@ -27,7 +27,7 @@ void walrus_scan(char* filename, Options options)
         }
     }
 
-    scanner_close(context);
+    scanner_close(&context);
 }
 
 /**
