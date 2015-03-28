@@ -1,15 +1,36 @@
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include "utility.h"
+
+#define KEYWORD_COUNT 14
+
+/**
+ * An array of all reserved keywords.
+ */
+char* keywords[KEYWORD_COUNT] = {
+    "boolean", "break", "callout", "class", "continue", "else", "false", "for",
+    "if", "int", "Program", "return", "true", "void"
+};
+
+/**
+ * An array of token types that correspond to a keyword by index.
+ */
+TokenType keyword_tokens[KEYWORD_COUNT] = {
+    T_BOOLEAN, T_BREAK, T_CALLOUT, T_CLASS, T_CONTINUE, T_ELSE, T_BOOLEAN_LITERAL,
+    T_FOR, T_IF, T_INT, T_PROGRAM, T_RETURN, T_BOOLEAN_LITERAL, T_VOID
+};
 
 /**
  * Checks to see if the input string is a reserved keyword.
  */
 bool is_keyword(char* inString)
 {
- return((strcmp(inString, "boolean")==0)||(strcmp(inString, "int")==0)||(strcmp(inString, "break")==0)||(strcmp(inString, "continue")==0)||(strcmp(inString, "callout")==0)||(strcmp(inString, "class")==0)||(strcmp(inString, "if")==0)||
-+            (strcmp(inString, "else")==0)||(strcmp(inString, "true")==0)||(strcmp(inString, "false")==0)||(strcmp(inString, "for")==0)||(strcmp(inString, "return")==0)||(strcmp(inString, "void")==0)||(strcmp(inString, "Program")==0));
+    for (int i = 0; i < KEYWORD_COUNT; i++) {
+        if (strcmp(inString, keywords[i]) == 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
@@ -17,115 +38,10 @@ bool is_keyword(char* inString)
  */
 Token create_keyword_token(char* in_keyword, ScannerContext* context)
 {
-    Token token;
-    //check in_keyword against list of all keywords here; if a match is found, return the appropriate token
-    if(strcmp(in_keyword, "boolean")==0) {
-        token = token_create(
-            context->line,
-	    context->column,
-            T_BOOLEAN,
-            in_keyword
-        );
-    } else if (strcmp(in_keyword, "int")==0) {
-        token = token_create(
-            context->line,
-            context->column,
-            T_INT,
-            in_keyword
-        );
-    } else if (strcmp(in_keyword, "break")==0) {
-        token = token_create(
-            context->line,
-            context->column,
-            T_BOOLEAN,
-            in_keyword
-        );
-    } else if (strcmp(in_keyword, "continue")==0) {
-        token = token_create(
-            context->line,
-            context->column,
-            T_CONTINUE,
-            in_keyword
-        );
-    } else if (strcmp(in_keyword, "callout")==0) {
-        token = token_create(
-            context->line,
-            context->column,
-            T_CALLOUT,
-            in_keyword
-        );
-    } else if (strcmp(in_keyword, "class")==0) {
-        token = token_create(
-            context->line,
-            context->column,
-            T_CLASS,
-            in_keyword
-        );
-    } else if (strcmp(in_keyword, "if")==0) {
-        token = token_create(
-            context->line,
-            context->column,
-            T_IF,
-            in_keyword
-        );
-    } else if (strcmp(in_keyword, "else")==0) {
-        token = token_create(
-            context->line,
-            context->column,
-            T_ELSE,
-            in_keyword
-        );
-    } else if (strcmp(in_keyword, "true")==0) {
-        token = token_create(
-            context->line,
-            context->column,
-            T_BOOLEAN_LITERAL,
-            in_keyword
-        );
-    } else if (strcmp(in_keyword, "false")==0) {
-        token = token_create(
-            context->line,
-            context->column,
-            T_BOOLEAN_LITERAL,
-            in_keyword
-        );
-    } else if (strcmp(in_keyword, "for")==0) {
-        token = token_create(
-            context->line,
-            context->column,
-            T_FOR,
-            in_keyword
-        );
-    } else if (strcmp(in_keyword, "return")==0) {
-        token = token_create(
-            context->line,
-            context->column,
-            T_BREAK,
-            in_keyword
-        );
-    } else if (strcmp(in_keyword, "Program")==0) {
-        token = token_create(
-            context->line,
-            context->column,
-            T_PROGRAM,
-            in_keyword
-        );
-    } else if(strcmp(in_keyword, "void")==0) {
-	token = token_create(
-            context->line,
-            context->column,
-            T_VOID,
-            in_keyword
-        );
-    } else {
-        //in_keyword didn't match any of the known keywords - return illegal token
-        token = token_create(
-            context->line,
-            context->column,
-            T_ILLEGAL,
-            in_keyword
-       );
+    for (int i = 0; i < KEYWORD_COUNT; i++) {
+        if (strcmp(in_keyword, keywords[i]) == 0) {
+            return token_create(context->line, context->column, keyword_tokens[i], in_keyword);
+        }
     }
-
-    return token;
+    return token_create(context->line, context->column, T_ILLEGAL, in_keyword);
 }
