@@ -163,7 +163,7 @@ Token lexer_next(ScannerContext* context)
                         context->line,
                         context->column,
                         T_OPERATOR,
-                        "="
+                        "!"
                     );
                 }
                 break;
