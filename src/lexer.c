@@ -220,11 +220,11 @@ Token lexer_next(ScannerContext* context)
                         T_OPERATOR,
                         "&&"
                     );
-                } else {
+                } else { // nothing else starts with &
                     token = token_create(
                         context->line,
                         context->column,
-                        T_OPERATOR,
+                        T_ILLEGAL,
                         "&"
                    );
                 }
@@ -240,11 +240,11 @@ Token lexer_next(ScannerContext* context)
                         T_OPERATOR,
                         "||"
                     );
-                } else {
+                } else { // nothing else starts with |
                     token = token_create(
                         context->line,
                         context->column,
-                        T_OPERATOR,
+                        T_ILLEGAL,
                         "|"
                    );
                 }
