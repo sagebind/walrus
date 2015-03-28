@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "error.h"
 
+
 /**
  * A context structure for maintaining scanner state.
  */

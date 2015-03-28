@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "error.h"
 
+
 /**
  * Exits the program with an error message.
  */

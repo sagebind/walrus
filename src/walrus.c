@@ -8,6 +8,7 @@
 #include "scanner.h"
 #include "walrus.h"
 
+
 /**
  * Scans a file only.
  */

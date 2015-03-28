@@ -1,6 +1,7 @@
 #ifndef WALRUS_ERROR_H
 #define WALRUS_ERROR_H
 
+
 /**
  * A list of error types.
  */

@@ -5,6 +5,7 @@
 #include <string.h>
 #include "scanner.h"
 
+
 /**
  * Opens a file in read-only mode and creates a scanner context for it.
  */

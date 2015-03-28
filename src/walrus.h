@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+
 /**
  * Struct that stores values for all available command options for Walrus.
  */

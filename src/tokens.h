@@ -3,6 +3,7 @@
 
 #include "error.h"
 
+
 /**
  * Types of lexical tokens.
  */
