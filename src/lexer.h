@@ -53,6 +53,23 @@ Token lexer_lex_string(ScannerContext* context);
 char lexer_scan_escaped(ScannerContext* context);
 
 /**
+ * Checks to see if an identifier string is a reserved keyword.
+ *
+ * @param  identifier The identifier string to check.
+ * @return            True if the given identifier is a keyword, otherwise false.
+ */
+bool lexer_identifier_is_keyword(char* identifier);
+
+/**
+ * Creates a token based on the passed in keyword.
+ *
+ * @param  keyword The input keyword.
+ * @param  context The current context of the scanner.
+ * @return         A token for the given keyword.
+ */
+Token lexer_create_keyword_token(char* keyword, ScannerContext* context);
+
+/**
  * Prints a token to standard output.
  *
  * @param tokens A token to print.

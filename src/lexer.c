@@ -5,7 +5,26 @@
 #include <string.h>
 #include "lexer.h"
 #include "tokens.h"
-#include "utility.h"
+
+#define KEYWORD_COUNT 14
+
+
+/**
+ * An array of all reserved keywords.
+ */
+static char* keyword_identifiers[KEYWORD_COUNT] = {
+    "boolean", "break", "callout", "class", "continue", "else", "false", "for",
+    "if", "int", "Program", "return", "true", "void"
+};
+
+/**
+ * An array of token types that correspond to a keyword by index.
+ */
+static TokenType keyword_token_types[KEYWORD_COUNT] = {
+    T_BOOLEAN, T_BREAK, T_CALLOUT, T_CLASS, T_CONTINUE, T_ELSE, T_BOOLEAN_LITERAL,
+    T_FOR, T_IF, T_INT, T_PROGRAM, T_RETURN, T_BOOLEAN_LITERAL, T_VOID
+};
+
 
 /**
  * Parses the next token from a scanner context.
@@ -309,17 +328,19 @@ Token lexer_lex_identifier(ScannerContext* context)
             // get the entire identifier string
             char* identifier = scanner_get_string(context, 0 - length);
 
-            // make sure it isn't a keyword
-            if (!is_keyword(identifier)) {
-                //valid, non keyword identifier - create a token
-                return token_create(
-                    context->line,
-                    context->column,
-                    T_IDENTIFIER,
-                    identifier
-                );
+            // check if the identifier is a keyword
+            if (lexer_identifier_is_keyword(identifier)) {
+                // return a keyword token instead
+                return lexer_create_keyword_token(identifier, context);
             }
-            return create_keyword_token(identifier, context);
+
+            // valid, non keyword identifier - create a token
+            return token_create(
+                context->line,
+                context->column,
+                T_IDENTIFIER,
+                identifier
+            );
         }
 
         // consume the peeked char
@@ -508,6 +529,39 @@ char lexer_scan_escaped(ScannerContext* context)
 
     lexer_error(context, escape_modifier, -1);
     return -1;
+}
+
+/**
+ * Checks to see if the input string is a reserved keyword.
+ */
+bool lexer_identifier_is_keyword(char* identifier)
+{
+    // loop over all keywords for a match
+    for (int i = 0; i < KEYWORD_COUNT; i++) {
+        if (strcmp(identifier, keyword_identifiers[i]) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Creates a token based on the passed in keyword.
+ */
+Token lexer_create_keyword_token(char* keyword, ScannerContext* context)
+{
+    // loop over all keywords for a match
+    for (int i = 0; i < KEYWORD_COUNT; i++) {
+        if (strcmp(keyword, keyword_identifiers[i]) == 0) {
+            return token_create(
+                context->line,
+                context->column,
+                keyword_token_types[i],
+                keyword
+            );
+        }
+    }
+    return token_create(context->line, context->column, T_ILLEGAL, keyword);
 }
 
 /**
