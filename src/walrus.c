@@ -80,7 +80,7 @@ Options parse_options(int argc, char* const* argv)
 
     // allocate space for the files given
     options.files_count = argc - optind;
-    options.files = (char**)malloc(sizeof(char*));
+    options.files = (char**)malloc(sizeof(char*) * options.files_count);
 
     // add each file parameter to options
     for (int i = 0; i < options.files_count; i++) {
