@@ -114,8 +114,10 @@ int main(int argc, char* const* argv)
     }
 
     if (options.scan_only) {
-        walrus_scan(options.files[0], options);
-        exit(0);
+        for (int i = 0; i < options.files_count; i++) {
+            walrus_scan(options.files[i], options);
+        }
+        return 0;
     }
 
     return 0;
