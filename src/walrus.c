@@ -18,7 +18,7 @@ void walrus_scan(char* filename, Options options)
     int error_count = 0;
 
     Token token;
-    while (token.type != T_EOF) {
+    do {
         token = lexer_next(context);
 
         if (token.type == T_ILLEGAL) {
@@ -26,7 +26,7 @@ void walrus_scan(char* filename, Options options)
         } else if (options.print_tokens && token.type != T_EOF) {
             lexer_print_token(token);
         }
-    }
+    } while (token.type != T_EOF);
 
     scanner_close(&context);
 }
