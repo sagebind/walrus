@@ -84,8 +84,8 @@ Options parse_options(int argc, char* const* argv)
 
     // add each file parameter to options
     for (int i = 0; i < options.files_count; i++) {
-        options.files[i] = (char*)malloc(strlen(argv[optind + i]) + 1);
-        strcpy(options.files[i], argv[optind + i]);
+        // copy the pointer, not the string itself
+        options.files[i] = argv[optind + i];
     }
 
     return options;
