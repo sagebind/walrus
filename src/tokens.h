@@ -107,9 +107,9 @@ typedef struct {
 Token token_create(int line, int column, TokenType type, char* lexeme);
 
 /**
- * Creates a new token stream of a given size.
+ * Creates a new token stream.
  *
- * @return      A shiny new token stream.
+ * @return A pointer to a shiny new token stream.
  */
 TokenStream* token_stream_create(void);
 
