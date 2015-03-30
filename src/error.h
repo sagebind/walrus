@@ -10,6 +10,7 @@ typedef enum {
     E_UNKNOWN,
     E_BAD_POINTER,
     E_NO_INPUT_FILES,
+    E_FILE_NOT_FOUND,
     E_LEXER_ERROR
 } Error;
 
