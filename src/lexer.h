@@ -26,9 +26,10 @@ typedef struct {
 } Lexer;
 
 /**
- * Creates a new lexer instance.
- * @param  context [description]
- * @return         [description]
+ * Creates a new stateful lexer instance.
+ *
+ * @param  context The scanner that the lexer should read from.
+ * @return         A new stateful lexer that can read tokens.
  */
 Lexer* lexer_create(ScannerContext* context);
 
@@ -39,6 +40,17 @@ Lexer* lexer_create(ScannerContext* context);
  * @return       A token parsed from the scanner input.
  */
 Token lexer_next(Lexer* lexer);
+
+/**
+ * Destroys an open lexer.
+ *
+ * Note: this function does not close the scanner context associated with the
+ * lexer. You must do that separately with `scanner_close()`.
+ *
+ * @param  lexer The lexer to destroy.
+ * @return       An error code.
+ */
+Error lexer_destroy(Lexer** lexer);
 
 /**
  * Reads the next token from a scanner context.

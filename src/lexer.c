@@ -26,6 +26,9 @@ static TokenType keyword_token_types[KEYWORD_COUNT] = {
 };
 
 
+/**
+ * Creates a new stateful lexer instance.
+ */
 Lexer* lexer_create(ScannerContext* context)
 {
     Lexer* lexer = (Lexer*)malloc(sizeof(Lexer));
@@ -35,6 +38,9 @@ Lexer* lexer_create(ScannerContext* context)
     return lexer;
 }
 
+/**
+ * Gets the next token from a lexer and advances forward one token.
+ */
 Token lexer_next(Lexer* lexer)
 {
     // check if we are at the tail of the stream
@@ -53,6 +59,27 @@ Token lexer_next(Lexer* lexer)
 
     // return the current token
     return lexer->current_node->token;
+}
+
+/**
+ * Destroys an open lexer.
+ */
+Error lexer_destroy(Lexer** lexer)
+{
+    // make sure pointer isn't null
+    if (lexer == NULL) {
+        return E_BAD_POINTER;
+    }
+
+    // destroy the token stream
+    token_stream_destroy(&((**lexer).tokens)); // dereference lexer twice, access
+                                               // tokens, and get its address
+
+    // free memory for lexer
+    free(*lexer);
+    *lexer = NULL;
+
+    return E_SUCCESS;
 }
 
 /**
