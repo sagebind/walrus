@@ -10,33 +10,68 @@
 
 
 /**
- * Scans a file only.
+ * Main entry point for the application. Parses options and invokes the compiler.
  */
-void walrus_scan(char* filename, Options options)
+int main(int argc, char* const* argv)
 {
-    ScannerContext* context = scanner_open(filename);
-    Lexer* lexer = lexer_create(context);
+    // parse the arguments into options
+    Options options = parse_options(argc, argv);
 
-    if (context == NULL) {
-        char message[1024];
-        sprintf(message, "The file '%s' could not be opened.\n", filename);
-        error_exit(E_FILE_NOT_FOUND, message);
+    if (options.help) {
+        printf("Usage: walrus [options] file1 [file2 [...]]\r\n"
+               "A lightweight compiler for the Decaf programming language\r\n"
+               "Options:\r\n\r\n"
+               "  --help                   Displays this help message, but you already knew that\r\n"
+               "  -s                       Scan only; do not parse or compile\r\n"
+               "  -T, --print-tokens       Print out tokens as they are scanned\r\n\r\n");
+        return 0;
     }
 
-    int error_count = 0;
+    if (options.files_count < 1) {
+        error_exit(E_NO_INPUT_FILES, "No input files given.");
+    }
 
-    Token token;
-    do {
-        token = lexer_next(lexer);
+    // run the compiler and return the error code
+    return walrus_compile(options);
+}
 
-        if (token.type == T_ILLEGAL) {
-            error_count++;
-        } else if (options.print_tokens && token.type != T_EOF) {
-            lexer_print_token(token);
+/**
+ * Runs the compiler on all given files.
+ */
+Error walrus_compile(Options options)
+{
+    // run on all given input files
+    for (int i = 0; i < options.files_count; i++) {
+        // open the file in a scanner
+        ScannerContext* context = scanner_open(options.files[i]);
+
+        // check for errors
+        if (context == NULL) {
+            char message[1024];
+            sprintf(message, "The file '%s' could not be opened.\n", options.files[i]);
+            error_exit(E_FILE_NOT_FOUND, message);
         }
-    } while (token.type != T_EOF);
 
-    scanner_close(&context);
+        // create a lexer for the file
+        Lexer* lexer = lexer_create(context);
+
+        // manually scan
+        if (options.scan_only) {
+            Token token;
+            do {
+                token = lexer_next(lexer);
+
+                if (options.print_tokens && token.type != T_ILLEGAL && token.type != T_EOF) {
+                    lexer_print_token(token);
+                }
+            } while (token.type != T_EOF);
+        }
+
+        lexer_destroy(&lexer);
+        scanner_close(&context);
+    }
+
+    return E_SUCCESS;
 }
 
 /**
@@ -97,41 +132,4 @@ Options parse_options(int argc, char* const* argv)
     }
 
     return options;
-}
-
-/**
- * Main entry point for the application. Parses options and invokes the compiler.
- */
-int main(int argc, char* const* argv)
-{
-    // parse the arguments into options
-    Options options = parse_options(argc, argv);
-
-    if (options.help) {
-        printf("Usage: walrus [options] file1 [file2 [...]]\r\n"
-               "A lightweight compiler for the Decaf programming language\r\n"
-               "Options:\r\n\r\n"
-               "  --help                   Displays this help message, but you already knew that\r\n"
-               "  -s                       Scan only; do not parse or compile\r\n"
-               "  -T, --print-tokens       Print out tokens as they are scanned\r\n\r\n");
-        return 0;
-    }
-
-    if (options.files_count < 1) {
-        error_exit(E_NO_INPUT_FILES, "No input files given.");
-    }
-
-    if (options.scan_only) {
-        for (int i = 0; i < options.files_count; i++) {
-            walrus_scan(options.files[i], options);
-        }
-        return 0;
-    }
-
-    // parse all given input files
-    for (int i = 0; i < options.files_count; i++) {
-        walrus_scan(options.files[i], options);
-    }
-
-    return 0;
 }
