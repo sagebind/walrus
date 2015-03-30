@@ -2,6 +2,7 @@
 #define WALRUS_MAIN_H
 
 #include <stdbool.h>
+#include "error.h"
 
 
 /**

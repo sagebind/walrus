@@ -31,8 +31,11 @@ int main(int argc, char* const* argv)
         error_exit(E_NO_INPUT_FILES, "No input files given.");
     }
 
-    // run the compiler and return the error code
-    return walrus_compile(options);
+    // run the compiler
+    walrus_compile(options);
+
+    // exit with the last occurred error code
+    return error_get_last();
 }
 
 /**
