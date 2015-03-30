@@ -26,6 +26,7 @@ TokenStream* token_stream_create()
 {
     // allocate the stream object
     TokenStream* stream = (TokenStream*)malloc(sizeof(TokenStream));
+    stream->head = stream->tail = NULL;
     stream->length = 0;
     return stream;
 }
@@ -43,15 +44,12 @@ Error token_stream_push(TokenStream* stream, Token token)
     if (stream->head == NULL) {
         stream->head = (TokenStreamNode*)malloc(sizeof(TokenStreamNode));
         stream->head->token = token;
+        stream->tail = stream->head;
     } else {
-        TokenStreamNode* current = stream->head;
-
-        while (current->next != NULL) {
-            current = current->next;
-        }
-
-        current->next = (TokenStreamNode*)malloc(sizeof(TokenStreamNode));
-        current->next->token = token;
+        stream->tail->next = (TokenStreamNode*)malloc(sizeof(TokenStreamNode));
+        stream->tail->next->token = token;
+        stream->tail->next->previous = stream->tail;
+        stream->tail = stream->tail->next;
     }
 
     return E_SUCCESS;

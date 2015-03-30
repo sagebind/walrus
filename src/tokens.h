@@ -70,6 +70,11 @@ typedef struct {
  */
 typedef struct TokenStreamNode {
     /**
+     * Pointer to the previous node in the stream.
+     */
+    struct TokenStreamNode* previous;
+
+    /**
      * Pointer to the next node in the stream.
      */
     struct TokenStreamNode* next;
@@ -88,6 +93,11 @@ typedef struct {
      * A pointer to the first node in the stream.
      */
     TokenStreamNode* head;
+
+    /**
+     * A pointer to the last node in the stream.
+     */
+    TokenStreamNode* tail;
 
     /**
      * The number of tokens in the token stream.

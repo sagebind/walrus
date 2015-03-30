@@ -15,11 +15,19 @@
 void walrus_scan(char* filename, Options options)
 {
     ScannerContext* context = scanner_open(filename);
+    Lexer* lexer = lexer_create(context);
+
+    if (context == NULL) {
+        char message[1024];
+        sprintf(message, "The file '%s' could not be opened.\n", filename);
+        error_exit(E_FILE_NOT_FOUND, message);
+    }
+
     int error_count = 0;
 
     Token token;
     do {
-        token = lexer_next(context);
+        token = lexer_next(lexer);
 
         if (token.type == T_ILLEGAL) {
             error_count++;
@@ -118,6 +126,11 @@ int main(int argc, char* const* argv)
             walrus_scan(options.files[i], options);
         }
         return 0;
+    }
+
+    // parse all given input files
+    for (int i = 0; i < options.files_count; i++) {
+        walrus_scan(options.files[i], options);
     }
 
     return 0;

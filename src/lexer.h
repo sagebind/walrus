@@ -6,12 +6,47 @@
 
 
 /**
- * Parses the next token from a scanner context.
+ * A position-sensitive lexer context that can be backtracked.
+ */
+typedef struct {
+    /**
+     * The scanner context to read from.
+     */
+    ScannerContext* context;
+
+    /**
+     * A token stream where tokens are pushed onto for backtracking.
+     */
+    TokenStream* tokens;
+
+    /**
+     * A pointer to the current position in the token stream.
+     */
+    TokenStreamNode* current_node;
+} Lexer;
+
+/**
+ * Creates a new lexer instance.
+ * @param  context [description]
+ * @return         [description]
+ */
+Lexer* lexer_create(ScannerContext* context);
+
+/**
+ * Gets the next token from a lexer and advances forward one token.
+ *
+ * @param  lexer The lexer context.
+ * @return       A token parsed from the scanner input.
+ */
+Token lexer_next(Lexer* lexer);
+
+/**
+ * Reads the next token from a scanner context.
  *
  * @param  context The scanner context to read from.
  * @return         A token parsed from the scanner input.
  */
-Token lexer_next(ScannerContext* context);
+Token lexer_read_token(ScannerContext* context);
 
 /**
  * Reads an identifier token in the current context.

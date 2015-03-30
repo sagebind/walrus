@@ -26,10 +26,39 @@ static TokenType keyword_token_types[KEYWORD_COUNT] = {
 };
 
 
+Lexer* lexer_create(ScannerContext* context)
+{
+    Lexer* lexer = (Lexer*)malloc(sizeof(Lexer));
+    lexer->context = context;
+    lexer->tokens = token_stream_create();
+    lexer->current_node = NULL;
+    return lexer;
+}
+
+Token lexer_next(Lexer* lexer)
+{
+    // check if we are at the tail of the stream
+    if (lexer->current_node == lexer->tokens->tail) {
+        // only read another token if we haven't reached the end-of-file
+        if (lexer->current_node == NULL || lexer->current_node->token.type != T_EOF) {
+            // read another token
+            Token token = lexer_read_token(lexer->context);
+            token_stream_push(lexer->tokens, token);
+            lexer->current_node = lexer->tokens->tail;
+        }
+    } else {
+        // we aren't at the tail, so move forward in the stream
+        lexer->current_node = lexer->current_node->next;
+    }
+
+    // return the current token
+    return lexer->current_node->token;
+}
+
 /**
- * Parses the next token from a scanner context.
+ * Reads the next token from a scanner context.
  */
-Token lexer_next(ScannerContext* context)
+Token lexer_read_token(ScannerContext* context)
 {
     // the current matching token
     Token token;
