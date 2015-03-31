@@ -437,6 +437,28 @@ ParseTreeNode* parser_parse_field_decl(Lexer* lexer)
 }
 
 /**
+ * <method_decl_list> -> 〈method_decl〉 〈method_decl_list〉 | EPSILON
+ */
+ParseTreeNode* parser_parse_method_decl_list(Lexer* lexer)
+{
+    //parser_parse_method_decl(lexer);
+    //parser_parse_method_decl_list(lexer);
+
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+}
+
+/**
+ * <field_decl_list> -> 〈field_decl〉 〈field_decl_list〉 | EPSILON
+ */
+ParseTreeNode* parser_parse_field_decl_list(Lexer* lexer)
+{
+    //parser_parse_field_decl(lexer);
+    //parser_parse_field_decl_list(lexer);
+
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+}
+
+/**
  * <type> -> int | boolean
  */
 ParseTreeNode* parser_parse_type(Lexer* lexer)
