@@ -44,8 +44,8 @@ ParseTreeNode* parser_parse_program(Lexer* lexer)
 }
 
 /**
-* <bool_literal> -> true | false
-*/
+ * <bool_literal> -> true | false
+ */
 ParseTreeNode* parser_parse_bool_literal(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
@@ -55,8 +55,8 @@ ParseTreeNode* parser_parse_bool_literal(Lexer* lexer)
 }
 
 /**
-* <char_literal> -> ’ 〈char〉 ’
-*/
+ * <char_literal> -> ’ 〈char〉 ’
+ */
 ParseTreeNode* parser_parse_char_literal(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
@@ -73,8 +73,8 @@ ParseTreeNode* parser_parse_char_literal(Lexer* lexer)
 }
 
 /**
-* <string_literal> -> " 〈char〉 "
-*/
+ * <string_literal> -> " 〈char〉 "
+ */
 ParseTreeNode* parser_parse_string_literal(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
@@ -93,13 +93,27 @@ ParseTreeNode* parser_parse_string_literal(Lexer* lexer)
 /**
  * <hex_digit_list> -> 〈hex_digit〉 〈hex_digit_list〉 | EPSILON
  */
- ParseTreeNode* parser_parse_hex_digit_list(Lexer* lexer)
- {
+ParseTreeNode* parser_parse_hex_digit_list(Lexer* lexer)
+{
     //parser_parse_hex_digit(lexer);
     parser_parse_hex_digit_list(lexer);
 
     //HANDLE EPSILON PLZ - 0--}--{
- }
+}
+
+/**
+ * <hex_literal> -> 0x 〈hex_digit〉 〈hex_digit_list〉
+ */
+ParseTreeNode* parser_parse_hex_literal(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.lexeme != "0x") {
+        error(E_LEXER_ERROR, "Expected 0x in hex_literal during parsing and did not get it.");
+    }
+
+    //parser_parse_hex_digit(lexer);
+    parser_parse_hex_digit_list(lexer);
+}
 
 /**
  * <type> -> int | boolean
