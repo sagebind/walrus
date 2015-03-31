@@ -217,6 +217,33 @@ ParseTreeNode* parser_parse_location(Lexer* lexer)
 }
 
 /**
+ * <expr_list_tail> -> , 〈expr〉 〈expr_list_tail〉
+ */
+ParseTreeNode* parser_parse_expr_list_tail(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.lexeme != ",") {
+        error(E_LEXER_ERROR, "Expected , when parsing expr_list_tail and didn't get it.");
+    }
+
+    //parser_parse_expr(lexer);
+    //parser_parse_expr_list_tail(lexer);
+
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+}
+
+/**
+ * <expr_list> -> 〈expr〉 〈expr_list_tail〉
+ */
+ParseTreeNode* parser_parse_expr_list(Lexer* lexer)
+{
+    //parser_parse_expr(lexer);
+    //parser_parse_expr_list_tail(lexer);
+
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+}
+
+/**
  * <callout_arg_list> -> , 〈callout_arg〉 〈callout_arg_list〉
  */
 ParseTreeNode* parser_parse_callout_arg_list(Lexer* lexer)
@@ -230,6 +257,17 @@ ParseTreeNode* parser_parse_callout_arg_list(Lexer* lexer)
     //parser_parse_callout_arg_list(lexer);
 
     //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+}
+
+/**
+ * <assign_op> -> = | += | -=
+ */
+ParseTreeNode* parser_parse_assign_op(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.lexeme != "=" && t.lexeme != "+=" && t.lexeme != "-=") {
+        error(E_LEXER_ERROR, "Expected one of the following when parsing an assign_op and did not get them: = += -=");
+    }
 }
 
 /**
