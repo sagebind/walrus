@@ -499,6 +499,62 @@ ParseTreeNode* parser_parse_method_call(Lexer* lexer)
 }
 
 /**
+ * <var_id_list_tail> -> , 〈id〉 〈var_id_list_tail〉 | ; 
+ */
+ParseTreeNode* parser_parse_var_id_list_tail(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.type == T_COMMA) {
+        //first derivation
+
+        //parser_parse_id(lexer);
+        //parser_parse_var_id_list_tail(lexer);
+    } else if(t.type != T_STATEMENT_END) {
+        error("Expected a , or a ; when parsing var_id_list_tail and got neither.");
+    }
+}
+
+/**
+ * <method_decl> -> 〈type〉 〈id〉 ( 〈method_param_decl_list〉 ) 〈block〉
+                    | void 〈id〉 ( 〈method_param_decl_list〉 ) 〈block〉
+ */
+ParseTreeNode* parser_parse_method_decl(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.type == T_VOID) {
+        //second derivation
+
+        //parser_parse_id(lexer);
+        t = lexer_next(lexer);
+        if(t.type != T_PAREN_LEFT) {
+            error(E_LEXER_ERROR, "Expected left parentheses when parsing method_decl and did not get one.");
+        }
+        //parser_parse_method_param_decl_list(lexer);
+
+        t = lexer_next(lexer);
+        if(t.lexeme != T_PAREN_RIGHT) {
+            error(E_LEXER_ERROR, "Expected right parentheses when parsing method_decl and did not get one.");
+        }
+        //parser_parse_block(lexer);
+    } else {
+        //first derivation
+
+        //parser_parse_type(lexer);
+        //parser_parse_id(lexer);
+        t = lexer_next(lexer);
+        if(t.lexeme != T_PAREN_LEFT) {
+            error(E_LEXER_ERROR, "Expected left parentheses when parsing method_decl and did not get one.");
+        }
+        //parser_parse_method_param_decl_list(lexer);
+        t = lexer_next(lexer);
+        if(t.lexeme != T_PAREN_RIGHT) {
+            error(E_LEXER_ERROR, "Expected right parentheses when parsing method_decl and did not get one.");
+        }
+        //parser_parse_block(lexer);
+    }
+}
+
+/**
  * <type> -> int | boolean
  */
 ParseTreeNode* parser_parse_type(Lexer* lexer)
