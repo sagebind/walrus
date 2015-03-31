@@ -428,6 +428,15 @@ ParseTreeNode* parser_parse_field_id_list(Lexer* lexer)
 }
 
 /**
+ * <field_decl> -> 〈type〉 〈field_id_list〉
+ */
+ParseTreeNode* parser_parse_field_decl(Lexer* lexer)
+{
+    //parser_parse_type(lexer);
+    //parser_parse_field_id_list(lexer);
+}
+
+/**
  * <type> -> int | boolean
  */
 ParseTreeNode* parser_parse_type(Lexer* lexer)
