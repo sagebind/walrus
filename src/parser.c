@@ -142,7 +142,7 @@ ParseTreeNode* parser_parse_cond_op(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != "&&" && t.lexeme != "||") {
-        error(E_LEXER_ERROR, "Expected && or || during parse and did not get it.");
+        error(E_LEXER_ERROR, "Expected && or || during parse and did not get them.");
     }
 }
 
@@ -153,7 +153,7 @@ ParseTreeNode* parser_parse_eq_op(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != "==" || t.lexeme != "!=") {
-        error(E_LEXER_ERROR, "");
+        error(E_LEXER_ERROR, "Expected either == or != during the parse and did not get them.");
     }
 }
 
@@ -164,8 +164,36 @@ ParseTreeNode* parser_parse_rel_op(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != "<" && t.lexeme != ">" && t.lexeme != "<=" && t.lexeme != ">=") {
-        error(E_LEXER_ERROR, "");
+        error(E_LEXER_ERROR, "Expected any of the following and did not receive them during the parse: < > <= >=");
     }
+}
+
+/**
+ * <arith_op> -> + | - | * | / | %
+ */
+ParseTreeNode* parser_parse_arith_op(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.lexeme != "+" && t.lexeme != "-" && t.lexeme != "*" && t.lexeme != "/" && t.lexeme != "%") {
+        error(E_LEXER_ERROR, "Expected any of the following and did not receive them during the parse: + - * / %");
+    }
+}
+
+/**
+ * <method_name> -> <id>
+ */
+ParseTreeNode* parser_parse_method_name(Lexer* lexer)
+{
+    //parser_parse_id(lexer);
+}
+
+/**
+ * <id> -> 〈alpha〉 〈alpha_num_string〉
+ */
+ParseTreeNode* parser_parse_id(Lexer* lexer)
+{
+    //parser_parse_alpha(lexer);
+    //parser_parse_alpha_num_string(lexer);
 }
 
 /**
@@ -175,6 +203,6 @@ ParseTreeNode* parser_parse_type(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if (t.type != T_BOOLEAN && t.type != T_INT) {
-        error(E_LEXER_ERROR, "Expected int or boolean during parse and did not get it.");
+        error(E_LEXER_ERROR, "Expected int or boolean during parse and did not get them.");
     }
 }
