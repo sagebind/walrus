@@ -50,7 +50,7 @@ ParseTreeNode* parser_parse_bool_literal(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.type != T_BOOLEAN_LITERAL) {
-        error(E_LEXER_ERROR, "Expected boolean literal during parsing and did not get it.");
+        error(E_LEXER_ERROR, "Expected boolean literal during parse and did not get it.");
     }
 }
 
@@ -61,14 +61,14 @@ ParseTreeNode* parser_parse_char_literal(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != "'") {
-        error(E_LEXER_ERROR, "Expected ' in char_literal during parsing and did not get it.");
+        error(E_LEXER_ERROR, "Expected ' in char_literal during parse and did not get it.");
     }
 
     //parser_parse_char(lexer);
 
     t = lexer_next(lexer);
     if(t.lexeme != "'") {
-        error(E_LEXER_ERROR, "Expected ' in char_literal during parsing and did not get it.");
+        error(E_LEXER_ERROR, "Expected ' in char_literal during parse and did not get it.");
     }
 }
 
@@ -79,14 +79,14 @@ ParseTreeNode* parser_parse_string_literal(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != "\"") {
-        error(E_LEXER_ERROR, "Expected \" in char_literal during parsing and did not get it.");
+        error(E_LEXER_ERROR, "Expected \" in char_literal during parse and did not get it.");
     }
 
     //parser_parse_char(lexer);
 
     t = lexer_next(lexer);
     if(t.lexeme != "\"") {
-        error(E_LEXER_ERROR, "Expected \" in char_literal during parsing and did not get it.");
+        error(E_LEXER_ERROR, "Expected \" in char_literal during parse and did not get it.");
     }
 }
 
@@ -98,7 +98,7 @@ ParseTreeNode* parser_parse_hex_digit_list(Lexer* lexer)
     //parser_parse_hex_digit(lexer);
     parser_parse_hex_digit_list(lexer);
 
-    //HANDLE EPSILON PLZ - 0--}--{
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
 }
 
 /**
@@ -108,7 +108,7 @@ ParseTreeNode* parser_parse_hex_literal(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != "0x") {
-        error(E_LEXER_ERROR, "Expected 0x in hex_literal during parsing and did not get it.");
+        error(E_LEXER_ERROR, "Expected 0x in hex_literal during parse and did not get it.");
     }
 
     //parser_parse_hex_digit(lexer);
@@ -123,7 +123,16 @@ ParseTreeNode* parser_parse_digit_list(Lexer* lexer)
     //parser_parse_digit(lexer);
     parser_parse_digit_list(lexer);
 
-    //HANDLE EPSILON PLZ - 0--}--{
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+}
+
+/**
+ * <decimal_literal> -> 〈digit〉 〈digit_list〉
+ */
+ParseTreeNode* parser_parse_decimal_literal(Lexer* lexer)
+{
+    //parser_parse_digit(lexer);
+    //parser_parse_digit_list(lexer);
 }
 
 /**
@@ -133,6 +142,6 @@ ParseTreeNode* parser_parse_type(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if (t.type != T_BOOLEAN && t.type != T_INT) {
-        error(E_LEXER_ERROR, "");
+        error(E_LEXER_ERROR, "Expected int or boolean during parse and did not get it.");
     }
 }
