@@ -62,6 +62,26 @@ Token lexer_next(Lexer* lexer)
 }
 
 /**
+ * Backtracks a lexer by one token.
+ */
+Error lexer_backtrack(Lexer* lexer)
+{
+    // make sure pointer isn't null
+    if (lexer == NULL) {
+        return E_BAD_POINTER;
+    }
+
+    // can't backtrack if no tokens have been read or we are at the beginning
+    if (lexer->current_node == NULL || lexer->current_node->previous == NULL) {
+        return E_OPERATION_FAILED;
+    }
+
+    // move backwards
+    lexer->current_node = lexer->current_node->previous;
+    return E_SUCCESS;
+}
+
+/**
  * Destroys an open lexer.
  */
 Error lexer_destroy(Lexer** lexer)
