@@ -306,6 +306,56 @@ ParseTreeNode* parser_parse_var_decl(Lexer* lexer)
 }
 
 /**
+ * <statement_list> -> 〈statement〉 〈statement_list〉
+ */
+ParseTreeNode* parser_parse_statement_list(Lexer* lexer)
+{
+    //parser_parse_statement(lexer);
+    //parser_parse_statement_list(lexer);
+
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+}
+
+/**
+ * <var_decl_list> -> 〈var_decl〉 〈var_decl_list〉
+ */
+ParseTreeNode* parser_parse_var_decl_list(Lexer* lexer)
+{
+    //parser_parse_var_decl(lexer);
+    //parser_parse_var_decl_list(lexer);
+
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+}
+
+/**
+ * <block> -> { 〈var_decl_list〉 〈statement_list〉 }
+ */
+ParseTreeNode* parser_parse_block(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.type != T_BRACE_LEFT) {
+        error(E_LEXER_ERROR, "Expected left curly brace when parsing block and did not get one.");
+    }
+
+    //parser_parse_var_decl_list(lexer);
+    //parser_parse_statement_list(lexer);
+
+    t = lexer_next(lexer);
+    if(t.type != T_BRACE_RIGHT) {
+        error(E_LEXER_ERROR, "Expected right curly brace when parsing block during parsing and did not get one.");
+    }
+}
+
+/**
+ * <method_param_decl> -> 〈type〉 〈id〉
+ */
+ParseTreeNode* parser_parse_method_param_decl(Lexer* lexer)
+{
+    //parser_parse_type(lexer);
+    //parser_parse_id(lexer);
+}
+
+/**
  * <type> -> int | boolean
  */
 ParseTreeNode* parser_parse_type(Lexer* lexer)
