@@ -64,11 +64,29 @@ ParseTreeNode* parser_parse_char_literal(Lexer* lexer)
         error(E_LEXER_ERROR, "Expected ' in char_literal during parsing and did not get it.");
     }
 
-    parser_parse_char(lexer);
+    //parser_parse_char(lexer);
 
     Token t = lexer_next(lexer);
     if(t.lexeme != "'") {
         error(E_LEXER_ERROR, "Expected ' in char_literal during parsing and did not get it.");
+    }
+}
+
+/**
+* <string_literal> -> " 〈char〉 "
+*/
+ParseTreeNode* parser_parse_string_literal(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.lexeme != "\"") {
+        error(E_LEXER_ERROR, "Expected \" in char_literal during parsing and did not get it.");
+    }
+
+    //parser_parse_char(lexer);
+
+    Token t = lexer_next(lexer);
+    if(t.lexeme != "\"") {
+        error(E_LEXER_ERROR, "Expected \" in char_literal during parsing and did not get it.");
     }
 }
 
