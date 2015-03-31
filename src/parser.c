@@ -44,15 +44,33 @@ ParseTreeNode* parser_parse_program(Lexer* lexer)
 }
 
 /**
- * <bool_literal> -> true | false
- */
- ParseTreeNode* parser_parse_bool_literal(Lexer* lexer)
- {
+* <bool_literal> -> true | false
+*/
+ParseTreeNode* parser_parse_bool_literal(Lexer* lexer)
+{
     Token t = lexer_next(lexer);
     if(t.type != T_BOOLEAN_LITERAL) {
-        error(E_LEXER_ERROR, "Expected boolean literal and did not get it.");
+        error(E_LEXER_ERROR, "Expected boolean literal during parsing and did not get it.");
     }
- }
+}
+
+/**
+* <char_literal> -> ’ 〈char〉 ’
+*/
+ParseTreeNode* parser_parse_char_literal(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.lexeme != "'") {
+        error(E_LEXER_ERROR, "Expected ' in char_literal during parsing and did not get it.");
+    }
+
+    parser_parse_char(lexer);
+
+    Token t = lexer_next(lexer);
+    if(t.lexeme != "'") {
+        error(E_LEXER_ERROR, "Expected ' in char_literal during parsing and did not get it.");
+    }
+}
 
 /**
  * <type> -> int | boolean
