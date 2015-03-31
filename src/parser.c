@@ -136,6 +136,39 @@ ParseTreeNode* parser_parse_decimal_literal(Lexer* lexer)
 }
 
 /**
+ * <cond_op> -> && OR ||
+ */
+ParseTreeNode* parser_parse_cond_op(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.lexeme != "&&" && t.lexeme != "||") {
+        error(E_LEXER_ERROR, "Expected && or || during parse and did not get it.");
+    }
+}
+
+/**
+ * <eq_op> -> == OR !=
+ */
+ParseTreeNode* parser_parse_eq_op(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.lexeme != "==" || t.lexeme != "!=") {
+        error(E_LEXER_ERROR, "");
+    }
+}
+
+/**
+ * <rel_op> ->   < | > | <= | >=
+ */
+ParseTreeNode* parser_parse_rel_op(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.lexeme != "<" && t.lexeme != ">" && t.lexeme != "<=" && t.lexeme != ">=") {
+        error(E_LEXER_ERROR, "");
+    }
+}
+
+/**
  * <type> -> int | boolean
  */
 ParseTreeNode* parser_parse_type(Lexer* lexer)
