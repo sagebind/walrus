@@ -197,6 +197,42 @@ ParseTreeNode* parser_parse_id(Lexer* lexer)
 }
 
 /**
+ * <expr_end> -> 〈bin_op〉 〈expr〉 
+ */
+ParseTreeNode* parser_parse_expr_end(Lexer* lexer)
+{
+    //parser_parse_bin_op(lexer);
+    // parser_parse_expr(lexer);
+
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+}
+
+/**
+ * <location> -> 〈id〉 〈array_subscript_expr〉
+ */
+ParseTreeNode* parser_parse_location(Lexer* lexer)
+{
+    //parser_parse_id(lexer);
+    //parser_prase_array_subscript_expr(lexer);
+}
+
+/**
+ * <callout_arg_list> -> , 〈callout_arg〉 〈callout_arg_list〉
+ */
+ParseTreeNode* parser_parse_callout_arg_list(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.lexeme != ",") {
+        error(E_LEXER_ERROR, "Expected comma when parsing callout_arg_list and didn't get it.");
+    }
+
+    //parser_parse_callout_arg(lexer);
+    //parser_parse_callout_arg_list(lexer);
+
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+}
+
+/**
  * <type> -> int | boolean
  */
 ParseTreeNode* parser_parse_type(Lexer* lexer)
