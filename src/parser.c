@@ -197,7 +197,7 @@ ParseTreeNode* parser_parse_id(Lexer* lexer)
 }
 
 /**
- * <expr_end> -> 〈bin_op〉 〈expr〉 
+ * <expr_end> -> 〈bin_op〉 〈expr〉 | EPSILON
  */
 ParseTreeNode* parser_parse_expr_end(Lexer* lexer)
 {
@@ -217,7 +217,7 @@ ParseTreeNode* parser_parse_location(Lexer* lexer)
 }
 
 /**
- * <expr_list_tail> -> , 〈expr〉 〈expr_list_tail〉
+ * <expr_list_tail> -> , 〈expr〉 〈expr_list_tail〉 | EPSILON
  */
 ParseTreeNode* parser_parse_expr_list_tail(Lexer* lexer)
 {
@@ -233,7 +233,7 @@ ParseTreeNode* parser_parse_expr_list_tail(Lexer* lexer)
 }
 
 /**
- * <expr_list> -> 〈expr〉 〈expr_list_tail〉
+ * <expr_list> -> 〈expr〉 〈expr_list_tail〉 | EPSILON
  */
 ParseTreeNode* parser_parse_expr_list(Lexer* lexer)
 {
@@ -244,7 +244,7 @@ ParseTreeNode* parser_parse_expr_list(Lexer* lexer)
 }
 
 /**
- * <callout_arg_list> -> , 〈callout_arg〉 〈callout_arg_list〉
+ * <callout_arg_list> -> , 〈callout_arg〉 〈callout_arg_list〉 | EPSILON
  */
 ParseTreeNode* parser_parse_callout_arg_list(Lexer* lexer)
 {
@@ -456,6 +456,46 @@ ParseTreeNode* parser_parse_field_decl_list(Lexer* lexer)
     //parser_parse_field_decl_list(lexer);
 
     //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+}
+
+/**
+ * <method_call> -> 〈method_name〉 ( 〈expr_list〉 )
+ *                  | callout ( 〈string_literal〉 〈callout_arg_list〉 )
+ */
+ParseTreeNode* parser_parse_method_call(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.type == T_CALLOUT) {
+        //second derivation
+
+        t = lexer_next(lexer);
+        if(t.type != T_PAREN_LEFT) {
+            error(E_LEXER_ERROR, "Expected left parentheses when parsing method_call and did not get one.");
+        }
+        //parser_parse_string_literal(lexer);
+        //parser_parse_callout_arg_list(lexer);
+
+        t = lexer_next(lexer);
+        if(t.type != T_PAREN_RIGHT) {
+            error(E_LEXER_ERROR, "Expected right parentheses when parsing method_call and did not get one.");
+        }
+    } else {
+        //first derivation
+
+        //parser_parse_method_name(lexer);
+        t = lexer_next(lexer);
+        if(t.type != T_PAREN_LEFT) {
+            //do we have to move the lexer back now?
+            error(E_LEXER_ERROR, "Expected left parentheses when parsing method_call and didn't get one.");
+        }
+        //parser_parse_expr_list(lexer);
+
+        t = lexer_next(lexer);
+        if(t.type != T_PAREN_RIGHT) {
+            //do we have to move the lexer back now?
+            error(E_LEXER_ERROR, "Expected right parentheses when parsing method_call and didn't get one.");
+        }
+    }
 }
 
 /**
