@@ -383,6 +383,51 @@ ParseTreeNode* parser_parse_method_param_decl_list(Lexer* lexer)
 }
 
 /**
+ * <field_id_list_tail> -> , 〈field_id_list〉 | ;
+ */
+ParseTreeNode* parser_parse_field_id_list_tail(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.type == T_COMMA) {
+        //first derivation
+
+        //parser_parse_field_id_list(lexer);
+    } else if (t.type != T_STATEMENT_END) {
+        error(E_LEXER_ERROR, "Expected , or ; when parsing field_id_list_tail and got neither.");
+    }
+}
+
+/**
+ * <array_dim_decl> -> [ 〈int_literal〉 ] | EPSILON
+ */
+ParseTreeNode* parser_parse_array_dim_decl(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.type != T_BRACKET_LEFT) {
+        error(E_LEXER_ERROR, "Expected a left bracket when parsing array_dim_decl and didn't get one.");
+    }
+
+    //parser_parse_int_literal(lexer);
+
+    t = lexer_next(lexer);
+    if(t.lexeme != T_BRACKET_RIGHT) {
+        error(E_LEXER_ERROR, "Expected a right bracket when parsing array_dim_decl and did not get one.");
+    }
+
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+}
+
+/**
+ * <field_id_list> -> 〈id〉 〈array_dim_decl〉 〈field_id_list_tail〉
+ */
+ParseTreeNode* parser_parse_field_id_list(Lexer* lexer)
+{
+    //parser_parse_id(lexer);
+    //parser_parse_array_dim_decl(lexer);
+    //parser_parse_field_id_list_tail(lexer);
+}
+
+/**
  * <type> -> int | boolean
  */
 ParseTreeNode* parser_parse_type(Lexer* lexer)
