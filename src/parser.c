@@ -306,7 +306,7 @@ ParseTreeNode* parser_parse_var_decl(Lexer* lexer)
 }
 
 /**
- * <statement_list> -> 〈statement〉 〈statement_list〉
+ * <statement_list> -> 〈statement〉 〈statement_list〉 | EPSILON
  */
 ParseTreeNode* parser_parse_statement_list(Lexer* lexer)
 {
@@ -317,7 +317,7 @@ ParseTreeNode* parser_parse_statement_list(Lexer* lexer)
 }
 
 /**
- * <var_decl_list> -> 〈var_decl〉 〈var_decl_list〉
+ * <var_decl_list> -> 〈var_decl〉 〈var_decl_list〉 | EPSILON
  */
 ParseTreeNode* parser_parse_var_decl_list(Lexer* lexer)
 {
@@ -353,6 +353,33 @@ ParseTreeNode* parser_parse_method_param_decl(Lexer* lexer)
 {
     //parser_parse_type(lexer);
     //parser_parse_id(lexer);
+}
+
+/**
+ * <method_param_decl_list_tail> -> , 〈method_param_decl〉 〈method_param_decl_list_tail〉 | EPSILON
+ */
+ParseTreeNode* parser_parse_method_param_decl_list_tail(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.lexeme != ",") {
+        error(E_LEXER_ERROR, "Expected , when parsing method_param_decl_list_tail and didn't get one.");
+    }
+
+    //parser_parse_param_decl(lexer);
+    //parser_parse_method_param_decl_list_tail(lexer);
+
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+}
+
+/**
+ * <method_param_decl_list> -> 〈method_param_decl〉 〈method_param_decl_list_tail〉 | EPSILON
+ */
+ParseTreeNode* parser_parse_method_param_decl_list(Lexer* lexer)
+{
+    //parser_parse_method_param_decl(lexer);
+    //parser_parse_method_param_decl_list_tail(lexer);
+
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
 }
 
 /**
