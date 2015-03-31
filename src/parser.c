@@ -44,6 +44,17 @@ ParseTreeNode* parser_parse_program(Lexer* lexer)
 }
 
 /**
+ * <bool_literal> -> true | false
+ */
+ ParseTreeNode* parser_parse_bool_literal(Lexer* lexer)
+ {
+    Token t = lexer_next(lexer);
+    if(t.type != T_BOOLEAN_LITERAL) {
+        error(E_LEXER_ERROR, "Expected boolean literal and did not get it.");
+    }
+ }
+
+/**
  * <type> -> int | boolean
  */
 ParseTreeNode* parser_parse_type(Lexer* lexer)
