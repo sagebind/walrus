@@ -42,6 +42,14 @@ Lexer* lexer_create(ScannerContext* context);
 Token lexer_next(Lexer* lexer);
 
 /**
+ * Backtracks a lexer by one token.
+ *
+ * @param  lexer The lexer to backtrack.
+ * @return       An error code.
+ */
+Error lexer_backtrack(Lexer* lexer);
+
+/**
  * Destroys an open lexer.
  *
  * Note: this function does not close the scanner context associated with the
