@@ -66,7 +66,7 @@ ParseTreeNode* parser_parse_char_literal(Lexer* lexer)
 
     //parser_parse_char(lexer);
 
-    Token t = lexer_next(lexer);
+    t = lexer_next(lexer);
     if(t.lexeme != "'") {
         error(E_LEXER_ERROR, "Expected ' in char_literal during parsing and did not get it.");
     }
@@ -84,7 +84,7 @@ ParseTreeNode* parser_parse_string_literal(Lexer* lexer)
 
     //parser_parse_char(lexer);
 
-    Token t = lexer_next(lexer);
+    t = lexer_next(lexer);
     if(t.lexeme != "\"") {
         error(E_LEXER_ERROR, "Expected \" in char_literal during parsing and did not get it.");
     }
@@ -96,7 +96,6 @@ ParseTreeNode* parser_parse_string_literal(Lexer* lexer)
 ParseTreeNode* parser_parse_type(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
-
     if (t.type != T_BOOLEAN && t.type != T_INT) {
         error(E_LEXER_ERROR, "");
     }
