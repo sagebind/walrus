@@ -271,6 +271,41 @@ ParseTreeNode* parser_parse_assign_op(Lexer* lexer)
 }
 
 /**
+ * <expr_option> -> 〈expr〉 | EPSILON
+ */
+ParseTreeNode* parser_parse_expr_option(Lexer* lexer)
+{
+    //parser_parse_expr(lexer);
+
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+}
+
+/**
+ * <else_expr> -> else 〈block〉 | EPSILON
+ */
+ParseTreeNode* parser_parse_else_expr(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.type != T_ELSE) {
+        error(E_LEXER_ERROR, "Expected else while parsing else_expr and did not get it.");
+    }
+
+    //parser_parse_else_expr(lexer);
+
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+}
+
+/**
+ * <var_decl> -> 〈type〉 〈id〉 〈var_id_list_tail〉
+ */
+ParseTreeNode* parser_parse_var_decl(Lexer* lexer)
+{
+    //parser_parse_type(lexer);
+    //parser_parse_id(lexer);
+    //parser_parse_var_id_list_tail(lexer);
+}
+
+/**
  * <type> -> int | boolean
  */
 ParseTreeNode* parser_parse_type(Lexer* lexer)
