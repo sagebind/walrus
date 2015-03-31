@@ -91,6 +91,17 @@ ParseTreeNode* parser_parse_string_literal(Lexer* lexer)
 }
 
 /**
+ * <hex_digit_list> -> 〈hex_digit〉 〈hex_digit_list〉 | EPSILON
+ */
+ ParseTreeNode* parser_parse_hex_digit_list(Lexer* lexer)
+ {
+    //parser_parse_hex_digit(lexer);
+    parser_parse_hex_digit_list(lexer);
+
+    //HANDLE EPSILON PLZ - 0--}--{
+ }
+
+/**
  * <type> -> int | boolean
  */
 ParseTreeNode* parser_parse_type(Lexer* lexer)
