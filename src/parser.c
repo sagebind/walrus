@@ -410,7 +410,7 @@ ParseTreeNode* parser_parse_array_dim_decl(Lexer* lexer)
     //parser_parse_int_literal(lexer);
 
     t = lexer_next(lexer);
-    if(t.lexeme != T_BRACKET_RIGHT) {
+    if(t.type != T_BRACKET_RIGHT) {
         error(E_LEXER_ERROR, "Expected a right bracket when parsing array_dim_decl and did not get one.");
     }
 
