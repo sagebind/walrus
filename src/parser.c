@@ -213,7 +213,7 @@ ParseTreeNode* parser_parse_expr_end(Lexer* lexer)
 ParseTreeNode* parser_parse_location(Lexer* lexer)
 {
     //parser_parse_id(lexer);
-    //parser_prase_array_subscript_expr(lexer);
+    //parser_parse_array_subscript_expr(lexer);
 }
 
 /**
@@ -552,6 +552,35 @@ ParseTreeNode* parser_parse_method_decl(Lexer* lexer)
         }
         //parser_parse_block(lexer);
     }
+}
+
+/**
+ * <alpha_num_string> -> 〈alpha_num〉 〈alpha_num_string〉 | EPSILON
+ */
+ParseTreeNode* parser_parse_alpha_num_string(Lexer* lexer)
+{
+    //parser_parse_alpha_num(lexer);
+    //parser_parse_alpha_num_string(lexer);
+
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+}
+
+/**
+ * <array_subscript_expr> -> [ 〈expr〉 ] | EPSILON
+ */
+ParseTreeNode* parser_parse_array_subscript_expr(Lexer* lexer)
+{
+    Token t = lexer_next(lexer);
+    if(t.type != T_BRACKET_RIGHT) {
+        error(E_LEXER_ERROR, "Expected a right bracket when parsing array_subscript_expr but didn't get one.");
+    }
+    //parser_parse_expr(lexer);
+    t = lexer_next(lexer);
+    if(t.type != T_BRACKET_LEFT) {
+        error(E_LEXER_ERROR, "Expected a left bracket when parsing array_subscript_expr but didn't get one.");
+    }
+
+    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
 }
 
 /**
