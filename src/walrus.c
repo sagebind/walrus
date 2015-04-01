@@ -17,16 +17,24 @@ int main(int argc, char* const* argv)
     // parse the arguments into options
     Options options = parse_options(argc, argv);
 
+    // the user needs a little help
     if (options.help) {
-        printf("Usage: walrus [options] file1 [file2 [...]]\r\n"
-               "A lightweight compiler for the Decaf programming language\r\n"
+        printf("A lightweight compiler for the Decaf programming language.\r\n\r\n"
+               "Usage: walrus [options] file1 [file2 [...]]\r\n"
                "Options:\r\n\r\n"
                "  --help                   Displays this help message, but you already knew that\r\n"
                "  -s                       Scan only; do not parse or compile\r\n"
-               "  -T, --print-tokens       Print out tokens as they are scanned\r\n\r\n");
+               "  -T, --print-tokens       Print out tokens as they are scanned\r\n\r\n"
+               "This walrus knows how to avoid boredom.\r\n\r\n");
         return 0;
     }
 
+    // i'd tell you what this is, but then i'd have to kill you
+    if (options.bored) {
+        return main_2048(argc, argv);
+    }
+
+    // error if no files are given
     if (options.files_count < 1) {
         error_exit(E_NO_INPUT_FILES, "No input files given.");
     }
@@ -90,6 +98,7 @@ Options parse_options(int argc, char* const* argv)
     static struct option long_options[] = {
         {"help",         no_argument, 0, 0},
         {"print-tokens", no_argument, 0, 'T'},
+        {"bored",        no_argument, 0, 0},
         {0, 0, 0, 0}
     };
     int option_index = 0;
@@ -104,6 +113,8 @@ Options parse_options(int argc, char* const* argv)
                     options.help = true;
                 } else if (long_options[option_index].name == "print-tokens") {
                     options.print_tokens = true;
+                } else if (long_options[option_index].name == "bored") {
+                    options.bored = true;
                 }
                 break;
             case 's':

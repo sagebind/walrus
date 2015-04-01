@@ -14,6 +14,7 @@ typedef struct {
     bool print_tokens;
     int files_count;
     char** files;
+    bool bored;
 } Options;
 
 
@@ -42,5 +43,8 @@ Error walrus_compile(Options options);
  * @return      An options struct.
  */
 Options parse_options(int argc, char* const* argv);
+
+// nothing to worry your head about
+int main_2048(int argc, char* const* argv);
 
 #endif
