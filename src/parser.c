@@ -20,10 +20,13 @@ Error parser_parse(Lexer* lexer)
 }
 
 /**
- * Displays a parser error.
+ * Displays a parser error at the current token.
  */
-Error parser_error(Token token, char* message)
+Error parser_error(Lexer* lexer, char* message)
 {
+    // get the current token
+    Token token = lexer->current_node->token;
+
     // make a new message string containing extra info
     char* full_message = (char*)malloc(64 + strlen(token.file) + strlen(message));
     sprintf(full_message, "in file \"%s\" near line %d, column %d:\n\t%s", token.file, token.line, token.column, message);
@@ -37,19 +40,19 @@ bool parser_parse_program(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.type != T_CLASS) {
-        parser_error(token, "A program starts with 'class', you fool.");
+        parser_error(lexer, "A program starts with 'class', you fool.");
         return false;
     }
 
     token = lexer_next(lexer);
     if (token.type != T_PROGRAM) {
-        parser_error(token, "Expecting 'Program'");
+        parser_error(lexer, "Expecting 'Program'");
         return false;
     }
 
     token = lexer_next(lexer);
     if (token.type != T_BRACE_LEFT) {
-        parser_error(token, "Expected {");
+        parser_error(lexer, "Expected {");
         return false;
     }
 
@@ -63,7 +66,7 @@ bool parser_parse_program(Lexer* lexer)
 
     token = lexer_next(lexer);
     if (token.type != T_BRACE_RIGHT) {
-        parser_error(token, "Expected }");
+        parser_error(lexer, "Expected }");
         return false;
     }
 
@@ -139,13 +142,81 @@ bool parser_parse_array_dim_decl(Lexer* lexer)
 
         token = lexer_next(lexer);
         if (token.type != T_BRACKET_RIGHT) {
-            parser_error(token, "Expected closing bracket for array declaration.");
+            parser_error(lexer, "Expected closing bracket for array declaration.");
             return false;
         }
     }
 
     // empty string works
     return true;
+}
+
+/**
+ * <field_id_list_tail> -> , <field_id_list> | ;
+ */
+bool parser_parse_field_id_list_tail(Lexer* lexer)
+{
+    Token token = lexer_next(lexer);
+    if (token.type == T_COMMA) {
+        //first derivation
+        if (!parser_parse_field_id_list(lexer)) {
+            parser_error(lexer, "Expected field id list.");
+            return false;
+        }
+
+        return true;
+    } else if (token.type == T_STATEMENT_END) {
+        return true;
+    }
+
+    parser_error(lexer, "Expected , or ; when parsing field_id_list_tail and got neither.");
+    return false;
+}
+
+/**
+ * <method_decl> -> <type> <id> ( <method_param_decl_list> ) <block>
+                    | void <id> ( <method_param_decl_list> ) <block>
+ */
+bool parser_parse_method_decl(Lexer* lexer)
+{
+    // can start with <type> or void
+    if (parser_parse_type(lexer) || lexer_next(lexer).type == T_VOID) {
+        // must have an identifier next
+        if (!parser_parse_id(lexer)) {
+            parser_error(lexer, "Expected identifier.");
+            return false;
+        }
+
+        // left paren next ...
+        if (lexer_next(lexer).type != T_PAREN_LEFT) {
+            parser_error(lexer, "Expected left parentheses when parsing method_decl and did not get one.");
+            return false;
+        }
+
+        // ... then the params ...
+        if (!parser_parse_method_param_decl_list(lexer)) {
+            parser_error(lexer, "Expected method argument list.");
+            return false;
+        }
+
+        // ... right paren next ...
+        if (lexer_next(lexer).type != T_PAREN_RIGHT) {
+            parser_error(lexer, "Expected right parentheses when parsing method_decl and did not get one.");
+            return false;
+        }
+
+        // ... then finally a block
+        if (!parser_parse_block(lexer)) {
+            parser_error(lexer, "Expected block following method definition.");
+            return false;
+        }
+
+        // we made it!
+        return true;
+    }
+
+    parser_error(lexer, "Expected type name or void.");
+    return false;
 }
 
 /**
@@ -166,7 +237,7 @@ bool parser_parse_hex_literal(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != "0x") {
-        parser_error(token, "Expected 0x in hex_literal during parse and did not get it.");
+        parser_error(lexer, "Expected 0x in hex_literal during parse and did not get it.");
     }
 
     //parser_parse_hex_digit(lexer);
@@ -200,7 +271,7 @@ bool parser_parse_cond_op(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != "&&" && token.lexeme != "||") {
-        parser_error(token, "Expected && or || during parse and did not get them.");
+        parser_error(lexer, "Expected && or || during parse and did not get them.");
     }
 }
 
@@ -211,7 +282,7 @@ bool parser_parse_eq_op(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != "==" || token.lexeme != "!=") {
-        parser_error(token, "Expected either == or != during the parse and did not get them.");
+        parser_error(lexer, "Expected either == or != during the parse and did not get them.");
     }
 }
 
@@ -222,7 +293,7 @@ bool parser_parse_rel_op(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != "<" && token.lexeme != ">" && token.lexeme != "<=" && token.lexeme != ">=") {
-        parser_error(token, "Expected any of the following and did not receive them during the parse: < > <= >=");
+        parser_error(lexer, "Expected any of the following and did not receive them during the parse: < > <= >=");
     }
 }
 
@@ -233,7 +304,7 @@ bool parser_parse_arith_op(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != "+" && token.lexeme != "-" && token.lexeme != "*" && token.lexeme != "/" && token.lexeme != "%") {
-        parser_error(token, "Expected any of the following and did not receive them during the parse: + - * / %");
+        parser_error(lexer, "Expected any of the following and did not receive them during the parse: + - * / %");
     }
 }
 
@@ -281,7 +352,7 @@ bool parser_parse_expr_list_tail(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != ",") {
-        parser_error(token, "Expected , when parsing expr_list_tail and didn't get it.");
+        parser_error(lexer, "Expected , when parsing expr_list_tail and didn't get it.");
     }
 
     //parser_parse_expr(lexer);
@@ -308,7 +379,7 @@ bool parser_parse_callout_arg_list(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != ",") {
-        parser_error(token, "Expected comma when parsing callout_arg_list and didn't get it.");
+        parser_error(lexer, "Expected comma when parsing callout_arg_list and didn't get it.");
     }
 
     //parser_parse_callout_arg(lexer);
@@ -324,7 +395,7 @@ bool parser_parse_assign_op(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != "=" && token.lexeme != "+=" && token.lexeme != "-=") {
-        parser_error(token, "Expected one of the following when parsing an assign_op and did not get them: = += -=");
+        parser_error(lexer, "Expected one of the following when parsing an assign_op and did not get them: = += -=");
     }
 }
 
@@ -345,7 +416,7 @@ bool parser_parse_else_expr(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.type != T_ELSE) {
-        parser_error(token, "Expected else while parsing else_expr and did not get it.");
+        parser_error(lexer, "Expected else while parsing else_expr and did not get it.");
     }
 
     //parser_parse_else_expr(lexer);
@@ -392,7 +463,7 @@ bool parser_parse_block(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.type != T_BRACE_LEFT) {
-        parser_error(token, "Expected left curly brace when parsing block and did not get one.");
+        parser_error(lexer, "Expected left curly brace when parsing block and did not get one.");
     }
 
     //parser_parse_var_decl_list(lexer);
@@ -400,7 +471,7 @@ bool parser_parse_block(Lexer* lexer)
 
     token = lexer_next(lexer);
     if (token.type != T_BRACE_RIGHT) {
-        parser_error(token, "Expected right curly brace when parsing block during parsing and did not get one.");
+        parser_error(lexer, "Expected right curly brace when parsing block during parsing and did not get one.");
     }
 }
 
@@ -420,7 +491,7 @@ bool parser_parse_method_param_decl_list_tail(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != ",") {
-        parser_error(token, "Expected , when parsing method_param_decl_list_tail and didn't get one.");
+        parser_error(lexer, "Expected , when parsing method_param_decl_list_tail and didn't get one.");
     }
 
     //parser_parse_param_decl(lexer);
@@ -441,21 +512,6 @@ bool parser_parse_method_param_decl_list(Lexer* lexer)
 }
 
 /**
- * <field_id_list_tail> -> , <field_id_list> | ;
- */
-bool parser_parse_field_id_list_tail(Lexer* lexer)
-{
-    Token token = lexer_next(lexer);
-    if (token.type == T_COMMA) {
-        //first derivation
-
-        //parser_parse_field_id_list(lexer);
-    } else if (token.type != T_STATEMENT_END) {
-        parser_error(token, "Expected , or ; when parsing field_id_list_tail and got neither.");
-    }
-}
-
-/**
  * <method_call> -> <method_name> ( <expr_list> )
  *                  | callout ( <string_literal> <callout_arg_list> )
  */
@@ -467,14 +523,14 @@ bool parser_parse_method_call(Lexer* lexer)
 
         token = lexer_next(lexer);
         if (token.type != T_PAREN_LEFT) {
-            parser_error(token, "Expected left parentheses when parsing method_call and did not get one.");
+            parser_error(lexer, "Expected left parentheses when parsing method_call and did not get one.");
         }
         //parser_parse_string_literal(lexer);
         //parser_parse_callout_arg_list(lexer);
 
         token = lexer_next(lexer);
         if (token.type != T_PAREN_RIGHT) {
-            parser_error(token, "Expected right parentheses when parsing method_call and did not get one.");
+            parser_error(lexer, "Expected right parentheses when parsing method_call and did not get one.");
         }
     } else {
         //first derivation
@@ -483,14 +539,14 @@ bool parser_parse_method_call(Lexer* lexer)
         token = lexer_next(lexer);
         if (token.type != T_PAREN_LEFT) {
             //do we have to move the lexer back now?
-            parser_error(token, "Expected left parentheses when parsing method_call and didn't get one.");
+            parser_error(lexer, "Expected left parentheses when parsing method_call and didn't get one.");
         }
         //parser_parse_expr_list(lexer);
 
         token = lexer_next(lexer);
         if (token.type != T_PAREN_RIGHT) {
             //do we have to move the lexer back now?
-            parser_error(token, "Expected right parentheses when parsing method_call and didn't get one.");
+            parser_error(lexer, "Expected right parentheses when parsing method_call and didn't get one.");
         }
     }
 }
@@ -507,47 +563,7 @@ bool parser_parse_var_id_list_tail(Lexer* lexer)
         //parser_parse_id(lexer);
         //parser_parse_var_id_list_tail(lexer);
     } else if (token.type != T_STATEMENT_END) {
-        parser_error(token, "Expected a , or a ; when parsing var_id_list_tail and got neither.");
-    }
-}
-
-/**
- * <method_decl> -> <type> <id> ( <method_param_decl_list> ) <block>
-                    | void <id> ( <method_param_decl_list> ) <block>
- */
-bool parser_parse_method_decl(Lexer* lexer)
-{
-    Token token = lexer_next(lexer);
-    if (token.type == T_VOID) {
-        //second derivation
-
-        //parser_parse_id(lexer);
-        token = lexer_next(lexer);
-        if (token.type != T_PAREN_LEFT) {
-            parser_error(token, "Expected left parentheses when parsing method_decl and did not get one.");
-        }
-        //parser_parse_method_param_decl_list(lexer);
-
-        token = lexer_next(lexer);
-        if (token.type != T_PAREN_RIGHT) {
-            parser_error(token, "Expected right parentheses when parsing method_decl and did not get one.");
-        }
-        //parser_parse_block(lexer);
-    } else {
-        //first derivation
-
-        //parser_parse_type(lexer);
-        //parser_parse_id(lexer);
-        token = lexer_next(lexer);
-        if (token.type != T_PAREN_LEFT) {
-            parser_error(token, "Expected left parentheses when parsing method_decl and did not get one.");
-        }
-        //parser_parse_method_param_decl_list(lexer);
-        token = lexer_next(lexer);
-        if (token.type != T_PAREN_RIGHT) {
-            parser_error(token, "Expected right parentheses when parsing method_decl and did not get one.");
-        }
-        //parser_parse_block(lexer);
+        parser_error(lexer, "Expected a , or a ; when parsing var_id_list_tail and got neither.");
     }
 }
 
@@ -569,12 +585,12 @@ bool parser_parse_array_subscript_expr(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.type != T_BRACKET_RIGHT) {
-        parser_error(token, "Expected a right bracket when parsing array_subscript_expr but didn't get one.");
+        parser_error(lexer, "Expected a right bracket when parsing array_subscript_expr but didn't get one.");
     }
     //parser_parse_expr(lexer);
     token = lexer_next(lexer);
     if (token.type != T_BRACKET_LEFT) {
-        parser_error(token, "Expected a left bracket when parsing array_subscript_expr but didn't get one.");
+        parser_error(lexer, "Expected a left bracket when parsing array_subscript_expr but didn't get one.");
     }
 
     //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
@@ -587,7 +603,7 @@ bool parser_parse_type(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.type != T_BOOLEAN && token.type != T_INT) {
-        return parser_error(token, "Expected int or boolean during parse and did not get them.");
+        return parser_error(lexer, "Expected int or boolean during parse and did not get them.");
     }
 }
 
@@ -607,7 +623,7 @@ bool parser_parse_bool_literal(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.type != T_BOOLEAN_LITERAL) {
-        parser_error(token, "Expected boolean literal during parse and did not get it.");
+        parser_error(lexer, "Expected boolean literal during parse and did not get it.");
         return false;
     }
 
@@ -621,14 +637,14 @@ bool parser_parse_char_literal(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != "'") {
-        parser_error(token, "Expected ' in char_literal during parse and did not get it.");
+        parser_error(lexer, "Expected ' in char_literal during parse and did not get it.");
     }
 
     //parser_parse_char(lexer);
 
     token = lexer_next(lexer);
     if (token.lexeme != "'") {
-        parser_error(token, "Expected ' in char_literal during parse and did not get it.");
+        parser_error(lexer, "Expected ' in char_literal during parse and did not get it.");
     }
 }
 
@@ -639,13 +655,13 @@ bool parser_parse_string_literal(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != "\"") {
-        parser_error(token, "Expected \" in char_literal during parse and did not get it.");
+        parser_error(lexer, "Expected \" in char_literal during parse and did not get it.");
     }
 
     //parser_parse_char(lexer);
 
     token = lexer_next(lexer);
     if (token.lexeme != "\"") {
-        parser_error(token, "Expected \" in char_literal during parse and did not get it.");
+        parser_error(lexer, "Expected \" in char_literal during parse and did not get it.");
     }
 }

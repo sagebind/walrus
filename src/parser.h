@@ -17,11 +17,11 @@ Error parser_parse(Lexer* lexer);
 /**
  * Displays a parser error.
  *
- * @param  token   The token that caused the error.
+ * @param  lexer   The active lexer.
  * @param  message The error message.
  * @return         An error code.
  */
-Error parser_error(Token token, char* message);
+Error parser_error(Lexer* lexer, char* message);
 
 /**
  * <program> -> class Program { <field_decl_list> <method_decl_list> }
