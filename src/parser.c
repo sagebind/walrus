@@ -587,6 +587,7 @@ bool parser_parse_statement(Lexer* lexer)
  */
 bool parser_parse_else_expr(Lexer* lexer)
 {
+    // @todo
     Token token = lexer_next(lexer);
     if (token.type != T_ELSE) {
         parser_error(lexer, "Expected else while parsing else_expr and did not get it.");
@@ -602,6 +603,7 @@ bool parser_parse_else_expr(Lexer* lexer)
  */
 bool parser_parse_expr_option(Lexer* lexer)
 {
+    // @todo
     // epsilon
     if (lexer_lookahead(lexer, 1).type == T_STATEMENT_END) {
         return true;
@@ -615,6 +617,7 @@ bool parser_parse_expr_option(Lexer* lexer)
  */
 bool parser_parse_assign_op(Lexer* lexer)
 {
+    // @todo
     Token token = lexer_next(lexer);
     if (token.lexeme != "=" && token.lexeme != "+=" && token.lexeme != "-=") {
         parser_error(lexer, "Expected one of the following when parsing an assign_op and did not get them: = += -=");
@@ -627,6 +630,7 @@ bool parser_parse_assign_op(Lexer* lexer)
  */
 bool parser_parse_method_call(Lexer* lexer)
 {
+    // @todo
     Token token = lexer_next(lexer);
     if (token.type == T_CALLOUT) {
         //second derivation
@@ -666,6 +670,7 @@ bool parser_parse_method_call(Lexer* lexer)
  */
 bool parser_parse_expr_list(Lexer* lexer)
 {
+    // @todo
     //parser_parse_expr(lexer);
     //parser_parse_expr_list_tail(lexer);
 
@@ -677,6 +682,7 @@ bool parser_parse_expr_list(Lexer* lexer)
  */
 bool parser_parse_expr_list_tail(Lexer* lexer)
 {
+    // @todo
     Token token = lexer_next(lexer);
     if (token.lexeme != ",") {
         parser_error(lexer, "Expected , when parsing expr_list_tail and didn't get it.");
@@ -693,6 +699,7 @@ bool parser_parse_expr_list_tail(Lexer* lexer)
  */
 bool parser_parse_callout_arg_list(Lexer* lexer)
 {
+    // @todo
     Token token = lexer_next(lexer);
     if (token.lexeme != ",") {
         parser_error(lexer, "Expected comma when parsing callout_arg_list and didn't get it.");
@@ -717,6 +724,7 @@ bool parser_parse_method_name(Lexer* lexer)
  */
 bool parser_parse_location(Lexer* lexer)
 {
+    // @todo
     //parser_parse_id(lexer);
     //parser_parse_array_subscript_expr(lexer);
 }
@@ -726,6 +734,7 @@ bool parser_parse_location(Lexer* lexer)
  */
 bool parser_parse_array_subscript_expr(Lexer* lexer)
 {
+    // @todo
     Token token = lexer_next(lexer);
     if (token.type != T_BRACKET_RIGHT) {
         parser_error(lexer, "Expected a right bracket when parsing array_subscript_expr but didn't get one.");
@@ -744,6 +753,7 @@ bool parser_parse_array_subscript_expr(Lexer* lexer)
  */
 bool parser_parse_expr(Lexer* lexer)
 {
+    // @todo
     return parser_parse_expr_part(lexer)
         && parser_parse_expr_end(lexer);
 }
@@ -758,7 +768,7 @@ bool parser_parse_expr(Lexer* lexer)
  */
 bool parser_parse_expr_part(Lexer* lexer)
 {
-    // todo
+    // @todo
 }
 
 /**
@@ -766,7 +776,7 @@ bool parser_parse_expr_part(Lexer* lexer)
  */
 bool parser_parse_expr_end(Lexer* lexer)
 {
-    // todo
+    // @todo
     //parser_parse_bin_op(lexer);
     // parser_parse_expr(lexer);
 
@@ -778,7 +788,7 @@ bool parser_parse_expr_end(Lexer* lexer)
  */
 bool parser_parse_callout_arg(Lexer* lexer)
 {
-    // todo
+    // @todo
 }
 
 /**
@@ -786,7 +796,7 @@ bool parser_parse_callout_arg(Lexer* lexer)
  */
 bool parser_parse_bin_op(Lexer* lexer)
 {
-    // todo
+    // @todo
 }
 
 /**
@@ -794,7 +804,7 @@ bool parser_parse_bin_op(Lexer* lexer)
  */
 bool parser_parse_arith_op(Lexer* lexer)
 {
-    // todo
+    // @todo
     Token token = lexer_next(lexer);
     if (token.lexeme != "+" && token.lexeme != "-" && token.lexeme != "*" && token.lexeme != "/" && token.lexeme != "%") {
         parser_error(lexer, "Expected any of the following and did not receive them during the parse: + - * / %");
@@ -806,7 +816,7 @@ bool parser_parse_arith_op(Lexer* lexer)
  */
 bool parser_parse_rel_op(Lexer* lexer)
 {
-    // todo
+    // @todo
     Token token = lexer_next(lexer);
     if (token.lexeme != "<" && token.lexeme != ">" && token.lexeme != "<=" && token.lexeme != ">=") {
         parser_error(lexer, "Expected any of the following and did not receive them during the parse: < > <= >=");
@@ -818,7 +828,7 @@ bool parser_parse_rel_op(Lexer* lexer)
  */
 bool parser_parse_eq_op(Lexer* lexer)
 {
-    // todo
+    // @todo
     Token token = lexer_next(lexer);
     if (token.lexeme != "==" || token.lexeme != "!=") {
         parser_error(lexer, "Expected either == or != during the parse and did not get them.");
@@ -830,7 +840,7 @@ bool parser_parse_eq_op(Lexer* lexer)
  */
 bool parser_parse_cond_op(Lexer* lexer)
 {
-    // todo
+    // @todo
     Token token = lexer_next(lexer);
     if (token.lexeme != "&&" && token.lexeme != "||") {
         parser_error(lexer, "Expected && or || during parse and did not get them.");
@@ -842,7 +852,7 @@ bool parser_parse_cond_op(Lexer* lexer)
  */
 bool parser_parse_literal(Lexer* lexer)
 {
-    // todo
+    // @todo
 }
 
 /**
@@ -850,7 +860,7 @@ bool parser_parse_literal(Lexer* lexer)
  */
 bool parser_parse_id(Lexer* lexer)
 {
-    // todo
+    // @todo
     return lexer_next(lexer).type == T_IDENTIFIER;
 }
 
@@ -859,7 +869,7 @@ bool parser_parse_id(Lexer* lexer)
  */
 bool parser_parse_int_literal(Lexer* lexer)
 {
-    // todo
+    // @todo
     return lexer_next(lexer).type == T_INT_LITERAL;
 }
 
@@ -868,7 +878,7 @@ bool parser_parse_int_literal(Lexer* lexer)
  */
 bool parser_parse_bool_literal(Lexer* lexer)
 {
-    // todo
+    // @todo
     Token token = lexer_next(lexer);
     if (token.type != T_BOOLEAN_LITERAL) {
         parser_error(lexer, "Expected boolean literal during parse and did not get it.");
@@ -883,7 +893,7 @@ bool parser_parse_bool_literal(Lexer* lexer)
  */
 bool parser_parse_char_literal(Lexer* lexer)
 {
-    // todo
+    // @todo
     return lexer_next(lexer).type == T_CHAR_LITERAL;
 }
 
@@ -892,6 +902,6 @@ bool parser_parse_char_literal(Lexer* lexer)
  */
 bool parser_parse_string_literal(Lexer* lexer)
 {
-    // todo
+    // @todo
     return lexer_next(lexer).type == T_STRING_LITERAL;
 }
