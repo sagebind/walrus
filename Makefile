@@ -33,7 +33,7 @@ tests/scanner/%: tests/scanner/output/%.out bin/walrus .FORCE
 test-parser: $(PARSER_TESTS)
 
 tests/parser/legal-%: .FORCE
-	bin/walrus $@ > /dev/null 2>&1
+	bin/walrus $@ > /dev/null 2>&1 || bin/walrus $@
 
 tests/parser/illegal-%: .FORCE
 	bin/walrus $@ > /dev/null 2>&1; test $$? -gt 0
