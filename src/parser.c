@@ -31,6 +31,12 @@ Error parser_error(Lexer* lexer, char* message)
     // make a new message string containing extra info
     char* full_message = (char*)malloc(64 + strlen(token.file) + strlen(message));
     sprintf(full_message, "in file \"%s\" near line %d, column %d:\n\t%s", token.file, token.line, token.column, message);
+
+    // advance to the end of the statement
+    while (token.type != T_STATEMENT_END && token.type != T_EOF) {
+        token = lexer_next(lexer);
+    }
+
     return error(E_PARSE_ERROR, full_message);
 }
 
