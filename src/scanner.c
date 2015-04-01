@@ -19,16 +19,12 @@ ScannerContext* scanner_open(char* filename)
 
     // create a context pointer
     ScannerContext* context = (ScannerContext*)malloc(sizeof(ScannerContext));
+    context->name = filename;
     context->line = 1;
     context->column = 1;
     context->eol = false;
     context->eof = false;
     context->stream = stream;
-
-    // get the basename of the file
-    char* name = basename(filename);
-    context->name = (char*)malloc(strlen(name) + 1);
-    strcpy(context->name, name);
 
     // find out the size of the file so we know when we have
     // reached the end when reading later

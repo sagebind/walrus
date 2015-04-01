@@ -744,7 +744,7 @@ char* lexer_char_printable(char character, bool quoted)
  */
 void lexer_error(ScannerContext* context, char unexpected, char expected)
 {
-    printf("%s line %d:%d: ", context->name, context->line, context->column);
+    printf("%s line %d:%d: ", basename(context->name), context->line, context->column);
     if (expected >= 0) {
         printf("expecting %s, found %s\n", lexer_char_printable(expected, true), lexer_char_printable(unexpected, true));
     } else {
