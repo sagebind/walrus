@@ -53,13 +53,13 @@ bool parser_parse_program(Lexer* lexer)
 
     token = lexer_next(lexer);
     if (token.type != T_PROGRAM) {
-        parser_error(lexer, "Expecting 'Program'");
+        parser_error(lexer, "Expecting 'Program'.");
         return false;
     }
 
     token = lexer_next(lexer);
     if (token.type != T_BRACE_LEFT) {
-        parser_error(lexer, "Expected {");
+        parser_error(lexer, "Missing opening curly brace for class 'Program'.");
         return false;
     }
 
@@ -73,7 +73,7 @@ bool parser_parse_program(Lexer* lexer)
 
     token = lexer_next(lexer);
     if (token.type != T_BRACE_RIGHT) {
-        parser_error(lexer, "Expected }");
+        parser_error(lexer, "Missing closing curly brace for class 'Program'.");
         return false;
     }
 
@@ -405,7 +405,6 @@ bool parser_parse_var_id_list_tail(Lexer* lexer)
     Token token = lexer_next(lexer);
     if (token.type == T_COMMA) {
         //first derivation
-
         if (!parser_parse_id(lexer)) {
             parser_error(lexer, "Expected identifier.");
             return false;
@@ -471,7 +470,7 @@ bool parser_parse_statement(Lexer* lexer)
     // first derivation - location...
     else if (token.type == T_IDENTIFIER) {
         if (!parser_parse_location(lexer)) {
-            parser_error(lexer, "Expected location.");
+            parser_error(lexer, "Expected location in statement.");
             return false;
         }
 
@@ -742,8 +741,8 @@ bool parser_parse_method_name(Lexer* lexer)
 bool parser_parse_location(Lexer* lexer)
 {
     // @todo
-    //parser_parse_id(lexer);
-    //parser_parse_array_subscript_expr(lexer);
+    return parser_parse_id(lexer)
+        && parser_parse_array_subscript_expr(lexer);
 }
 
 /**
@@ -751,18 +750,25 @@ bool parser_parse_location(Lexer* lexer)
  */
 bool parser_parse_array_subscript_expr(Lexer* lexer)
 {
-    // @todo
-    Token token = lexer_next(lexer);
-    if (token.type != T_BRACKET_RIGHT) {
-        parser_error(lexer, "Expected a right bracket when parsing array_subscript_expr but didn't get one.");
-    }
-    //parser_parse_expr(lexer);
-    token = lexer_next(lexer);
-    if (token.type != T_BRACKET_LEFT) {
-        parser_error(lexer, "Expected a left bracket when parsing array_subscript_expr but didn't get one.");
+    Token token = lexer_lookahead(lexer, 1);
+
+    if (token.type == T_BRACKET_RIGHT) {
+        // consume current token
+        lexer_next(lexer);
+
+        if (!parser_parse_expr(lexer)) {
+            parser_error(lexer, "Expected expression inside array subscript.");
+            return false;
+        }
+
+        if (lexer_next(lexer).type != T_BRACKET_LEFT) {
+            parser_error(lexer, "Missing closing bracket in array subscript expression.");
+            return false;
+        }
     }
 
-    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+    // epsilon
+    return true;
 }
 
 /**
