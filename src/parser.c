@@ -298,8 +298,17 @@ bool parser_parse_method_param_decl_list_tail(Lexer* lexer)
  */
 bool parser_parse_method_param_decl(Lexer* lexer)
 {
-    return parser_parse_type(lexer)
-        && parser_parse_id(lexer);
+    if (!parser_parse_type(lexer)) {
+        parser_error(lexer, "Expected parameter type.");
+        return false;
+    }
+
+    if (!parser_parse_id(lexer)) {
+        parser_error(lexer, "Expected parameter identifier.");
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -335,8 +344,15 @@ bool parser_parse_block(Lexer* lexer)
  */
 bool parser_parse_var_decl_list(Lexer* lexer)
 {
+    Token token = lexer_lookahead(lexer, 1);
+
     // first derivation
-    if (parser_parse_var_decl(lexer)) {
+    if (token.type == T_BOOLEAN || token.type == T_INT) {
+        if (!parser_parse_var_decl(lexer)) {
+            parser_error(lexer, "Expected variable declaration.");
+            return false;
+        }
+
         if (!parser_parse_var_decl_list(lexer)) {
             parser_error(lexer, "Expected variable declaration list.");
             return false;
@@ -437,43 +453,41 @@ bool parser_parse_statement(Lexer* lexer)
 {
     Token token = lexer_lookahead(lexer, 1);
 
-    if (token.type == T_IDENTIFIER) {
-        // second derivation
-        if (lexer_lookahead(lexer, 2).type == T_PAREN_LEFT) {
-            if (!parser_parse_method_call(lexer)) {
-                parser_error(lexer, "Expected method call.");
-                return false;
-            }
-
-            if (lexer_next(lexer).type != T_STATEMENT_END) {
-                parser_error(lexer, "Missing semicolon at end of statement.");
-                return false;
-            }
-
-            return true;
+    // second derivation - method call
+    if (token.type == T_CALLOUT || (token.type == T_IDENTIFIER && lexer_lookahead(lexer, 2).type == T_PAREN_LEFT)) {
+        if (!parser_parse_method_call(lexer)) {
+            parser_error(lexer, "Expected method call.");
+            return false;
         }
 
-        // first derivation
-        else {
-            if (!parser_parse_location(lexer)) {
-                parser_error(lexer, "Expected location.");
-                return false;
-            }
+        if (lexer_next(lexer).type != T_STATEMENT_END) {
+            parser_error(lexer, "Missing semicolon at end of statement.");
+            return false;
+        }
 
-            if (!parser_parse_assign_op(lexer)) {
-                parser_error(lexer, "Expected assignment operator.");
-                return false;
-            }
+        return true;
+    }
 
-            if (!parser_parse_expr(lexer)) {
-                parser_error(lexer, "Expected expression.");
-                return false;
-            }
+    // first derivation - location...
+    else if (token.type == T_IDENTIFIER) {
+        if (!parser_parse_location(lexer)) {
+            parser_error(lexer, "Expected location.");
+            return false;
+        }
 
-            if (lexer_next(lexer).type != T_STATEMENT_END) {
-                parser_error(lexer, "Missing semicolon at end of statement.");
-                return false;
-            }
+        if (!parser_parse_assign_op(lexer)) {
+            parser_error(lexer, "Expected assignment operator.");
+            return false;
+        }
+
+        if (!parser_parse_expr(lexer)) {
+            parser_error(lexer, "Expected expression.");
+            return false;
+        }
+
+        if (lexer_next(lexer).type != T_STATEMENT_END) {
+            parser_error(lexer, "Missing semicolon at end of statement.");
+            return false;
         }
 
         return true;
@@ -490,98 +504,95 @@ bool parser_parse_statement(Lexer* lexer)
     }
 
     // terminals
-    else {
-        lexer_next(lexer);
-
-        // third derivation - if statement
-        if (token.type == T_IF) {
-            if (lexer_next(lexer).type != T_PAREN_LEFT) {
-                parser_error(lexer, "Missing opening parenthesis.");
-                return false;
-            }
-
-            if (!parser_parse_expr(lexer)) {
-                parser_error(lexer, "Expected expression.");
-                return false;
-            }
-
-            if (lexer_next(lexer).type != T_PAREN_RIGHT) {
-                parser_error(lexer, "Missing closing parenthesis.");
-                return false;
-            }
-
-            if (!parser_parse_block(lexer)) {
-                parser_error(lexer, "Expected block.");
-                return false;
-            }
-
-            if (!parser_parse_else_expr(lexer)) {
-                parser_error(lexer, "Expected else expression.");
-                return false;
-            }
-
-            return true;
+    lexer_next(lexer);
+    // third derivation - if statement
+    if (token.type == T_IF) {
+        if (lexer_next(lexer).type != T_PAREN_LEFT) {
+            parser_error(lexer, "Missing opening parenthesis.");
+            return false;
         }
 
-        // fourth derivation
-        else if (token.type == T_FOR) {
-            if (!parser_parse_id(lexer)) {
-                parser_error(lexer, "Expected identifier.");
-                return false;
-            }
-
-            if (strcmp(lexer_next(lexer).lexeme, "=") != 0) {
-                parser_error(lexer, "Expected equals '=' sign.");
-                return false;
-            }
-
-            if (!parser_parse_expr(lexer)) {
-                parser_error(lexer, "Expected expression.");
-                return false;
-            }
-
-            if (lexer_next(lexer).type != T_COMMA) {
-                parser_error(lexer, "Expected comma ',' after expression.");
-                return false;
-            }
-
-            if (!parser_parse_expr(lexer)) {
-                parser_error(lexer, "Expected expression.");
-                return false;
-            }
-
-            if (!parser_parse_block(lexer)) {
-                parser_error(lexer, "Expected block.");
-                return false;
-            }
-
-            return true;
+        if (!parser_parse_expr(lexer)) {
+            parser_error(lexer, "Expected expression.");
+            return false;
         }
 
-        // fifth derivation
-        else if (token.type == T_RETURN) {
-            if (!parser_parse_expr_option(lexer)) {
-                parser_error(lexer, "Expected optional expression. Hmm...");
-                return false;
-            }
-
-            if (lexer_next(lexer).type != T_STATEMENT_END) {
-                parser_error(lexer, "Missing semicolon at end of statement.");
-                return false;
-            }
-
-            return true;
+        if (lexer_next(lexer).type != T_PAREN_RIGHT) {
+            parser_error(lexer, "Missing closing parenthesis.");
+            return false;
         }
 
-        // sixth and seventh derivations
-        else if (token.type == T_BREAK || token.type == T_CONTINUE) {
-            if (lexer_next(lexer).type != T_STATEMENT_END) {
-                parser_error(lexer, "Missing semicolon at end of statement.");
-                return false;
-            }
-
-            return true;
+        if (!parser_parse_block(lexer)) {
+            parser_error(lexer, "Expected block.");
+            return false;
         }
+
+        if (!parser_parse_else_expr(lexer)) {
+            parser_error(lexer, "Expected else expression.");
+            return false;
+        }
+
+        return true;
+    }
+
+    // fourth derivation
+    else if (token.type == T_FOR) {
+        if (!parser_parse_id(lexer)) {
+            parser_error(lexer, "Expected identifier.");
+            return false;
+        }
+
+        if (strcmp(lexer_next(lexer).lexeme, "=") != 0) {
+            parser_error(lexer, "Expected equals '=' sign.");
+            return false;
+        }
+
+        if (!parser_parse_expr(lexer)) {
+            parser_error(lexer, "Expected expression.");
+            return false;
+        }
+
+        if (lexer_next(lexer).type != T_COMMA) {
+            parser_error(lexer, "Expected comma ',' after expression.");
+            return false;
+        }
+
+        if (!parser_parse_expr(lexer)) {
+            parser_error(lexer, "Expected expression.");
+            return false;
+        }
+
+        if (!parser_parse_block(lexer)) {
+            parser_error(lexer, "Expected block.");
+            return false;
+        }
+
+        return true;
+    }
+
+    // fifth derivation
+    else if (token.type == T_RETURN) {
+        if (!parser_parse_expr_option(lexer)) {
+            parser_error(lexer, "Expected optional expression. Hmm...");
+            return false;
+        }
+
+        if (lexer_next(lexer).type != T_STATEMENT_END) {
+            parser_error(lexer, "Missing semicolon at end of statement.");
+            return false;
+        }
+
+        return true;
+    }
+
+    // sixth and seventh derivations
+    else if (token.type == T_BREAK || token.type == T_CONTINUE) {
+        if (lexer_next(lexer).type != T_STATEMENT_END) {
+            parser_error(lexer, "Missing semicolon at end of statement.");
+            return false;
+        }
+
+        return true;
     }
 
     parser_error(lexer, "Invalid statement.");
@@ -839,11 +850,34 @@ bool parser_parse_expr_part(Lexer* lexer)
  */
 bool parser_parse_expr_end(Lexer* lexer)
 {
-    // @todo
-    //parser_parse_bin_op(lexer);
-    // parser_parse_expr(lexer);
+    Token next_token = lexer_lookahead(lexer, 1);
 
-    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+    // check for <bin_op>
+    if (next_token.type == T_OPERATOR) {
+        // check possible operators
+        char* operators[13] = {"+", "-", "/", "*", "%", "<", ">", "<=", ">=", "==", "!=", "&&", "||"};
+
+        for (int i = 0; i < 13; i++) {
+            if (strcmp(next_token.lexeme, operators[i]) == 0) {
+                // matches! try parsing the rest
+                if (!parser_parse_bin_op(lexer)) {
+                    parser_error(lexer, "Expected binary operator.");
+                    return false;
+                }
+
+                if (!parser_parse_expr(lexer)) {
+                    parser_error(lexer, "Expected expression.");
+                    return false;
+                }
+
+                // we're still alive!
+                return true;
+            }
+        }
+    }
+
+    // epsilon
+    return true;
 }
 
 /**
@@ -851,7 +885,21 @@ bool parser_parse_expr_end(Lexer* lexer)
  */
 bool parser_parse_callout_arg(Lexer* lexer)
 {
-    // @todo
+    // second derivation - string literal
+    if (lexer_lookahead(lexer, 1).type == T_STRING_LITERAL) {
+        if (!parser_parse_string_literal(lexer)) {
+            parser_error(lexer, "Expected string literal.");
+            return false;
+        }
+    }
+
+    // first derivation
+    if (!parser_parse_expr(lexer)) {
+        parser_error(lexer, "Expected expression.");
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -859,55 +907,24 @@ bool parser_parse_callout_arg(Lexer* lexer)
  */
 bool parser_parse_bin_op(Lexer* lexer)
 {
-    // @todo
-}
-
-/**
- * <arith_op> -> + | - | * | / | %
- */
-bool parser_parse_arith_op(Lexer* lexer)
-{
-    // @todo
     Token token = lexer_next(lexer);
-    if (token.lexeme != "+" && token.lexeme != "-" && token.lexeme != "*" && token.lexeme != "/" && token.lexeme != "%") {
-        parser_error(lexer, "Expected any of the following and did not receive them during the parse: + - * / %");
-    }
-}
 
-/**
- * <rel_op> ->   < | > | <= | >=
- */
-bool parser_parse_rel_op(Lexer* lexer)
-{
-    // @todo
-    Token token = lexer_next(lexer);
-    if (token.lexeme != "<" && token.lexeme != ">" && token.lexeme != "<=" && token.lexeme != ">=") {
-        parser_error(lexer, "Expected any of the following and did not receive them during the parse: < > <= >=");
+    if (token.type != T_OPERATOR) {
+        parser_error(lexer, "Expected operator.");
+        return false;
     }
-}
 
-/**
- * <eq_op> -> == OR !=
- */
-bool parser_parse_eq_op(Lexer* lexer)
-{
-    // @todo
-    Token token = lexer_next(lexer);
-    if (token.lexeme != "==" || token.lexeme != "!=") {
-        parser_error(lexer, "Expected either == or != during the parse and did not get them.");
+    // check all valid operators
+    char* operators[13] = {"+", "-", "/", "*", "%", "<", ">", "<=", ">=", "==", "!=", "&&", "||"};
+    for (int i = 0; i < 13; i++) {
+        if (strcmp(token.lexeme, operators[i]) == 0) {
+            // we're still alive!
+            return true;
+        }
     }
-}
 
-/**
- * <cond_op> -> && OR ||
- */
-bool parser_parse_cond_op(Lexer* lexer)
-{
-    // @todo
-    Token token = lexer_next(lexer);
-    if (token.lexeme != "&&" && token.lexeme != "||") {
-        parser_error(lexer, "Expected && or || during parse and did not get them.");
-    }
+    parser_error(lexer, "Invalid operator type.");
+    return false;
 }
 
 /**
@@ -915,7 +932,18 @@ bool parser_parse_cond_op(Lexer* lexer)
  */
 bool parser_parse_literal(Lexer* lexer)
 {
-    // @todo
+    // todo
+    Token token = lexer_lookahead(lexer, 1);
+
+    if (token.type == T_INT_LITERAL) {
+        return parser_parse_int_literal(lexer);
+    }
+
+    if (token.type == T_CHAR_LITERAL) {
+        return parser_parse_char_literal(lexer);
+    }
+
+    return parser_parse_bool_literal(lexer);
 }
 
 /**

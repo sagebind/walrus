@@ -203,26 +203,6 @@ bool parser_parse_callout_arg(Lexer* lexer);
 bool parser_parse_bin_op(Lexer* lexer);
 
 /**
- * <arith_op> -> + | - | * | / | %
- */
-bool parser_parse_arith_op(Lexer* lexer);
-
-/**
- * <rel_op> ->   < | > | <= | >=
- */
-bool parser_parse_rel_op(Lexer* lexer);
-
-/**
- * <eq_op> -> == OR !=
- */
-bool parser_parse_eq_op(Lexer* lexer);
-
-/**
- * <cond_op> -> && OR ||
- */
-bool parser_parse_cond_op(Lexer* lexer);
-
-/**
  * <literal> -> <int_literal> | <char_literal> | <bool_literal>
  */
 bool parser_parse_literal(Lexer* lexer);
