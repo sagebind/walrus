@@ -8,15 +8,10 @@
 /**
  * Parses the tokens yielded by a given lexer.
  */
-ParseTreeNode* parser_parse(Lexer* lexer)
+Error parser_parse(Lexer* lexer)
 {
-    // create the root node
-    ParseTreeNode* root = (ParseTreeNode*)malloc(sizeof(ParseTreeNode));
-
     // the source file should contain a single program (duh!)
-    parser_parse_program(lexer);
-
-    return root;
+    return parser_parse_program(lexer);
 }
 
 /**
@@ -33,21 +28,21 @@ Error parser_error(Token token, char* message)
 /**
  * <program> -> class Program { 〈field_decl_list〉 〈method_decl_list〉 }
  */
-ParseTreeNode* parser_parse_program(Lexer* lexer)
+Error parser_parse_program(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if (t.type != T_CLASS) {
-        parser_error(t, "A program starts with 'class', you fool.");
+        return parser_error(t, "A program starts with 'class', you fool.");
     }
 
     t = lexer_next(lexer);
     if (t.type != T_PROGRAM) {
-        parser_error(t, "Expecting 'Program'");
+        return parser_error(t, "Expecting 'Program'");
     }
 
     t = lexer_next(lexer);
     if (t.type != T_BRACE_LEFT) {
-        parser_error(t, "Expected {");
+        return parser_error(t, "Expected {");
     }
 
     parser_parse_field_decl_list(lexer);
@@ -55,14 +50,14 @@ ParseTreeNode* parser_parse_program(Lexer* lexer)
 
     t = lexer_next(lexer);
     if (t.type != T_BRACE_RIGHT) {
-        parser_error(t, "Expected }");
+        return parser_error(t, "Expected }");
     }
 }
 
 /**
  * <bool_literal> -> true | false
  */
-ParseTreeNode* parser_parse_bool_literal(Lexer* lexer)
+Error parser_parse_bool_literal(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.type != T_BOOLEAN_LITERAL) {
@@ -73,7 +68,7 @@ ParseTreeNode* parser_parse_bool_literal(Lexer* lexer)
 /**
  * <char_literal> -> ’ 〈char〉 ’
  */
-ParseTreeNode* parser_parse_char_literal(Lexer* lexer)
+Error parser_parse_char_literal(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != "'") {
@@ -91,7 +86,7 @@ ParseTreeNode* parser_parse_char_literal(Lexer* lexer)
 /**
  * <string_literal> -> " 〈char〉 "
  */
-ParseTreeNode* parser_parse_string_literal(Lexer* lexer)
+Error parser_parse_string_literal(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != "\"") {
@@ -109,7 +104,7 @@ ParseTreeNode* parser_parse_string_literal(Lexer* lexer)
 /**
  * <hex_digit_list> -> 〈hex_digit〉 〈hex_digit_list〉 | EPSILON
  */
-ParseTreeNode* parser_parse_hex_digit_list(Lexer* lexer)
+Error parser_parse_hex_digit_list(Lexer* lexer)
 {
     //parser_parse_hex_digit(lexer);
     parser_parse_hex_digit_list(lexer);
@@ -120,7 +115,7 @@ ParseTreeNode* parser_parse_hex_digit_list(Lexer* lexer)
 /**
  * <hex_literal> -> 0x 〈hex_digit〉 〈hex_digit_list〉
  */
-ParseTreeNode* parser_parse_hex_literal(Lexer* lexer)
+Error parser_parse_hex_literal(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != "0x") {
@@ -134,7 +129,7 @@ ParseTreeNode* parser_parse_hex_literal(Lexer* lexer)
 /**
  * <digit_list> -> 〈digit〉 〈digit_list〉 | EPSILON
  */
-ParseTreeNode* parser_parse_digit_list(Lexer* lexer)
+Error parser_parse_digit_list(Lexer* lexer)
 {
     //parser_parse_digit(lexer);
     parser_parse_digit_list(lexer);
@@ -145,7 +140,7 @@ ParseTreeNode* parser_parse_digit_list(Lexer* lexer)
 /**
  * <decimal_literal> -> 〈digit〉 〈digit_list〉
  */
-ParseTreeNode* parser_parse_decimal_literal(Lexer* lexer)
+Error parser_parse_decimal_literal(Lexer* lexer)
 {
     //parser_parse_digit(lexer);
     //parser_parse_digit_list(lexer);
@@ -154,7 +149,7 @@ ParseTreeNode* parser_parse_decimal_literal(Lexer* lexer)
 /**
  * <cond_op> -> && OR ||
  */
-ParseTreeNode* parser_parse_cond_op(Lexer* lexer)
+Error parser_parse_cond_op(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != "&&" && t.lexeme != "||") {
@@ -165,7 +160,7 @@ ParseTreeNode* parser_parse_cond_op(Lexer* lexer)
 /**
  * <eq_op> -> == OR !=
  */
-ParseTreeNode* parser_parse_eq_op(Lexer* lexer)
+Error parser_parse_eq_op(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != "==" || t.lexeme != "!=") {
@@ -176,7 +171,7 @@ ParseTreeNode* parser_parse_eq_op(Lexer* lexer)
 /**
  * <rel_op> ->   < | > | <= | >=
  */
-ParseTreeNode* parser_parse_rel_op(Lexer* lexer)
+Error parser_parse_rel_op(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != "<" && t.lexeme != ">" && t.lexeme != "<=" && t.lexeme != ">=") {
@@ -187,7 +182,7 @@ ParseTreeNode* parser_parse_rel_op(Lexer* lexer)
 /**
  * <arith_op> -> + | - | * | / | %
  */
-ParseTreeNode* parser_parse_arith_op(Lexer* lexer)
+Error parser_parse_arith_op(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != "+" && t.lexeme != "-" && t.lexeme != "*" && t.lexeme != "/" && t.lexeme != "%") {
@@ -198,7 +193,7 @@ ParseTreeNode* parser_parse_arith_op(Lexer* lexer)
 /**
  * <method_name> -> <id>
  */
-ParseTreeNode* parser_parse_method_name(Lexer* lexer)
+Error parser_parse_method_name(Lexer* lexer)
 {
     //parser_parse_id(lexer);
 }
@@ -206,7 +201,7 @@ ParseTreeNode* parser_parse_method_name(Lexer* lexer)
 /**
  * <id> -> 〈alpha〉 〈alpha_num_string〉
  */
-ParseTreeNode* parser_parse_id(Lexer* lexer)
+Error parser_parse_id(Lexer* lexer)
 {
     //parser_parse_alpha(lexer);
     //parser_parse_alpha_num_string(lexer);
@@ -215,7 +210,7 @@ ParseTreeNode* parser_parse_id(Lexer* lexer)
 /**
  * <expr_end> -> 〈bin_op〉 〈expr〉 | EPSILON
  */
-ParseTreeNode* parser_parse_expr_end(Lexer* lexer)
+Error parser_parse_expr_end(Lexer* lexer)
 {
     //parser_parse_bin_op(lexer);
     // parser_parse_expr(lexer);
@@ -226,7 +221,7 @@ ParseTreeNode* parser_parse_expr_end(Lexer* lexer)
 /**
  * <location> -> 〈id〉 〈array_subscript_expr〉
  */
-ParseTreeNode* parser_parse_location(Lexer* lexer)
+Error parser_parse_location(Lexer* lexer)
 {
     //parser_parse_id(lexer);
     //parser_parse_array_subscript_expr(lexer);
@@ -235,7 +230,7 @@ ParseTreeNode* parser_parse_location(Lexer* lexer)
 /**
  * <expr_list_tail> -> , 〈expr〉 〈expr_list_tail〉 | EPSILON
  */
-ParseTreeNode* parser_parse_expr_list_tail(Lexer* lexer)
+Error parser_parse_expr_list_tail(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != ",") {
@@ -251,7 +246,7 @@ ParseTreeNode* parser_parse_expr_list_tail(Lexer* lexer)
 /**
  * <expr_list> -> 〈expr〉 〈expr_list_tail〉 | EPSILON
  */
-ParseTreeNode* parser_parse_expr_list(Lexer* lexer)
+Error parser_parse_expr_list(Lexer* lexer)
 {
     //parser_parse_expr(lexer);
     //parser_parse_expr_list_tail(lexer);
@@ -262,7 +257,7 @@ ParseTreeNode* parser_parse_expr_list(Lexer* lexer)
 /**
  * <callout_arg_list> -> , 〈callout_arg〉 〈callout_arg_list〉 | EPSILON
  */
-ParseTreeNode* parser_parse_callout_arg_list(Lexer* lexer)
+Error parser_parse_callout_arg_list(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != ",") {
@@ -278,7 +273,7 @@ ParseTreeNode* parser_parse_callout_arg_list(Lexer* lexer)
 /**
  * <assign_op> -> = | += | -=
  */
-ParseTreeNode* parser_parse_assign_op(Lexer* lexer)
+Error parser_parse_assign_op(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != "=" && t.lexeme != "+=" && t.lexeme != "-=") {
@@ -289,7 +284,7 @@ ParseTreeNode* parser_parse_assign_op(Lexer* lexer)
 /**
  * <expr_option> -> 〈expr〉 | EPSILON
  */
-ParseTreeNode* parser_parse_expr_option(Lexer* lexer)
+Error parser_parse_expr_option(Lexer* lexer)
 {
     //parser_parse_expr(lexer);
 
@@ -299,7 +294,7 @@ ParseTreeNode* parser_parse_expr_option(Lexer* lexer)
 /**
  * <else_expr> -> else 〈block〉 | EPSILON
  */
-ParseTreeNode* parser_parse_else_expr(Lexer* lexer)
+Error parser_parse_else_expr(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.type != T_ELSE) {
@@ -314,7 +309,7 @@ ParseTreeNode* parser_parse_else_expr(Lexer* lexer)
 /**
  * <var_decl> -> 〈type〉 〈id〉 〈var_id_list_tail〉
  */
-ParseTreeNode* parser_parse_var_decl(Lexer* lexer)
+Error parser_parse_var_decl(Lexer* lexer)
 {
     //parser_parse_type(lexer);
     //parser_parse_id(lexer);
@@ -324,7 +319,7 @@ ParseTreeNode* parser_parse_var_decl(Lexer* lexer)
 /**
  * <statement_list> -> 〈statement〉 〈statement_list〉 | EPSILON
  */
-ParseTreeNode* parser_parse_statement_list(Lexer* lexer)
+Error parser_parse_statement_list(Lexer* lexer)
 {
     //parser_parse_statement(lexer);
     //parser_parse_statement_list(lexer);
@@ -335,7 +330,7 @@ ParseTreeNode* parser_parse_statement_list(Lexer* lexer)
 /**
  * <var_decl_list> -> 〈var_decl〉 〈var_decl_list〉 | EPSILON
  */
-ParseTreeNode* parser_parse_var_decl_list(Lexer* lexer)
+Error parser_parse_var_decl_list(Lexer* lexer)
 {
     //parser_parse_var_decl(lexer);
     //parser_parse_var_decl_list(lexer);
@@ -346,7 +341,7 @@ ParseTreeNode* parser_parse_var_decl_list(Lexer* lexer)
 /**
  * <block> -> { 〈var_decl_list〉 〈statement_list〉 }
  */
-ParseTreeNode* parser_parse_block(Lexer* lexer)
+Error parser_parse_block(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.type != T_BRACE_LEFT) {
@@ -365,7 +360,7 @@ ParseTreeNode* parser_parse_block(Lexer* lexer)
 /**
  * <method_param_decl> -> 〈type〉 〈id〉
  */
-ParseTreeNode* parser_parse_method_param_decl(Lexer* lexer)
+Error parser_parse_method_param_decl(Lexer* lexer)
 {
     //parser_parse_type(lexer);
     //parser_parse_id(lexer);
@@ -374,7 +369,7 @@ ParseTreeNode* parser_parse_method_param_decl(Lexer* lexer)
 /**
  * <method_param_decl_list_tail> -> , 〈method_param_decl〉 〈method_param_decl_list_tail〉 | EPSILON
  */
-ParseTreeNode* parser_parse_method_param_decl_list_tail(Lexer* lexer)
+Error parser_parse_method_param_decl_list_tail(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.lexeme != ",") {
@@ -390,7 +385,7 @@ ParseTreeNode* parser_parse_method_param_decl_list_tail(Lexer* lexer)
 /**
  * <method_param_decl_list> -> 〈method_param_decl〉 〈method_param_decl_list_tail〉 | EPSILON
  */
-ParseTreeNode* parser_parse_method_param_decl_list(Lexer* lexer)
+Error parser_parse_method_param_decl_list(Lexer* lexer)
 {
     //parser_parse_method_param_decl(lexer);
     //parser_parse_method_param_decl_list_tail(lexer);
@@ -401,7 +396,7 @@ ParseTreeNode* parser_parse_method_param_decl_list(Lexer* lexer)
 /**
  * <field_id_list_tail> -> , 〈field_id_list〉 | ;
  */
-ParseTreeNode* parser_parse_field_id_list_tail(Lexer* lexer)
+Error parser_parse_field_id_list_tail(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.type == T_COMMA) {
@@ -416,7 +411,7 @@ ParseTreeNode* parser_parse_field_id_list_tail(Lexer* lexer)
 /**
  * <array_dim_decl> -> [ 〈int_literal〉 ] | EPSILON
  */
-ParseTreeNode* parser_parse_array_dim_decl(Lexer* lexer)
+Error parser_parse_array_dim_decl(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.type != T_BRACKET_LEFT) {
@@ -436,7 +431,7 @@ ParseTreeNode* parser_parse_array_dim_decl(Lexer* lexer)
 /**
  * <field_id_list> -> 〈id〉 〈array_dim_decl〉 〈field_id_list_tail〉
  */
-ParseTreeNode* parser_parse_field_id_list(Lexer* lexer)
+Error parser_parse_field_id_list(Lexer* lexer)
 {
     //parser_parse_id(lexer);
     //parser_parse_array_dim_decl(lexer);
@@ -446,7 +441,7 @@ ParseTreeNode* parser_parse_field_id_list(Lexer* lexer)
 /**
  * <field_decl> -> 〈type〉 〈field_id_list〉
  */
-ParseTreeNode* parser_parse_field_decl(Lexer* lexer)
+Error parser_parse_field_decl(Lexer* lexer)
 {
     //parser_parse_type(lexer);
     //parser_parse_field_id_list(lexer);
@@ -455,7 +450,7 @@ ParseTreeNode* parser_parse_field_decl(Lexer* lexer)
 /**
  * <method_decl_list> -> 〈method_decl〉 〈method_decl_list〉 | EPSILON
  */
-ParseTreeNode* parser_parse_method_decl_list(Lexer* lexer)
+Error parser_parse_method_decl_list(Lexer* lexer)
 {
     //parser_parse_method_decl(lexer);
     //parser_parse_method_decl_list(lexer);
@@ -466,7 +461,7 @@ ParseTreeNode* parser_parse_method_decl_list(Lexer* lexer)
 /**
  * <field_decl_list> -> 〈field_decl〉 〈field_decl_list〉 | EPSILON
  */
-ParseTreeNode* parser_parse_field_decl_list(Lexer* lexer)
+Error parser_parse_field_decl_list(Lexer* lexer)
 {
     //parser_parse_field_decl(lexer);
     //parser_parse_field_decl_list(lexer);
@@ -478,7 +473,7 @@ ParseTreeNode* parser_parse_field_decl_list(Lexer* lexer)
  * <method_call> -> 〈method_name〉 ( 〈expr_list〉 )
  *                  | callout ( 〈string_literal〉 〈callout_arg_list〉 )
  */
-ParseTreeNode* parser_parse_method_call(Lexer* lexer)
+Error parser_parse_method_call(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.type == T_CALLOUT) {
@@ -517,7 +512,7 @@ ParseTreeNode* parser_parse_method_call(Lexer* lexer)
 /**
  * <var_id_list_tail> -> , 〈id〉 〈var_id_list_tail〉 | ;
  */
-ParseTreeNode* parser_parse_var_id_list_tail(Lexer* lexer)
+Error parser_parse_var_id_list_tail(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.type == T_COMMA) {
@@ -534,7 +529,7 @@ ParseTreeNode* parser_parse_var_id_list_tail(Lexer* lexer)
  * <method_decl> -> 〈type〉 〈id〉 ( 〈method_param_decl_list〉 ) 〈block〉
                     | void 〈id〉 ( 〈method_param_decl_list〉 ) 〈block〉
  */
-ParseTreeNode* parser_parse_method_decl(Lexer* lexer)
+Error parser_parse_method_decl(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.type == T_VOID) {
@@ -573,7 +568,7 @@ ParseTreeNode* parser_parse_method_decl(Lexer* lexer)
 /**
  * <alpha_num_string> -> 〈alpha_num〉 〈alpha_num_string〉 | EPSILON
  */
-ParseTreeNode* parser_parse_alpha_num_string(Lexer* lexer)
+Error parser_parse_alpha_num_string(Lexer* lexer)
 {
     //parser_parse_alpha_num(lexer);
     //parser_parse_alpha_num_string(lexer);
@@ -584,7 +579,7 @@ ParseTreeNode* parser_parse_alpha_num_string(Lexer* lexer)
 /**
  * <array_subscript_expr> -> [ 〈expr〉 ] | EPSILON
  */
-ParseTreeNode* parser_parse_array_subscript_expr(Lexer* lexer)
+Error parser_parse_array_subscript_expr(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if(t.type != T_BRACKET_RIGHT) {
@@ -602,7 +597,7 @@ ParseTreeNode* parser_parse_array_subscript_expr(Lexer* lexer)
 /**
  * <type> -> int | boolean
  */
-ParseTreeNode* parser_parse_type(Lexer* lexer)
+Error parser_parse_type(Lexer* lexer)
 {
     Token t = lexer_next(lexer);
     if (t.type != T_BOOLEAN && t.type != T_INT) {
