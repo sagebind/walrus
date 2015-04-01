@@ -11,6 +11,10 @@ ParseTreeNode* parser_parse(Lexer* lexer)
 {
     // create the root node
     ParseTreeNode* root = (ParseTreeNode*)malloc(sizeof(ParseTreeNode));
+
+    // the source file should contain a single program (duh!)
+    parser_parse_program(lexer);
+
     return root;
 }
 
@@ -499,7 +503,7 @@ ParseTreeNode* parser_parse_method_call(Lexer* lexer)
 }
 
 /**
- * <var_id_list_tail> -> , 〈id〉 〈var_id_list_tail〉 | ; 
+ * <var_id_list_tail> -> , 〈id〉 〈var_id_list_tail〉 | ;
  */
 ParseTreeNode* parser_parse_var_id_list_tail(Lexer* lexer)
 {

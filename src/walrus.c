@@ -4,8 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "lexer.h"
-#include "tokens.h"
+#include "parser.h"
 #include "scanner.h"
+#include "tokens.h"
 #include "walrus.h"
 
 
@@ -78,6 +79,12 @@ Error walrus_compile(Options options)
             } while (token.type != T_EOF);
         }
 
+        // go ahead and parse the input
+        else {
+            parser_parse(lexer);
+        }
+
+        // clean up after ourselves
         lexer_destroy(&lexer);
         scanner_close(&context);
     }
