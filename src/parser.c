@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "error.h"
@@ -70,6 +71,11 @@ bool parser_parse_program(Lexer* lexer)
         return false;
     }
 
+    if (lexer_next(lexer).type != T_EOF) {
+        parser_error(lexer, "Expected end of file.");
+        return false;
+    }
+
     return true;
 }
 
@@ -78,11 +84,23 @@ bool parser_parse_program(Lexer* lexer)
  */
 bool parser_parse_field_decl_list(Lexer* lexer)
 {
-    // try to parse a field decl
-    if (parser_parse_field_decl(lexer)) {
-        // if that worked, we must have a field_decl_list
-        if (!parser_parse_field_decl_list(lexer)) {
-            return false;
+    // do a lookahead
+    Token token = lexer_lookahead(lexer, 1);
+
+    // try to parse a field decl?
+    if (token.type == T_BOOLEAN || token.type == T_INT) {
+        // might be a field decl, do a further lookahead
+        token = lexer_lookahead(lexer, 3);
+
+        if (token.type == T_BRACKET_LEFT || token.type == T_COMMA || token.type == T_STATEMENT_END) {
+            if (!parser_parse_field_decl(lexer)) {
+                return false;
+            }
+
+            // if that worked, we must have a field_decl_list next
+            if (!parser_parse_field_decl_list(lexer)) {
+                return false;
+            }
         }
     }
 
