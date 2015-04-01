@@ -768,7 +768,64 @@ bool parser_parse_expr(Lexer* lexer)
  */
 bool parser_parse_expr_part(Lexer* lexer)
 {
-    // @todo
+    Token next_token = lexer_lookahead(lexer, 1);
+
+    // second derivation - method call
+    if (next_token.type == T_CALLOUT || (next_token.type == T_IDENTIFIER && lexer_lookahead(lexer, 2).type == T_PAREN_LEFT)) {
+        if (!parser_parse_method_call(lexer)) {
+            parser_error(lexer, "Expected method call.");
+            return false;
+        }
+
+        return true;
+    }
+
+    // first derivation - location
+    if (next_token.type == T_IDENTIFIER) {
+        if (!parser_parse_location(lexer)) {
+            parser_error(lexer, "Expected location.");
+            return false;
+        }
+
+        return true;
+    }
+
+    // fourth and fifth derivation
+    if (strcmp(next_token.lexeme, "-") == 0 || strcmp(next_token.lexeme, "!") == 0) {
+        lexer_next(lexer);
+
+        if (!parser_parse_expr(lexer)) {
+            parser_error(lexer, "Expected expression.");
+            return false;
+        }
+
+        return true;
+    }
+
+    // last derivation
+    if (next_token.type == T_PAREN_LEFT) {
+        lexer_next(lexer);
+
+        if (!parser_parse_expr(lexer)) {
+            parser_error(lexer, "Expected expression.");
+            return false;
+        }
+
+        if (lexer_next(lexer).type != T_PAREN_RIGHT) {
+            parser_error(lexer, "Missing closing parenthesis.");
+            return false;
+        }
+
+        return true;
+    }
+
+    // third derivation
+    if (!parser_parse_literal(lexer)) {
+        parser_error(lexer, "Expected literal expression.");
+        return false;
+    }
+
+    return true;
 }
 
 /**
