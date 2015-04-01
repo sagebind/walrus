@@ -90,6 +90,12 @@ Token lexer_lookahead(Lexer* lexer, int count)
     Token token;
     for (int i = 0; i < count; i++) {
         token = lexer_next(lexer);
+
+        // handle lookahead over the end-of-file
+        if (token.type == T_EOF) {
+            count = i + 1;
+            break;
+        }
     }
 
     // retreat back to previous token
