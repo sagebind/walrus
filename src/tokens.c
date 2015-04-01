@@ -7,10 +7,14 @@
 /**
  * Creates a new token.
  */
-Token token_create(int line, int column, TokenType type, char* lexeme)
+Token token_create(int line, int column, char* file, TokenType type, char* lexeme)
 {
+    // copy the name to a memory this token owns
+    char* file_str = (char*)malloc(strlen(file) + 1);
+    strcpy(file_str, file);
+
     // create the token
-    Token token = {line, column, type, NULL};
+    Token token = {line, column, file_str, type, NULL};
 
     // allocate and copy the lexeme string
     token.lexeme = (char*)malloc(strlen(lexeme) + 1);

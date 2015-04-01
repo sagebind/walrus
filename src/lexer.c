@@ -120,40 +120,40 @@ Token lexer_read_token(ScannerContext* context)
         switch (character) {
             // end of file
             case EOF:
-                token = token_create(context->line, context->column, T_EOF, "EOF");
+                token = token_create(context->line, context->column, context->name, T_EOF, "EOF");
                 break;
 
             // simple single-character tokens
             case ';':
-                token = token_create(context->line, context->column, T_STATEMENT_END, ";");
+                token = token_create(context->line, context->column, context->name, T_STATEMENT_END, ";");
                 break;
 
             case ',':
-                token = token_create(context->line, context->column, T_COMMA, ",");
+                token = token_create(context->line, context->column, context->name, T_COMMA, ",");
                 break;
 
             case '{':
-                token = token_create(context->line, context->column, T_BRACE_LEFT, "{");
+                token = token_create(context->line, context->column, context->name, T_BRACE_LEFT, "{");
                 break;
 
             case '}':
-                token = token_create(context->line, context->column, T_BRACE_RIGHT, "}");
+                token = token_create(context->line, context->column, context->name, T_BRACE_RIGHT, "}");
                 break;
 
             case '[':
-                token = token_create(context->line, context->column, T_BRACKET_LEFT, "[");
+                token = token_create(context->line, context->column, context->name, T_BRACKET_LEFT, "[");
                 break;
 
             case ']':
-                token = token_create(context->line, context->column, T_BRACKET_RIGHT, "]");
+                token = token_create(context->line, context->column, context->name, T_BRACKET_RIGHT, "]");
                 break;
 
             case '(':
-                token = token_create(context->line, context->column, T_PAREN_LEFT, "(");
+                token = token_create(context->line, context->column, context->name, T_PAREN_LEFT, "(");
                 break;
 
             case ')':
-                token = token_create(context->line, context->column, T_PAREN_RIGHT, ")");
+                token = token_create(context->line, context->column, context->name, T_PAREN_RIGHT, ")");
                 break;
 
             // / //
@@ -163,9 +163,9 @@ Token lexer_read_token(ScannerContext* context)
                     while (!context->eol && !context->eof) {
                         scanner_next(context);
                     }
-                    token = token_create(context->line, context->column, T_WHITESPACE, " ");
+                    token = token_create(context->line, context->column, context->name, T_WHITESPACE, " ");
                 } else {
-                    token = token_create(context->line, context->column, T_OPERATOR, "/");
+                    token = token_create(context->line, context->column, context->name, T_OPERATOR, "/");
                 }
                 break;
 
@@ -174,6 +174,7 @@ Token lexer_read_token(ScannerContext* context)
                 token = token_create(
                     context->line,
                     context->column,
+                    context->name,
                     T_OPERATOR,
                     scanner_get_string(context, -1) // get the string from position-1 to position
                 );
@@ -187,6 +188,7 @@ Token lexer_read_token(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
+                        context->name,
                         T_OPERATOR,
                         "+="
                     );
@@ -194,6 +196,7 @@ Token lexer_read_token(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
+                        context->name,
                         T_OPERATOR,
                         "+"
                     );
@@ -208,6 +211,7 @@ Token lexer_read_token(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
+                        context->name,
                         T_OPERATOR,
                         "-="
                     );
@@ -215,6 +219,7 @@ Token lexer_read_token(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
+                        context->name,
                         T_OPERATOR,
                         "-"
                     );
@@ -229,6 +234,7 @@ Token lexer_read_token(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
+                        context->name,
                         T_OPERATOR,
                         "=="
                     );
@@ -236,6 +242,7 @@ Token lexer_read_token(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
+                        context->name,
                         T_OPERATOR,
                         "="
                     );
@@ -250,6 +257,7 @@ Token lexer_read_token(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
+                        context->name,
                         T_OPERATOR,
                         "!="
                     );
@@ -257,6 +265,7 @@ Token lexer_read_token(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
+                        context->name,
                         T_OPERATOR,
                         "!"
                     );
@@ -271,6 +280,7 @@ Token lexer_read_token(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
+                        context->name,
                         T_OPERATOR,
                         ">="
                     );
@@ -278,6 +288,7 @@ Token lexer_read_token(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
+                        context->name,
                         T_OPERATOR,
                         ">"
                     );
@@ -292,6 +303,7 @@ Token lexer_read_token(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
+                        context->name,
                         T_OPERATOR,
                         "<="
                     );
@@ -299,6 +311,7 @@ Token lexer_read_token(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
+                        context->name,
                         T_OPERATOR,
                         "<"
                     );
@@ -312,6 +325,7 @@ Token lexer_read_token(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
+                        context->name,
                         T_OPERATOR,
                         "&&"
                     );
@@ -319,6 +333,7 @@ Token lexer_read_token(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
+                        context->name,
                         T_ILLEGAL,
                         "&"
                    );
@@ -332,6 +347,7 @@ Token lexer_read_token(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
+                        context->name,
                         T_OPERATOR,
                         "||"
                     );
@@ -339,6 +355,7 @@ Token lexer_read_token(ScannerContext* context)
                     token = token_create(
                         context->line,
                         context->column,
+                        context->name,
                         T_ILLEGAL,
                         "|"
                    );
@@ -359,7 +376,7 @@ Token lexer_read_token(ScannerContext* context)
             default:
                 // try to match normal whitespace to skip it
                 if (isspace(character) && character != 0xC) {
-                    token = token_create(context->line, context->column, T_WHITESPACE, " ");
+                    token = token_create(context->line, context->column, context->name, T_WHITESPACE, " ");
                     break;
                 }
 
@@ -380,6 +397,7 @@ Token lexer_read_token(ScannerContext* context)
                 token = token_create(
                     context->line,
                     context->column,
+                    context->name,
                     T_ILLEGAL,
                     scanner_get_string(context, -1)
                 );
@@ -414,6 +432,7 @@ Token lexer_lex_identifier(ScannerContext* context)
             return token_create(
                 context->line,
                 context->column,
+                context->name,
                 T_IDENTIFIER,
                 identifier
             );
@@ -465,6 +484,7 @@ Token lexer_lex_int(ScannerContext* context)
         return token_create(
             context->line,
             context->column,
+            context->name,
             T_ILLEGAL,
             scanner_get_string(context, 0 - length)
         );
@@ -474,6 +494,7 @@ Token lexer_lex_int(ScannerContext* context)
     return token_create(
         context->line,
         context->column,
+        context->name,
         T_INT_LITERAL,
         scanner_get_string(context, 0 - length)
     );
@@ -498,6 +519,7 @@ Token lexer_lex_char(ScannerContext* context)
             return token_create(
                 context->line,
                 context->column,
+                context->name,
                 T_ILLEGAL,
                 scanner_get_string(context, -2)
             );
@@ -510,6 +532,7 @@ Token lexer_lex_char(ScannerContext* context)
         return token_create(
             context->line,
             context->column,
+            context->name,
             T_ILLEGAL,
             scanner_get_string(context, -2)
         );
@@ -522,6 +545,7 @@ Token lexer_lex_char(ScannerContext* context)
         return token_create(
             context->line,
             context->column,
+            context->name,
             T_ILLEGAL,
             scanner_get_string(context, -2)
         );
@@ -531,6 +555,7 @@ Token lexer_lex_char(ScannerContext* context)
     return token_create(
         context->line,
         context->column,
+        context->name,
         T_CHAR_LITERAL,
         scanner_get_string(context, is_escaped ? -4 : -3)
     );
@@ -567,6 +592,7 @@ Token lexer_lex_string(ScannerContext* context)
             return token_create(
                 context->line,
                 context->column,
+                context->name,
                 T_ILLEGAL,
                 scanner_get_string(context, -1 - length)
             );
@@ -578,6 +604,7 @@ Token lexer_lex_string(ScannerContext* context)
     return token_create(
         context->line,
         context->column,
+        context->name,
         T_STRING_LITERAL,
         scanner_get_string(context, -2 - length)
     );
@@ -632,12 +659,13 @@ Token lexer_create_keyword_token(char* keyword, ScannerContext* context)
             return token_create(
                 context->line,
                 context->column,
+                context->name,
                 keyword_token_types[i],
                 keyword
             );
         }
     }
-    return token_create(context->line, context->column, T_ILLEGAL, keyword);
+    return token_create(context->line, context->column, context->name, T_ILLEGAL, keyword);
 }
 
 /**

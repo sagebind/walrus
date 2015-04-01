@@ -55,6 +55,11 @@ typedef struct {
     int column;
 
     /**
+     * The source file the token came from.
+     */
+    char* file;
+
+    /**
      * The token type of the token.
      */
     TokenType type;
@@ -110,11 +115,12 @@ typedef struct {
  *
  * @param  line   The line number of the token.
  * @param  column The column number of the token.
+ * @param  file   The source file the token came from.
  * @param  type   The token type.
  * @param  lexeme The token lexeme.
  * @return        A newly created token.
  */
-Token token_create(int line, int column, TokenType type, char* lexeme);
+Token token_create(int line, int column, char* file, TokenType type, char* lexeme);
 
 /**
  * Creates a new token stream.
