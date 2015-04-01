@@ -36,7 +36,7 @@ tests/parser/legal-%: .FORCE
 	bin/walrus $@ > /dev/null 2>&1 || bin/walrus $@
 
 tests/parser/illegal-%: .FORCE
-	bin/walrus $@ > /dev/null 2>&1; test $$? -gt 0
+	bin/walrus $@; test $$? -gt 0
 
 clean:
 	rm -rf obj bin
