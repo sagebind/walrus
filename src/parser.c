@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include "error.h"
@@ -11,7 +12,11 @@
 Error parser_parse(Lexer* lexer)
 {
     // the source file should contain a single program (duh!)
-    return parser_parse_program(lexer);
+    if (!parser_parse_program(lexer)) {
+        return E_PARSE_ERROR;
+    }
+
+    return E_SUCCESS;
 }
 
 /**
@@ -26,85 +31,127 @@ Error parser_error(Token token, char* message)
 }
 
 /**
- * <program> -> class Program { 〈field_decl_list〉 〈method_decl_list〉 }
+ * <program> -> class Program { <field_decl_list> <method_decl_list> }
  */
-Error parser_parse_program(Lexer* lexer)
+bool parser_parse_program(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.type != T_CLASS) {
-        return parser_error(token, "A program starts with 'class', you fool.");
+        parser_error(token, "A program starts with 'class', you fool.");
+        return false;
     }
 
     token = lexer_next(lexer);
     if (token.type != T_PROGRAM) {
-        return parser_error(token, "Expecting 'Program'");
+        parser_error(token, "Expecting 'Program'");
+        return false;
     }
 
     token = lexer_next(lexer);
     if (token.type != T_BRACE_LEFT) {
-        return parser_error(token, "Expected {");
+        parser_error(token, "Expected {");
+        return false;
     }
 
-    parser_parse_field_decl_list(lexer);
-    parser_parse_method_decl_list(lexer);
+    // both can be empty, so no errors unique to here
+    if (!parser_parse_field_decl_list(lexer)) {
+        return false;
+    }
+    if (!parser_parse_method_decl_list(lexer)) {
+        return false;
+    }
 
     token = lexer_next(lexer);
     if (token.type != T_BRACE_RIGHT) {
-        return parser_error(token, "Expected }");
+        parser_error(token, "Expected }");
+        return false;
     }
+
+    return true;
 }
 
 /**
- * <bool_literal> -> true | false
+ * <field_decl_list> -> <field_decl> <field_decl_list> | EPSILON
  */
-Error parser_parse_bool_literal(Lexer* lexer)
+bool parser_parse_field_decl_list(Lexer* lexer)
 {
-    Token token = lexer_next(lexer);
-    if (token.type != T_BOOLEAN_LITERAL) {
-        parser_error(token, "Expected boolean literal during parse and did not get it.");
+    // try to parse a field decl
+    if (parser_parse_field_decl(lexer)) {
+        // if that worked, we must have a field_decl_list
+        if (!parser_parse_field_decl_list(lexer)) {
+            return false;
+        }
     }
+
+    // empty string works
+    return true;
 }
 
 /**
- * <char_literal> -> ’ 〈char〉 ’
+ * <method_decl_list> -> <method_decl> <method_decl_list> | EPSILON
  */
-Error parser_parse_char_literal(Lexer* lexer)
+bool parser_parse_method_decl_list(Lexer* lexer)
 {
-    Token token = lexer_next(lexer);
-    if (token.lexeme != "'") {
-        parser_error(token, "Expected ' in char_literal during parse and did not get it.");
+    // try to parse a method decl
+    if (parser_parse_method_decl(lexer)) {
+        // if that worked, we must have a method_decl_list
+        if (!parser_parse_method_decl_list(lexer)) {
+            return false;
+        }
     }
 
-    //parser_parse_char(lexer);
-
-    token = lexer_next(lexer);
-    if (token.lexeme != "'") {
-        parser_error(token, "Expected ' in char_literal during parse and did not get it.");
-    }
+    // empty string works
+    return true;
 }
 
 /**
- * <string_literal> -> " 〈char〉 "
+ * <field_decl> -> <type> <field_id_list>
  */
-Error parser_parse_string_literal(Lexer* lexer)
+bool parser_parse_field_decl(Lexer* lexer)
 {
-    Token token = lexer_next(lexer);
-    if (token.lexeme != "\"") {
-        parser_error(token, "Expected \" in char_literal during parse and did not get it.");
-    }
-
-    //parser_parse_char(lexer);
-
-    token = lexer_next(lexer);
-    if (token.lexeme != "\"") {
-        parser_error(token, "Expected \" in char_literal during parse and did not get it.");
-    }
+    return parser_parse_type(lexer)
+        && parser_parse_field_id_list(lexer);
 }
 
 /**
- * <hex_digit_list> -> 〈hex_digit〉 〈hex_digit_list〉 | EPSILON
+ * <field_id_list> -> <id> <array_dim_decl> <field_id_list_tail>
  */
-Error parser_parse_hex_digit_list(Lexer* lexer)
+bool parser_parse_field_id_list(Lexer* lexer)
+{
+    return parser_parse_id(lexer)
+        && parser_parse_array_dim_decl(lexer)
+        && parser_parse_field_id_list_tail(lexer);
+}
+
+/**
+ * <array_dim_decl> -> [ <int_literal> ] | EPSILON
+ */
+bool parser_parse_array_dim_decl(Lexer* lexer)
+{
+    Token token = lexer_lookahead(lexer, 1);
+
+    if (token.type == T_BRACKET_LEFT) {
+        lexer_next(lexer);
+
+        if (!parser_parse_int_literal(lexer)) {
+            return false;
+        }
+
+        token = lexer_next(lexer);
+        if (token.type != T_BRACKET_RIGHT) {
+            parser_error(token, "Expected closing bracket for array declaration.");
+            return false;
+        }
+    }
+
+    // empty string works
+    return true;
+}
+
+/**
+ * <hex_digit_list> -> <hex_digit> <hex_digit_list> | EPSILON
+ */
+bool parser_parse_hex_digit_list(Lexer* lexer)
 {
     //parser_parse_hex_digit(lexer);
     parser_parse_hex_digit_list(lexer);
@@ -113,9 +160,9 @@ Error parser_parse_hex_digit_list(Lexer* lexer)
 }
 
 /**
- * <hex_literal> -> 0x 〈hex_digit〉 〈hex_digit_list〉
+ * <hex_literal> -> 0x <hex_digit> <hex_digit_list>
  */
-Error parser_parse_hex_literal(Lexer* lexer)
+bool parser_parse_hex_literal(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != "0x") {
@@ -127,9 +174,9 @@ Error parser_parse_hex_literal(Lexer* lexer)
 }
 
 /**
- * <digit_list> -> 〈digit〉 〈digit_list〉 | EPSILON
+ * <digit_list> -> <digit> <digit_list> | EPSILON
  */
-Error parser_parse_digit_list(Lexer* lexer)
+bool parser_parse_digit_list(Lexer* lexer)
 {
     //parser_parse_digit(lexer);
     parser_parse_digit_list(lexer);
@@ -138,9 +185,9 @@ Error parser_parse_digit_list(Lexer* lexer)
 }
 
 /**
- * <decimal_literal> -> 〈digit〉 〈digit_list〉
+ * <decimal_literal> -> <digit> <digit_list>
  */
-Error parser_parse_decimal_literal(Lexer* lexer)
+bool parser_parse_decimal_literal(Lexer* lexer)
 {
     //parser_parse_digit(lexer);
     //parser_parse_digit_list(lexer);
@@ -149,7 +196,7 @@ Error parser_parse_decimal_literal(Lexer* lexer)
 /**
  * <cond_op> -> && OR ||
  */
-Error parser_parse_cond_op(Lexer* lexer)
+bool parser_parse_cond_op(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != "&&" && token.lexeme != "||") {
@@ -160,7 +207,7 @@ Error parser_parse_cond_op(Lexer* lexer)
 /**
  * <eq_op> -> == OR !=
  */
-Error parser_parse_eq_op(Lexer* lexer)
+bool parser_parse_eq_op(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != "==" || token.lexeme != "!=") {
@@ -171,7 +218,7 @@ Error parser_parse_eq_op(Lexer* lexer)
 /**
  * <rel_op> ->   < | > | <= | >=
  */
-Error parser_parse_rel_op(Lexer* lexer)
+bool parser_parse_rel_op(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != "<" && token.lexeme != ">" && token.lexeme != "<=" && token.lexeme != ">=") {
@@ -182,7 +229,7 @@ Error parser_parse_rel_op(Lexer* lexer)
 /**
  * <arith_op> -> + | - | * | / | %
  */
-Error parser_parse_arith_op(Lexer* lexer)
+bool parser_parse_arith_op(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != "+" && token.lexeme != "-" && token.lexeme != "*" && token.lexeme != "/" && token.lexeme != "%") {
@@ -193,24 +240,24 @@ Error parser_parse_arith_op(Lexer* lexer)
 /**
  * <method_name> -> <id>
  */
-Error parser_parse_method_name(Lexer* lexer)
+bool parser_parse_method_name(Lexer* lexer)
 {
     //parser_parse_id(lexer);
 }
 
 /**
- * <id> -> 〈alpha〉 〈alpha_num_string〉
+ * <id> -> <alpha> <alpha_num_string>
  */
-Error parser_parse_id(Lexer* lexer)
+bool parser_parse_id(Lexer* lexer)
 {
     //parser_parse_alpha(lexer);
     //parser_parse_alpha_num_string(lexer);
 }
 
 /**
- * <expr_end> -> 〈bin_op〉 〈expr〉 | EPSILON
+ * <expr_end> -> <bin_op> <expr> | EPSILON
  */
-Error parser_parse_expr_end(Lexer* lexer)
+bool parser_parse_expr_end(Lexer* lexer)
 {
     //parser_parse_bin_op(lexer);
     // parser_parse_expr(lexer);
@@ -219,18 +266,18 @@ Error parser_parse_expr_end(Lexer* lexer)
 }
 
 /**
- * <location> -> 〈id〉 〈array_subscript_expr〉
+ * <location> -> <id> <array_subscript_expr>
  */
-Error parser_parse_location(Lexer* lexer)
+bool parser_parse_location(Lexer* lexer)
 {
     //parser_parse_id(lexer);
     //parser_parse_array_subscript_expr(lexer);
 }
 
 /**
- * <expr_list_tail> -> , 〈expr〉 〈expr_list_tail〉 | EPSILON
+ * <expr_list_tail> -> , <expr> <expr_list_tail> | EPSILON
  */
-Error parser_parse_expr_list_tail(Lexer* lexer)
+bool parser_parse_expr_list_tail(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != ",") {
@@ -244,9 +291,9 @@ Error parser_parse_expr_list_tail(Lexer* lexer)
 }
 
 /**
- * <expr_list> -> 〈expr〉 〈expr_list_tail〉 | EPSILON
+ * <expr_list> -> <expr> <expr_list_tail> | EPSILON
  */
-Error parser_parse_expr_list(Lexer* lexer)
+bool parser_parse_expr_list(Lexer* lexer)
 {
     //parser_parse_expr(lexer);
     //parser_parse_expr_list_tail(lexer);
@@ -255,9 +302,9 @@ Error parser_parse_expr_list(Lexer* lexer)
 }
 
 /**
- * <callout_arg_list> -> , 〈callout_arg〉 〈callout_arg_list〉 | EPSILON
+ * <callout_arg_list> -> , <callout_arg> <callout_arg_list> | EPSILON
  */
-Error parser_parse_callout_arg_list(Lexer* lexer)
+bool parser_parse_callout_arg_list(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != ",") {
@@ -273,7 +320,7 @@ Error parser_parse_callout_arg_list(Lexer* lexer)
 /**
  * <assign_op> -> = | += | -=
  */
-Error parser_parse_assign_op(Lexer* lexer)
+bool parser_parse_assign_op(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != "=" && token.lexeme != "+=" && token.lexeme != "-=") {
@@ -282,9 +329,9 @@ Error parser_parse_assign_op(Lexer* lexer)
 }
 
 /**
- * <expr_option> -> 〈expr〉 | EPSILON
+ * <expr_option> -> <expr> | EPSILON
  */
-Error parser_parse_expr_option(Lexer* lexer)
+bool parser_parse_expr_option(Lexer* lexer)
 {
     //parser_parse_expr(lexer);
 
@@ -292,9 +339,9 @@ Error parser_parse_expr_option(Lexer* lexer)
 }
 
 /**
- * <else_expr> -> else 〈block〉 | EPSILON
+ * <else_expr> -> else <block> | EPSILON
  */
-Error parser_parse_else_expr(Lexer* lexer)
+bool parser_parse_else_expr(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.type != T_ELSE) {
@@ -307,9 +354,9 @@ Error parser_parse_else_expr(Lexer* lexer)
 }
 
 /**
- * <var_decl> -> 〈type〉 〈id〉 〈var_id_list_tail〉
+ * <var_decl> -> <type> <id> <var_id_list_tail>
  */
-Error parser_parse_var_decl(Lexer* lexer)
+bool parser_parse_var_decl(Lexer* lexer)
 {
     //parser_parse_type(lexer);
     //parser_parse_id(lexer);
@@ -317,9 +364,9 @@ Error parser_parse_var_decl(Lexer* lexer)
 }
 
 /**
- * <statement_list> -> 〈statement〉 〈statement_list〉 | EPSILON
+ * <statement_list> -> <statement> <statement_list> | EPSILON
  */
-Error parser_parse_statement_list(Lexer* lexer)
+bool parser_parse_statement_list(Lexer* lexer)
 {
     //parser_parse_statement(lexer);
     //parser_parse_statement_list(lexer);
@@ -328,9 +375,9 @@ Error parser_parse_statement_list(Lexer* lexer)
 }
 
 /**
- * <var_decl_list> -> 〈var_decl〉 〈var_decl_list〉 | EPSILON
+ * <var_decl_list> -> <var_decl> <var_decl_list> | EPSILON
  */
-Error parser_parse_var_decl_list(Lexer* lexer)
+bool parser_parse_var_decl_list(Lexer* lexer)
 {
     //parser_parse_var_decl(lexer);
     //parser_parse_var_decl_list(lexer);
@@ -339,9 +386,9 @@ Error parser_parse_var_decl_list(Lexer* lexer)
 }
 
 /**
- * <block> -> { 〈var_decl_list〉 〈statement_list〉 }
+ * <block> -> { <var_decl_list> <statement_list> }
  */
-Error parser_parse_block(Lexer* lexer)
+bool parser_parse_block(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.type != T_BRACE_LEFT) {
@@ -358,18 +405,18 @@ Error parser_parse_block(Lexer* lexer)
 }
 
 /**
- * <method_param_decl> -> 〈type〉 〈id〉
+ * <method_param_decl> -> <type> <id>
  */
-Error parser_parse_method_param_decl(Lexer* lexer)
+bool parser_parse_method_param_decl(Lexer* lexer)
 {
     //parser_parse_type(lexer);
     //parser_parse_id(lexer);
 }
 
 /**
- * <method_param_decl_list_tail> -> , 〈method_param_decl〉 〈method_param_decl_list_tail〉 | EPSILON
+ * <method_param_decl_list_tail> -> , <method_param_decl> <method_param_decl_list_tail> | EPSILON
  */
-Error parser_parse_method_param_decl_list_tail(Lexer* lexer)
+bool parser_parse_method_param_decl_list_tail(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.lexeme != ",") {
@@ -383,9 +430,9 @@ Error parser_parse_method_param_decl_list_tail(Lexer* lexer)
 }
 
 /**
- * <method_param_decl_list> -> 〈method_param_decl〉 〈method_param_decl_list_tail〉 | EPSILON
+ * <method_param_decl_list> -> <method_param_decl> <method_param_decl_list_tail> | EPSILON
  */
-Error parser_parse_method_param_decl_list(Lexer* lexer)
+bool parser_parse_method_param_decl_list(Lexer* lexer)
 {
     //parser_parse_method_param_decl(lexer);
     //parser_parse_method_param_decl_list_tail(lexer);
@@ -394,9 +441,9 @@ Error parser_parse_method_param_decl_list(Lexer* lexer)
 }
 
 /**
- * <field_id_list_tail> -> , 〈field_id_list〉 | ;
+ * <field_id_list_tail> -> , <field_id_list> | ;
  */
-Error parser_parse_field_id_list_tail(Lexer* lexer)
+bool parser_parse_field_id_list_tail(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.type == T_COMMA) {
@@ -409,71 +456,10 @@ Error parser_parse_field_id_list_tail(Lexer* lexer)
 }
 
 /**
- * <array_dim_decl> -> [ 〈int_literal〉 ] | EPSILON
+ * <method_call> -> <method_name> ( <expr_list> )
+ *                  | callout ( <string_literal> <callout_arg_list> )
  */
-Error parser_parse_array_dim_decl(Lexer* lexer)
-{
-    Token token = lexer_next(lexer);
-    if (token.type != T_BRACKET_LEFT) {
-        parser_error(token, "Expected a left bracket when parsing array_dim_decl and didn't get one.");
-    }
-
-    //parser_parse_int_literal(lexer);
-
-    token = lexer_next(lexer);
-    if (token.type != T_BRACKET_RIGHT) {
-        parser_error(token, "Expected a right bracket when parsing array_dim_decl and did not get one.");
-    }
-
-    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
-}
-
-/**
- * <field_id_list> -> 〈id〉 〈array_dim_decl〉 〈field_id_list_tail〉
- */
-Error parser_parse_field_id_list(Lexer* lexer)
-{
-    //parser_parse_id(lexer);
-    //parser_parse_array_dim_decl(lexer);
-    //parser_parse_field_id_list_tail(lexer);
-}
-
-/**
- * <field_decl> -> 〈type〉 〈field_id_list〉
- */
-Error parser_parse_field_decl(Lexer* lexer)
-{
-    //parser_parse_type(lexer);
-    //parser_parse_field_id_list(lexer);
-}
-
-/**
- * <method_decl_list> -> 〈method_decl〉 〈method_decl_list〉 | EPSILON
- */
-Error parser_parse_method_decl_list(Lexer* lexer)
-{
-    //parser_parse_method_decl(lexer);
-    //parser_parse_method_decl_list(lexer);
-
-    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
-}
-
-/**
- * <field_decl_list> -> 〈field_decl〉 〈field_decl_list〉 | EPSILON
- */
-Error parser_parse_field_decl_list(Lexer* lexer)
-{
-    //parser_parse_field_decl(lexer);
-    //parser_parse_field_decl_list(lexer);
-
-    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
-}
-
-/**
- * <method_call> -> 〈method_name〉 ( 〈expr_list〉 )
- *                  | callout ( 〈string_literal〉 〈callout_arg_list〉 )
- */
-Error parser_parse_method_call(Lexer* lexer)
+bool parser_parse_method_call(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.type == T_CALLOUT) {
@@ -510,9 +496,9 @@ Error parser_parse_method_call(Lexer* lexer)
 }
 
 /**
- * <var_id_list_tail> -> , 〈id〉 〈var_id_list_tail〉 | ;
+ * <var_id_list_tail> -> , <id> <var_id_list_tail> | ;
  */
-Error parser_parse_var_id_list_tail(Lexer* lexer)
+bool parser_parse_var_id_list_tail(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.type == T_COMMA) {
@@ -526,10 +512,10 @@ Error parser_parse_var_id_list_tail(Lexer* lexer)
 }
 
 /**
- * <method_decl> -> 〈type〉 〈id〉 ( 〈method_param_decl_list〉 ) 〈block〉
-                    | void 〈id〉 ( 〈method_param_decl_list〉 ) 〈block〉
+ * <method_decl> -> <type> <id> ( <method_param_decl_list> ) <block>
+                    | void <id> ( <method_param_decl_list> ) <block>
  */
-Error parser_parse_method_decl(Lexer* lexer)
+bool parser_parse_method_decl(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.type == T_VOID) {
@@ -566,9 +552,9 @@ Error parser_parse_method_decl(Lexer* lexer)
 }
 
 /**
- * <alpha_num_string> -> 〈alpha_num〉 〈alpha_num_string〉 | EPSILON
+ * <alpha_num_string> -> <alpha_num> <alpha_num_string> | EPSILON
  */
-Error parser_parse_alpha_num_string(Lexer* lexer)
+bool parser_parse_alpha_num_string(Lexer* lexer)
 {
     //parser_parse_alpha_num(lexer);
     //parser_parse_alpha_num_string(lexer);
@@ -577,9 +563,9 @@ Error parser_parse_alpha_num_string(Lexer* lexer)
 }
 
 /**
- * <array_subscript_expr> -> [ 〈expr〉 ] | EPSILON
+ * <array_subscript_expr> -> [ <expr> ] | EPSILON
  */
-Error parser_parse_array_subscript_expr(Lexer* lexer)
+bool parser_parse_array_subscript_expr(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.type != T_BRACKET_RIGHT) {
@@ -597,10 +583,69 @@ Error parser_parse_array_subscript_expr(Lexer* lexer)
 /**
  * <type> -> int | boolean
  */
-Error parser_parse_type(Lexer* lexer)
+bool parser_parse_type(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.type != T_BOOLEAN && token.type != T_INT) {
         return parser_error(token, "Expected int or boolean during parse and did not get them.");
+    }
+}
+
+/**
+ * <int_literal> -> <decimal_literal> | <hex_literal>
+ */
+bool parser_parse_int_literal(Lexer* lexer)
+{
+    // todo
+    return false;
+}
+
+/**
+ * <bool_literal> -> true | false
+ */
+bool parser_parse_bool_literal(Lexer* lexer)
+{
+    Token token = lexer_next(lexer);
+    if (token.type != T_BOOLEAN_LITERAL) {
+        parser_error(token, "Expected boolean literal during parse and did not get it.");
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * <char_literal> -> ’ <char> ’
+ */
+bool parser_parse_char_literal(Lexer* lexer)
+{
+    Token token = lexer_next(lexer);
+    if (token.lexeme != "'") {
+        parser_error(token, "Expected ' in char_literal during parse and did not get it.");
+    }
+
+    //parser_parse_char(lexer);
+
+    token = lexer_next(lexer);
+    if (token.lexeme != "'") {
+        parser_error(token, "Expected ' in char_literal during parse and did not get it.");
+    }
+}
+
+/**
+ * <string_literal> -> " <char> "
+ */
+bool parser_parse_string_literal(Lexer* lexer)
+{
+    Token token = lexer_next(lexer);
+    if (token.lexeme != "\"") {
+        parser_error(token, "Expected \" in char_literal during parse and did not get it.");
+    }
+
+    //parser_parse_char(lexer);
+
+    token = lexer_next(lexer);
+    if (token.lexeme != "\"") {
+        parser_error(token, "Expected \" in char_literal during parse and did not get it.");
     }
 }
