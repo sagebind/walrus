@@ -82,6 +82,25 @@ Error lexer_backtrack(Lexer* lexer)
 }
 
 /**
+ * Looks ahead a given number of tokens.
+ */
+Token lexer_lookahead(Lexer* lexer, int count)
+{
+    // advance by the given count and capture the token
+    Token token;
+    for (int i = 0; i < count; i++) {
+        token = lexer_next(lexer);
+    }
+
+    // retreat back to previous token
+    for (int i = 0; i < count; i++) {
+        lexer_backtrack(lexer);
+    }
+
+    return token;
+}
+
+/**
  * Destroys an open lexer.
  */
 Error lexer_destroy(Lexer** lexer)

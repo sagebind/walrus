@@ -50,6 +50,15 @@ Token lexer_next(Lexer* lexer);
 Error lexer_backtrack(Lexer* lexer);
 
 /**
+ * Looks ahead a given number of tokens.
+ *
+ * @param  lexer The lexer to look ahead in.
+ * @param  count The number of tokens ahead to look.
+ * @return       A token parsed from the scanner input.
+ */
+Token lexer_lookahead(Lexer* lexer, int count);
+
+/**
  * Destroys an open lexer.
  *
  * Note: this function does not close the scanner context associated with the
