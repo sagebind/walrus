@@ -29,6 +29,14 @@ typedef struct ParseTreeNode {
 ParseTreeNode* parser_parse(Lexer* lexer);
 
 /**
+ * Displays a parser error.
+ *
+ * @param token   The token that caused the error.
+ * @param message The error message.
+ */
+Error parser_error(Token token, char* message);
+
+/**
  * <program> -> class Program { 〈field_decl_list〉 〈method_decl_list〉 }
  */
 ParseTreeNode* parser_parse_program(Lexer* lexer);
