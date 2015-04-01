@@ -12,7 +12,8 @@ typedef enum {
     E_OPERATION_FAILED,
     E_NO_INPUT_FILES,
     E_FILE_NOT_FOUND,
-    E_LEXER_ERROR
+    E_LEXER_ERROR,
+    E_PARSE_ERROR
 } Error;
 
 
