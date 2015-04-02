@@ -626,13 +626,17 @@ bool parser_parse_else_expr(Lexer* lexer)
  */
 bool parser_parse_expr_option(Lexer* lexer)
 {
-    // @todo
-    // epsilon
-    if (lexer_lookahead(lexer, 1).type == T_STATEMENT_END) {
-        return true;
+    Token first_token = lexer_lookahead(lexer, 1);
+
+    // possible first symbols in <expr>
+    if (first_token.type == T_IDENTIFIER || first_token.type == T_CHAR_LITERAL || first_token.type == T_STRING_LITERAL || first_token.type == T_BOOLEAN_LITERAL || first_token.type == T_INT_LITERAL || first_token.type == T_CALLOUT || first_token.type == T_PAREN_LEFT || strcmp(first_token.lexeme, "-") == 0) {
+        if (!parser_parse_expr(lexer)) {
+            return false;
+        }
     }
 
-    return parser_parse_expr(lexer);
+    // epsilon
+    return true;
 }
 
 /**
