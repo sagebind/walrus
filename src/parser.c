@@ -100,11 +100,13 @@ bool parser_parse_field_decl_list(Lexer* lexer)
 
         if (token.type == T_BRACKET_LEFT || token.type == T_COMMA || token.type == T_STATEMENT_END) {
             if (!parser_parse_field_decl(lexer)) {
+                parser_error(lexer, "Parse failed during parser_parse_field_decl - parse of field_decl was invalid.");
                 return false;
             }
 
             // if that worked, we must have a field_decl_list next
             if (!parser_parse_field_decl_list(lexer)) {
+                parser_error(lexer, "Parse failed during parser_parse_field_decl_list - parse of field_decl_list was invalid.");
                 return false;
             }
         }
@@ -679,6 +681,7 @@ bool parser_parse_expr_option(Lexer* lexer)
     // possible first symbols in <expr>
     if (first_token.type == T_IDENTIFIER || first_token.type == T_CHAR_LITERAL || first_token.type == T_STRING_LITERAL || first_token.type == T_BOOLEAN_LITERAL || first_token.type == T_INT_LITERAL || first_token.type == T_CALLOUT || first_token.type == T_PAREN_LEFT || strcmp(first_token.lexeme, "-") == 0) {
         if (!parser_parse_expr(lexer)) {
+            parser_error(lexer, "Parse failed during parser_parse_expr_option - parse of expr was not correct.")
             return false;
         }
     }
