@@ -1013,7 +1013,7 @@ bool parser_parse_callout_arg(Lexer* lexer)
     }
 
     // first derivation
-    if (!parser_parse_expr(lexer)) {
+    else if (!parser_parse_expr(lexer)) {
         parser_error(lexer, "Expected expression.");
         return false;
     }
