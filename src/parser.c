@@ -864,7 +864,7 @@ bool parser_parse_array_subscript_expr(Lexer* lexer)
 {
     Token token = lexer_lookahead(lexer, 1);
 
-    if (token.type == T_BRACKET_RIGHT) {
+    if (token.type == T_BRACKET_LEFT) {
         // consume current token
         lexer_next(lexer);
 
@@ -873,7 +873,7 @@ bool parser_parse_array_subscript_expr(Lexer* lexer)
             return false;
         }
 
-        if (lexer_next(lexer).type != T_BRACKET_LEFT) {
+        if (lexer_next(lexer).type != T_BRACKET_RIGHT) {
             parser_error(lexer, "Missing closing bracket in array subscript expression.");
             return false;
         }
