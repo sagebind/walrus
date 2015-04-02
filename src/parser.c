@@ -889,12 +889,12 @@ bool parser_parse_array_subscript_expr(Lexer* lexer)
 bool parser_parse_expr(Lexer* lexer)
 {
     if (!parser_parse_expr_part(lexer)) {
-        parser_error(lexer, "Error in parsing expr - parsing failed at parser_parse_expr_end.");
+        parser_error(lexer, "Error in parsing expr - parsing failed at parser_parse_expr_part.");
         return false;
     }
 
     if (!parser_parse_expr_end(lexer)) {
-        parser_error(lexer, "Error in parsing expr - parsing failed at parser_parse_expr_part.");
+        parser_error(lexer, "Error in parsing expr - parsing failed at parser_parse_expr_end.");
         return false;
     }
 
