@@ -1021,8 +1021,12 @@ bool parser_parse_id(Lexer* lexer)
  */
 bool parser_parse_int_literal(Lexer* lexer)
 {
-    // @todo
-    return lexer_next(lexer).type == T_INT_LITERAL;
+    if(lexer_next(lexer).type != T_INT_LITERAL) {
+        parser_error(lexer, "Expected int literal during the parse and did not get it.")
+        return false;
+    }
+
+    return true;
 }
 
 /**
