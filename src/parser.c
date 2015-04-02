@@ -635,7 +635,7 @@ bool parser_parse_assign_op(Lexer* lexer)
 {
     // I think I got this
     Token token = lexer_next(lexer);
-    if (token.lexeme != "=" && token.lexeme != "+=" && token.lexeme != "-=") {
+    if (strcmp(token.lexeme, "=") != 0 && strcmp(token.lexeme, "+=") != 0 && strcmp(token.lexeme, "-=") != 0) {
         parser_error(lexer, "Expected one of the following when parsing an assign_op and did not get them: = += -=");
         return false;
     }
