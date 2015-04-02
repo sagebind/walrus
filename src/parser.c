@@ -429,7 +429,7 @@ bool parser_parse_var_decl(Lexer* lexer)
     }  else {
         parser_error(lexer, "Error in parsing var_decl - failed at parser_parse_type.");
         return false;
-    }     
+    }
 }
 
 /**
@@ -644,19 +644,19 @@ bool parser_parse_else_expr(Lexer* lexer)
         parser_error(lexer, "Expected else while parsing else_expr and did not get it.");
     }
 
-	
-	if (!parser_parse_block(lexer_lookahead(lexer, 1))) {
+
+	if (!parser_parse_block(lexer)) {
         parser_error(lexer, "Expected block following else");
         return false;
     }
-	
-	if (parser_parse_block(lexer_lookahead(lexer, 1)) == true) {
+
+	if (parser_parse_block(lexer) == true) {
         return true;
     }
-	
 
-	
-	
+
+
+
 
     //parser_parse_else_expr(lexer);
 
