@@ -723,14 +723,19 @@ bool parser_parse_method_call(Lexer* lexer)
         return false;
     }
 
-    // callout expects a string first
-    if (first_token.type == T_CALLOUT && !parser_parse_string_literal(lexer)) {
-        parser_error(lexer, "Expected library function name in callout.");
-        return false;
-    }
-
     // method arguments
-    if (!parser_parse_callout_arg_list(lexer)) {
+    if (first_token.type == T_CALLOUT) {
+        // callout expects a string first
+        if (!parser_parse_string_literal(lexer)) {
+            parser_error(lexer, "Expected library function name in callout.");
+            return false;
+        }
+
+        if (!parser_parse_callout_arg_list(lexer)) {
+            parser_error(lexer, "Expected argument list in callout.");
+            return false;
+        }
+    } else if (!parser_parse_expr_list(lexer)) {
         parser_error(lexer, "Expected argument list in method call.");
         return false;
     }
