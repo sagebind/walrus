@@ -121,11 +121,16 @@ bool parser_parse_field_decl_list(Lexer* lexer)
  */
 bool parser_parse_method_decl_list(Lexer* lexer)
 {
-    // try to parse a method decl
-    if (parser_parse_method_decl(lexer)) {
+    Token first_token = lexer_lookahead(lexer, 1);
+
+    // are there any more method declarations?
+    if (first_token.type == T_INT || first_token.type == T_BOOLEAN || first_token.type == T_VOID) {
+        // try to parse a method decl
+        if (!parser_parse_method_decl(lexer)) {
+            return false;
+        }
         // if that worked, we must have a method_decl_list
         if (!parser_parse_method_decl_list(lexer)) {
-            parser_error(lexer, "Expected method declaration list.");
             return false;
         }
     }
