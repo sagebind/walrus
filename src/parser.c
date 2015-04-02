@@ -1038,8 +1038,12 @@ bool parser_parse_bool_literal(Lexer* lexer)
  */
 bool parser_parse_char_literal(Lexer* lexer)
 {
-    // @todo
-    return lexer_next(lexer).type == T_CHAR_LITERAL;
+    if(lexer_next(lexer).type != T_CHAR_LITERAL) {
+        parser_error(lexer, "Expected char literal during the parse and did not get it.")
+        return false;
+    }
+
+    return true;
 }
 
 /**
