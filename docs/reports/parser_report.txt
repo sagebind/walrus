@@ -13,7 +13,7 @@ to the project.
 
 ----------------------------------------------------------------------------------------------------------
 
-Once again we didn't have a formal system of dividing up the work, we just did what we could when we were available.
+Once again, we didn't have a formal system of dividing up the work.  We just did what we could when we were available.
 
 Stephen: Assisted in the design of the first and follow sets, and built the initial structure of the Parserand helped with construction along the way
 Tyler: Assisted in the design of the first and follow sets, filled in the parser with the first and follow sets/
