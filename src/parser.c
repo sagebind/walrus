@@ -725,7 +725,7 @@ bool parser_parse_expr_list(Lexer* lexer)
 bool parser_parse_expr_list_tail(Lexer* lexer)
 {
     Token first_token = lexer_lookahead(lexer, 1);
-    if (firsk_token.type != T_COMMA) {
+    if (first_token.type != T_COMMA) {
         parser_error(lexer, "Expected , when parsing expr_list_tail and didn't get it.");
     } else {
         //first derivation
