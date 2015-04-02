@@ -458,8 +458,8 @@ bool parser_parse_var_id_list_tail(Lexer* lexer)
             parser_error(lexer, "Expected variable identifier list tail.");
             return false;
         }
-
         return true;
+
     } else if (token.type == T_STATEMENT_END) {
         return true;
     }
@@ -651,6 +651,7 @@ bool parser_parse_else_expr(Lexer* lexer)
     Token token = lexer_lookahead(lexer, 1);
     if (token.type != T_ELSE) {
         parser_error(lexer, "Expected else while parsing else_expr and did not get it.");
+        return false;
     }
 
 
