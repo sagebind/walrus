@@ -137,8 +137,17 @@ bool parser_parse_method_decl_list(Lexer* lexer)
  */
 bool parser_parse_field_decl(Lexer* lexer)
 {
-    return parser_parse_type(lexer)
-        && parser_parse_field_id_list(lexer);
+    if(parser_parse_type(lexer)) {
+        if(parser_parse_field_id_list(lexer)) {
+            return true;
+        } else {
+            parser_error(lexer, "Error in parsing var_decl - failed at parser_field_id_list.");
+            return false;
+        }
+    } else {
+        parser_error(lexer, "Error in parsing field_decl - failed at parser_parse_type.");
+        return false;
+    }
 }
 
 /**
@@ -146,9 +155,22 @@ bool parser_parse_field_decl(Lexer* lexer)
  */
 bool parser_parse_field_id_list(Lexer* lexer)
 {
-    return parser_parse_id(lexer)
-        && parser_parse_array_dim_decl(lexer)
-        && parser_parse_field_id_list_tail(lexer);
+    if(parser_parse_id(lexer)) {
+        if(parser_parse_array_dim_decl(lexer)) {
+            if(parser_parse_field_id_list_tail(lexer)) {
+                return true;
+            } else {
+                parser_error(lexer, "Error in parsing field_id_list - failed at parser_parse_field_id_list_tail.");
+                return false;
+            }
+        } else {
+            parser_error(lexer, "Error in parsing field_id_list - failed at parser_parse_array_dim_decl.");
+            return false;
+        }
+    } else {
+        parser_error(lexer, "Error in parsing field_id_list - failed at parser_parse_id.");
+        return false;
+    }
 }
 
 /**
