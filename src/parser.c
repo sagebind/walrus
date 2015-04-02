@@ -610,10 +610,17 @@ bool parser_parse_else_expr(Lexer* lexer)
     }
 
 	
-	if (!parser_parse_block(lexer)) {
+	if (!parser_parse_block(lexer_lookahead(lexer, 1))) {
         parser_error(lexer, "Expected block following else");
         return false;
     }
+	
+	if (parser_parse_block(lexer_lookahead(lexer, 1)) == true) {
+        return true;
+    }
+	
+
+	
 	
 
     //parser_parse_else_expr(lexer);
