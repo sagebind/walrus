@@ -433,11 +433,9 @@ bool parser_parse_var_decl(Lexer* lexer)
         parser_error(lexer, "Error in parsing var_decl - failed at parser_parse_type.");
         return false;
     }
-<<<<<<< Updated upstream
-=======
+
     parser_error("Unexpected point reached in parser_parse_var_decl.");
     return false;     
->>>>>>> Stashed changes
 }
 
 /**
@@ -1055,7 +1053,6 @@ bool parser_parse_literal(Lexer* lexer)
  */
 bool parser_parse_id(Lexer* lexer)
 {
-    // @todo
     return lexer_next(lexer).type == T_IDENTIFIER;
 }
 
