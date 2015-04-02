@@ -175,7 +175,7 @@ bool parser_parse_field_id_list(Lexer* lexer)
     }
 
     parser_error(lexer, "Unexpected point reached in parser_parse_field_id_list.");
-    return false;  
+    return false;
 }
 
 /**
@@ -438,7 +438,7 @@ bool parser_parse_var_decl(Lexer* lexer)
     }
 
     parser_error(lexer, "Unexpected point reached in parser_parse_var_decl.");
-    return false;     
+    return false;
 }
 
 /**
@@ -647,30 +647,20 @@ bool parser_parse_statement(Lexer* lexer)
  */
 bool parser_parse_else_expr(Lexer* lexer)
 {
-    // @todo
     Token token = lexer_lookahead(lexer, 1);
-    if (token.type != T_ELSE) {
-        parser_error(lexer, "Expected else while parsing else_expr and did not get it.");
-        return false;
+
+    // first derivation
+    if (token.type == T_ELSE) {
+        lexer_next(lexer);
+
+        if (!parser_parse_block(lexer)) {
+            parser_error(lexer, "Expected block following else statement.");
+            return false;
+        }
     }
 
-
-	if (!parser_parse_block(lexer)) {
-        parser_error(lexer, "Expected block following else");
-        return false;
-    }
-
-	if (parser_parse_block(lexer) == true) {
-        return true;
-    }
-
-
-
-
-
-    //parser_parse_else_expr(lexer);
-
-    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+    // epsilon
+    return true;
 }
 
 /**
@@ -1064,7 +1054,7 @@ bool parser_parse_literal(Lexer* lexer)
     Token token = lexer_lookahead(lexer, 1);
 
     if (token.type == T_INT_LITERAL) {
-        if(parser_parse_int_literal(lexer)) 
+        if(parser_parse_int_literal(lexer))
             return true;
 
         parser_error(lexer, "Error in parsing literal - parsing failed at parser_parse_int_literal.");
@@ -1072,14 +1062,14 @@ bool parser_parse_literal(Lexer* lexer)
     }
 
     if (token.type == T_CHAR_LITERAL) {
-        if(parser_parse_char_literal(lexer)) 
+        if(parser_parse_char_literal(lexer))
             return true;
 
         parser_error(lexer, "Error in parsing literal - parsing failed at parser_parse_char_literal.");
         return false;
     }
 
-    if(parser_parse_bool_literal(lexer)) 
+    if(parser_parse_bool_literal(lexer))
         return true;
 
     //This error could also fire under expected conditions, even if bool_literal doesn't fail, due to the
