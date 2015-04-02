@@ -644,43 +644,45 @@ bool parser_parse_assign_op(Lexer* lexer)
 
 /**
  * <method_call> -> <method_name> ( <expr_list> )
- *                  | callout ( <string_literal> <callout_arg_list> )
+ *                | callout ( <string_literal> <callout_arg_list> )
  */
 bool parser_parse_method_call(Lexer* lexer)
 {
-    // @todo
-    Token token = lexer_next(lexer);
-    if (token.type == T_CALLOUT) {
-        //second derivation
+    Token first_token = lexer_lookahead(lexer, 1);
 
-        token = lexer_next(lexer);
-        if (token.type != T_PAREN_LEFT) {
-            parser_error(lexer, "Expected left parentheses when parsing method_call and did not get one.");
-        }
-        //parser_parse_string_literal(lexer);
-        //parser_parse_callout_arg_list(lexer);
-
-        token = lexer_next(lexer);
-        if (token.type != T_PAREN_RIGHT) {
-            parser_error(lexer, "Expected right parentheses when parsing method_call and did not get one.");
-        }
-    } else {
-        //first derivation
-
-        //parser_parse_method_name(lexer);
-        token = lexer_next(lexer);
-        if (token.type != T_PAREN_LEFT) {
-            //do we have to move the lexer back now?
-            parser_error(lexer, "Expected left parentheses when parsing method_call and didn't get one.");
-        }
-        //parser_parse_expr_list(lexer);
-
-        token = lexer_next(lexer);
-        if (token.type != T_PAREN_RIGHT) {
-            //do we have to move the lexer back now?
-            parser_error(lexer, "Expected right parentheses when parsing method_call and didn't get one.");
-        }
+    // method name or callout
+    if (first_token.type == T_CALLOUT) {
+        lexer_next(lexer);
+    } else if (!parser_parse_method_name(lexer)) {
+        parser_error(lexer, "Expected method name in method call.");
+        return false;
     }
+
+    // left paren
+    if (lexer_next(lexer).type != T_PAREN_LEFT) {
+        parser_error(lexer, "Missing opening parenthesis in method call.");
+        return false;
+    }
+
+    // callout expects a string first
+    if (first_token.type == T_CALLOUT && !parser_parse_string_literal(lexer)) {
+        parser_error(lexer, "Expected library function name in callout.");
+        return false;
+    }
+
+    // method arguments
+    if (!parser_parse_callout_arg_list(lexer)) {
+        parser_error(lexer, "Expected argument list in method call.");
+        return false;
+    }
+
+    // right paren
+    if (lexer_next(lexer).type != T_PAREN_RIGHT) {
+        parser_error(lexer, "Missing closing parenthesis in method call.");
+        return false;
+    }
+
+    return true;
 }
 
 /**
