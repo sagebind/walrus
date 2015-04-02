@@ -772,7 +772,11 @@ bool parser_parse_callout_arg_list(Lexer* lexer)
  */
 bool parser_parse_method_name(Lexer* lexer)
 {
-    return parser_parse_id(lexer);
+    if(parser_parse_id(lexer))
+        return true;
+
+    parser_error(lexer, "Failure in parsing method_name - parser_parse_id failed.");
+    return false;
 }
 
 /**
@@ -783,7 +787,8 @@ bool parser_parse_location(Lexer* lexer)
     if(parser_parse_id(lexer) && parser_parse_array_subscript_expr(lexer))
         return true;
 
-    parser_error(lexer, "Failure in parsing location - either parser_parse_id or parser_parse_array_subscript_expr failed.")
+    parser_error(lexer, "Failure in parsing location - either parser_parse_id or parser_parse_array_subscript_expr failed.");
+    return false;
 }
 
 /**
