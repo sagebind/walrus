@@ -172,7 +172,7 @@ bool parser_parse_field_id_list(Lexer* lexer)
         return false;
     }
 
-    parser_error("Unexpected point reached in parser_parse_field_id_list.");
+    parser_error(lexer, "Unexpected point reached in parser_parse_field_id_list.");
     return false;  
 }
 
@@ -434,7 +434,7 @@ bool parser_parse_var_decl(Lexer* lexer)
         return false;
     }
 
-    parser_error("Unexpected point reached in parser_parse_var_decl.");
+    parser_error(lexer, "Unexpected point reached in parser_parse_var_decl.");
     return false;     
 }
 
