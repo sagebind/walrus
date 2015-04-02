@@ -1051,7 +1051,6 @@ bool parser_parse_char_literal(Lexer* lexer)
  */
 bool parser_parse_string_literal(Lexer* lexer)
 {
-    // @todo
     return lexer_next(lexer).type == T_STRING_LITERAL;
 
     if(lexer_next(lexer).type != T_STRING_LITERAL) {
