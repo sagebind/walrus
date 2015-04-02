@@ -778,17 +778,20 @@ bool parser_parse_expr_list(Lexer* lexer)
 bool parser_parse_expr_list_tail(Lexer* lexer)
 {
     Token first_token = lexer_lookahead(lexer, 1);
-    if (first_token.type != T_COMMA) {
-        parser_error(lexer, "Expected , when parsing expr_list_tail and didn't get it.");
-        return false;
-    } else {
-        //first derivation
+
+    //first derivation
+    if (first_token.type == T_COMMA) {
         lexer_next(lexer);
-        if(!parser_parse_expr(lexer) || !parser_parse_expr_list_tail(lexer)) {
-            parser_error(lexer, "Failure in parsing an 'expr' or 'expr_list_tail' when parsing an expr_list_tail.");
+
+        if (!parser_parse_expr(lexer)) {
+            parser_error(lexer, "Expected expression after comma in expression list.");
             return false;
         }
-        return true;
+
+        if (!parser_parse_expr_list_tail(lexer)) {
+            parser_error(lexer, "Expected expression tail after comma in expression list.");
+            return false;
+        }
     }
 
     //epsilon derivation
