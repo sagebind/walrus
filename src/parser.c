@@ -720,16 +720,21 @@ bool parser_parse_expr_list(Lexer* lexer)
  */
 bool parser_parse_expr_list_tail(Lexer* lexer)
 {
-    // @todo
-    Token token = lexer_next(lexer);
-    if (token.lexeme != ",") {
+    Token first_token = lexer_lookahead(lexer, 1);
+    if (firsk_token.type != T_COMMA) {
         parser_error(lexer, "Expected , when parsing expr_list_tail and didn't get it.");
+    } else {
+        //first derivation
+        lexer_next(lexer);
+        if(!parser_parse_expr(lexer) || !parser_parse_expr_list_tail(lexer)) {
+            parser_error(lexer, "Failure in parsing an 'expr' or 'expr_list_tail' when parsing an expr_list_tail.");
+            return false;
+        }
+        return true;
     }
 
-    //parser_parse_expr(lexer);
-    //parser_parse_expr_list_tail(lexer);
-
-    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+    //epsilon derivation
+    return true;
 }
 
 /**
