@@ -609,21 +609,12 @@ bool parser_parse_else_expr(Lexer* lexer)
         parser_error(lexer, "Expected else while parsing else_expr and did not get it.");
     }
 	
-    if (token.type == T_ELSE) {
-        if (lexer_next(lexer).type != T_PAREN_LEFT) {
-            parser_error(lexer, "Missing opening parenthesis.");
-            return false;
-        }
-
-        if (!parser_parse_expr(lexer)) {
-            parser_error(lexer, "Expected expression.");
-            return false;
-        }
-
-        if (lexer_next(lexer).type != T_PAREN_RIGHT) {
-            parser_error(lexer, "Missing closing parenthesis.");
-            return false;
-        }
+	if (!parser_parse_block(lexer)) {
+        parser_error(lexer, "Expected block following else");
+        return false;
+    }
+	
+	
 	}
     //parser_parse_else_expr(lexer);
 
