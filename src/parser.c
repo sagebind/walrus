@@ -617,7 +617,7 @@ bool parser_parse_statement(Lexer* lexer)
 bool parser_parse_else_expr(Lexer* lexer)
 {
     // @todo
-    Token token = lexer_next(lexer);
+    Token token = lexer_lookahead(lexer, 1);
     if (token.type != T_ELSE) {
         parser_error(lexer, "Expected else while parsing else_expr and did not get it.");
     }
