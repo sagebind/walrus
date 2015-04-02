@@ -189,6 +189,7 @@ bool parser_parse_array_dim_decl(Lexer* lexer)
         lexer_next(lexer);
 
         if (!parser_parse_int_literal(lexer)) {
+            parser_error(lexer, "Error in parsing array_dim_decl - failed at parser_parse_int_literal.");
             return false;
         }
 
@@ -778,6 +779,7 @@ bool parser_parse_expr_list_tail(Lexer* lexer)
     Token first_token = lexer_lookahead(lexer, 1);
     if (first_token.type != T_COMMA) {
         parser_error(lexer, "Expected , when parsing expr_list_tail and didn't get it.");
+        return false;
     } else {
         //first derivation
         lexer_next(lexer);
@@ -835,10 +837,19 @@ bool parser_parse_method_name(Lexer* lexer)
  */
 bool parser_parse_location(Lexer* lexer)
 {
-    if(parser_parse_id(lexer) && parser_parse_array_subscript_expr(lexer))
-        return true;
+    if(parser_parse_id(lexer)) {
+        if(parser_parse_array_subscript_expr(lexer)) {
+            return true;
+        } else {
+            parser_error(lexer, "Failure in parsing location - parser_parse_id failed.");
+            return false;
+        }
+    } else {
+        parser_error(lexer, "Failure in parsing location - parser_parse_array_subscript_expr failed.");
+        return false;
+    }
 
-    parser_error(lexer, "Failure in parsing location - either parser_parse_id or parser_parse_array_subscript_expr failed.");
+    parser_error(lexer, "Unexpected point reached in parser_parse_location.");
     return false;
 }
 
@@ -876,7 +887,19 @@ bool parser_parse_expr(Lexer* lexer)
     if(parser_parse_expr_part(lexer) && parser_parse_expr_end(lexer))
         return true;
 
-    parser_error(lexer, "Error in parsing expr - parsing failed at either parser_parse_expr_part or parser_parse_expr_end.");
+    if(parser_parse_expr_part(lexer)) {
+        if(parser_parse_expr_end(lexer)) {
+            return true;
+        } else {
+            parser_error(lexer, "Error in parsing expr - parsing failed at parser_parse_expr_end.");
+            return false;
+        }
+    } else {
+        parser_error(lexer, "Error in parsing expr - parsing failed at parser_parse_expr_part.");
+        return false;
+    }
+
+    parser_error(lexer, "Unexpected point reached in parser_parse_expr.");
     return false;
 }
 
@@ -1037,18 +1060,31 @@ bool parser_parse_bin_op(Lexer* lexer)
  */
 bool parser_parse_literal(Lexer* lexer)
 {
-    // todo
     Token token = lexer_lookahead(lexer, 1);
 
     if (token.type == T_INT_LITERAL) {
-        return parser_parse_int_literal(lexer);
+        if(parser_parse_int_literal(lexer)) 
+            return true;
+
+        parser_error(lexer, "Error in parsing literal - parsing failed at parser_parse_int_literal.");
+        return false;
     }
 
     if (token.type == T_CHAR_LITERAL) {
-        return parser_parse_char_literal(lexer);
+        if(parser_parse_char_literal(lexer)) 
+            return true;
+
+        parser_error(lexer, "Error in parsing literal - parsing failed at parser_parse_char_literal.");
+        return false;
     }
 
-    return parser_parse_bool_literal(lexer);
+    if(parser_parse_bool_literal(lexer)) 
+        return true;
+
+    //This error could also fire under expected conditions, even if bool_literal doesn't fail, due to the
+    //fact that it is technically the default "return false"
+    parser_error(lexer, "Error in parsing literal - parsing failed at parser_parse_bool_literal.");
+    return false;
 }
 
 /**
@@ -1056,7 +1092,11 @@ bool parser_parse_literal(Lexer* lexer)
  */
 bool parser_parse_id(Lexer* lexer)
 {
-    return lexer_next(lexer).type == T_IDENTIFIER;
+    if(lexer_next(lexer).type == T_IDENTIFIER)
+        return true;
+
+    parser_error(lexer, "Error in parsing id in parser_parse_id.");
+    return false;
 }
 
 /**
