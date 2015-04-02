@@ -398,12 +398,15 @@ bool parser_parse_var_decl(Lexer* lexer)
                 return true;
             } else {
                 parser_error(lexer, "Error in parsing var_decl - failed at parser_parse_var_id_list_tail.");
+                return false;
             }
         } else {
             parser_error(lexer, "Error in parsing var_decl - failed at parser_parse_id.");
+            return false;
         }
     }  else {
         parser_error(lexer, "Error in parsing var_decl - failed at parser_parse_type.");
+        return false;
     }     
 }
 
