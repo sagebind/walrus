@@ -888,23 +888,17 @@ bool parser_parse_array_subscript_expr(Lexer* lexer)
  */
 bool parser_parse_expr(Lexer* lexer)
 {
-    if(parser_parse_expr_part(lexer) && parser_parse_expr_end(lexer))
-        return true;
+    if (!parser_parse_expr_part(lexer)) {
+        parser_error(lexer, "Error in parsing expr - parsing failed at parser_parse_expr_end.");
+        return false;
+    }
 
-    if(parser_parse_expr_part(lexer)) {
-        if(parser_parse_expr_end(lexer)) {
-            return true;
-        } else {
-            parser_error(lexer, "Error in parsing expr - parsing failed at parser_parse_expr_end.");
-            return false;
-        }
-    } else {
+    if (!parser_parse_expr_end(lexer)) {
         parser_error(lexer, "Error in parsing expr - parsing failed at parser_parse_expr_part.");
         return false;
     }
 
-    parser_error(lexer, "Unexpected point reached in parser_parse_expr.");
-    return false;
+    return true;
 }
 
 /**
