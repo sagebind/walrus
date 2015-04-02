@@ -681,7 +681,7 @@ bool parser_parse_expr_option(Lexer* lexer)
     // possible first symbols in <expr>
     if (first_token.type == T_IDENTIFIER || first_token.type == T_CHAR_LITERAL || first_token.type == T_STRING_LITERAL || first_token.type == T_BOOLEAN_LITERAL || first_token.type == T_INT_LITERAL || first_token.type == T_CALLOUT || first_token.type == T_PAREN_LEFT || strcmp(first_token.lexeme, "-") == 0) {
         if (!parser_parse_expr(lexer)) {
-            parser_error(lexer, "Parse failed during parser_parse_expr_option - parse of expr was not correct.")
+            parser_error(lexer, "Parse failed during parser_parse_expr_option - parse of expr was not correct.");
             return false;
         }
     }
