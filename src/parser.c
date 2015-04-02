@@ -1035,7 +1035,7 @@ bool parser_parse_id(Lexer* lexer)
 bool parser_parse_int_literal(Lexer* lexer)
 {
     if(lexer_next(lexer).type != T_INT_LITERAL) {
-        parser_error(lexer, "Expected int literal during the parse and did not get it.")
+        parser_error(lexer, "Expected int literal during the parse and did not get it.");
         return false;
     }
 
@@ -1063,7 +1063,7 @@ bool parser_parse_bool_literal(Lexer* lexer)
 bool parser_parse_char_literal(Lexer* lexer)
 {
     if(lexer_next(lexer).type != T_CHAR_LITERAL) {
-        parser_error(lexer, "Expected char literal during the parse and did not get it.")
+        parser_error(lexer, "Expected char literal during the parse and did not get it.");
         return false;
     }
 
@@ -1078,7 +1078,7 @@ bool parser_parse_string_literal(Lexer* lexer)
     return lexer_next(lexer).type == T_STRING_LITERAL;
 
     if(lexer_next(lexer).type != T_STRING_LITERAL) {
-        parser_error(lexer, "Expected string literal during the parse and did not get it.")
+        parser_error(lexer, "Expected string literal during the parse and did not get it.");
         return false;
     }
 
