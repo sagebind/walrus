@@ -1060,18 +1060,31 @@ bool parser_parse_bin_op(Lexer* lexer)
  */
 bool parser_parse_literal(Lexer* lexer)
 {
-    // todo
     Token token = lexer_lookahead(lexer, 1);
 
     if (token.type == T_INT_LITERAL) {
-        return parser_parse_int_literal(lexer);
+        if(parser_parse_int_literal(lexer)) 
+            return true;
+
+        parser_error(lexer, "Error in parsing literal - parsing failed at parser_parse_int_literal.");
+        return false;
     }
 
     if (token.type == T_CHAR_LITERAL) {
-        return parser_parse_char_literal(lexer);
+        if(parser_parse_char_literal(lexer)) 
+            return true;
+
+        parser_error(lexer, "Error in parsing literal - parsing failed at parser_parse_char_literal.");
+        return false;
     }
 
-    return parser_parse_bool_literal(lexer);
+    if(parser_parse_bool_literal(lexer)) 
+        return true;
+
+    //This error could also fire under expected conditions, even if bool_literal doesn't fail, due to the
+    //fact that it is technically the default "return false"
+    parser_error(lexer, "Error in parsing literal - parsing failed at parser_parse_bool_literal.");
+    return false;
 }
 
 /**
@@ -1079,7 +1092,11 @@ bool parser_parse_literal(Lexer* lexer)
  */
 bool parser_parse_id(Lexer* lexer)
 {
-    return lexer_next(lexer).type == T_IDENTIFIER;
+    if(lexer_next(lexer).type == T_IDENTIFIER)
+        return true;
+
+    parser_error(lexer, "Error in parsing id in parser_parse_id.");
+    return false;
 }
 
 /**
