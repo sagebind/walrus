@@ -1053,4 +1053,11 @@ bool parser_parse_string_literal(Lexer* lexer)
 {
     // @todo
     return lexer_next(lexer).type == T_STRING_LITERAL;
+
+    if(lexer_next(lexer).type != T_STRING_LITERAL) {
+        parser_error(lexer, "Expected string literal during the parse and did not get it.")
+        return false;
+    }
+
+    return true;
 }
