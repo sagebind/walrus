@@ -780,9 +780,10 @@ bool parser_parse_method_name(Lexer* lexer)
  */
 bool parser_parse_location(Lexer* lexer)
 {
-    // @todo
-    return parser_parse_id(lexer)
-        && parser_parse_array_subscript_expr(lexer);
+    if(parser_parse_id(lexer) && parser_parse_array_subscript_expr(lexer))
+        return true;
+
+    parser_error(lexer, "Failure in parsing location - either parser_parse_id or parser_parse_array_subscript_expr failed.")
 }
 
 /**
