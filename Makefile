@@ -5,7 +5,7 @@ CC_FLAGS := -x c -MMD -std=c99 -Wstrict-prototypes -D_GNU_SOURCE
 SCANNER_TESTS := $(wildcard tests/scanner/*)
 PARSER_TESTS := $(wildcard tests/parser/*)
 
-.PHONY: all test test-scanner clean
+.PHONY: all test test-scanner test-parser clean
 
 .FORCE:
 
@@ -32,10 +32,10 @@ tests/scanner/%: tests/scanner/output/%.out bin/walrus .FORCE
 
 test-parser: $(PARSER_TESTS)
 
-tests/parser/legal-%: .FORCE
+tests/parser/legal-%: bin/walrus .FORCE
 	bin/walrus $@ > /dev/null 2>&1 || bin/walrus $@
 
-tests/parser/illegal-%: .FORCE
+tests/parser/illegal-%: bin/walrus .FORCE
 	bin/walrus $@; test $$? -gt 0
 
 clean:
