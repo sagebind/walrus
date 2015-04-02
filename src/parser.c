@@ -822,9 +822,11 @@ bool parser_parse_array_subscript_expr(Lexer* lexer)
  */
 bool parser_parse_expr(Lexer* lexer)
 {
-    // Should be done
-    return parser_parse_expr_part(lexer)
-        && parser_parse_expr_end(lexer);
+    if(parser_parse_expr_part(lexer) && parser_parse_expr_end(lexer))
+        return true;
+
+    parser_error(lexer, "Error in parsing expr - parsing failed at either parser_parse_expr_part or parser_parse_expr_end.");
+    return false;
 }
 
 /**
