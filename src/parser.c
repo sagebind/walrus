@@ -392,9 +392,19 @@ bool parser_parse_statement_list(Lexer* lexer)
  */
 bool parser_parse_var_decl(Lexer* lexer)
 {
-    return parser_parse_type(lexer)
-        && parser_parse_id(lexer)
-        && parser_parse_var_id_list_tail(lexer);
+    if(parser_parse_type(lexer)) {
+        if(parser_parse_id(lexer)) {
+            if(parser_parse_var_id_list_tail(lexer)) {
+                return true;
+            } else {
+                parser_error(lexer, "Error in parsing var_decl - failed at parser_parse_var_id_list_tail.");
+            }
+        } else {
+            parser_error(lexer, "Error in parsing var_decl - failed at parser_parse_id.");
+        }
+    }  else {
+        parser_error(lexer, "Error in parsing var_decl - failed at parser_parse_type.");
+    }     
 }
 
 /**
