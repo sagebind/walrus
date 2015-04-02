@@ -608,7 +608,7 @@ bool parser_parse_else_expr(Lexer* lexer)
     if (token.type != T_ELSE) {
         parser_error(lexer, "Expected else while parsing else_expr and did not get it.");
     }
-	
+
     if (token.type == T_ELSE) {
         if (lexer_next(lexer).type != T_PAREN_LEFT) {
             parser_error(lexer, "Missing opening parenthesis.");
@@ -735,16 +735,25 @@ bool parser_parse_expr_list_tail(Lexer* lexer)
  */
 bool parser_parse_callout_arg_list(Lexer* lexer)
 {
-    // @todo
-    Token token = lexer_next(lexer);
-    if (token.lexeme != ",") {
-        parser_error(lexer, "Expected comma when parsing callout_arg_list and didn't get it.");
+    Token token = lexer_lookahead(lexer, 1);
+
+    // first derivation
+    if (strcmp(token.lexeme, ",") == 0) {
+        lexer_next(lexer);
+
+        if (!parser_parse_callout_arg(lexer)) {
+            parser_error(lexer, "Expected another argument in callout argument list.");
+            return false;
+        }
+
+        if (!parser_parse_callout_arg_list(lexer)) {
+            parser_error(lexer, "Expected callout argument list..");
+            return false;
+        }
     }
 
-    //parser_parse_callout_arg(lexer);
-    //parser_parse_callout_arg_list(lexer);
-
-    //HANDLE ALTERNATE EPSILON DERIVATION PLZ - 0--}--{
+    // epsilon
+    return true;
 }
 
 /**
