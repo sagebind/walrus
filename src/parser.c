@@ -806,7 +806,7 @@ bool parser_parse_callout_arg_list(Lexer* lexer)
         }
 
         if (!parser_parse_callout_arg_list(lexer)) {
-            parser_error(lexer, "Expected callout argument list..");
+            parser_error(lexer, "Expected callout argument list.");
             return false;
         }
     }
