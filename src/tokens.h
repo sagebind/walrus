@@ -59,6 +59,11 @@ typedef enum {
  */
 typedef struct {
     /**
+     * The source file the token came from.
+     */
+    char* file;
+
+    /**
      * The line number the token was found in the source file.
      */
     int line;
@@ -67,11 +72,6 @@ typedef struct {
      * The column number the token was found in the source file.
      */
     int column;
-
-    /**
-     * The source file the token came from.
-     */
-    char* file;
 
     /**
      * The token type of the token.
@@ -127,14 +127,14 @@ typedef struct {
 /**
  * Creates a new token.
  *
+ * @param  file   The source file the token came from.
  * @param  line   The line number of the token.
  * @param  column The column number of the token.
- * @param  file   The source file the token came from.
  * @param  type   The token type.
  * @param  lexeme The token lexeme.
  * @return        A newly created token.
  */
-Token token_create(int line, int column, char* file, TokenType type, char* lexeme);
+Token token_create(char* file, int line, int column, TokenType type, char* lexeme);
 
 /**
  * Creates a new token stream.

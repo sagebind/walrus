@@ -18,7 +18,7 @@ typedef struct {
     /**
      * The name of the file.
      */
-    char* name;
+    char* file;
 
     /**
      * The current line in the source file.

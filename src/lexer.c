@@ -128,58 +128,67 @@ Error lexer_destroy(Lexer** lexer)
 }
 
 /**
+ * Shorthand for creating a token at the current scanner position.
+ */
+static inline Token lexer_create_token(ScannerContext* context, TokenType type, char* lexeme)
+{
+    return token_create(
+        context->file,
+        context->line,
+        context->column,
+        type,
+        lexeme
+    );
+}
+
+/**
  * Reads the next token from a scanner context.
  */
 Token lexer_read_token(ScannerContext* context)
 {
-    // the current matching token
-    Token token;
+    // the current character
     char character;
 
     // attempt to match a token until a non-whitespace token is found
-    do {
+    while (true) {
         // get the next char from the scanner
         character = scanner_next(context);
+
+        // try to match normal whitespace to skip it
+        if (isspace(character) && character != 0xC) {
+            continue;
+        }
 
         // branch into attempts at matching different token types
         switch (character) {
             // end of file
             case EOF:
-                token = token_create(context->line, context->column, context->name, T_EOF, "EOF");
-                break;
+                return lexer_create_token(context, T_EOF, "EOF");
 
             // simple single-character tokens
             case ';':
-                token = token_create(context->line, context->column, context->name, T_STATEMENT_END, ";");
-                break;
+                return lexer_create_token(context, T_STATEMENT_END, ";");
 
             case ',':
-                token = token_create(context->line, context->column, context->name, T_COMMA, ",");
-                break;
+                return lexer_create_token(context, T_COMMA, ",");
 
             case '{':
-                token = token_create(context->line, context->column, context->name, T_BRACE_LEFT, "{");
-                break;
+                return lexer_create_token(context, T_BRACE_LEFT, "{");
 
             case '}':
-                token = token_create(context->line, context->column, context->name, T_BRACE_RIGHT, "}");
-                break;
+                return lexer_create_token(context, T_BRACE_RIGHT, "}");
 
             case '[':
-                token = token_create(context->line, context->column, context->name, T_BRACKET_LEFT, "[");
-                break;
+                return lexer_create_token(context, T_BRACKET_LEFT, "[");
 
             case ']':
-                token = token_create(context->line, context->column, context->name, T_BRACKET_RIGHT, "]");
-                break;
+                return lexer_create_token(context, T_BRACKET_RIGHT, "]");
 
             case '(':
-                token = token_create(context->line, context->column, context->name, T_PAREN_LEFT, "(");
-                break;
+                return lexer_create_token(context, T_PAREN_LEFT, "(");
 
             case ')':
-                token = token_create(context->line, context->column, context->name, T_PAREN_RIGHT, ")");
-                break;
+                return lexer_create_token(context, T_PAREN_RIGHT, ")");
 
             // / //
             case '/':
@@ -188,257 +197,115 @@ Token lexer_read_token(ScannerContext* context)
                     while (!context->eol && !context->eof) {
                         scanner_next(context);
                     }
-                    token = token_create(context->line, context->column, context->name, T_WHITESPACE, " ");
-                } else {
-                    token = token_create(context->line, context->column, context->name, T_DIVIDE, "/");
+                    continue;
                 }
-                break;
+                return lexer_create_token(context, T_DIVIDE, "/");
 
             // single-character operators ;)
             case '*':
-                token = token_create(
-                    context->line,
-                    context->column,
-                    context->name,
-                    T_MULTIPLY,
-                    scanner_get_string(context, -1) // get the string from position-1 to position
-                );
-                break;
+                return lexer_create_token(context, T_MULTIPLY, "*");
+
             case '%':
-                token = token_create(
-                    context->line,
-                    context->column,
-                    context->name,
-                    T_MODULO,
-                    scanner_get_string(context, -1) // get the string from position-1 to position
-                );
-                break;
+                return lexer_create_token(context, T_MODULO, "%");
 
             // + +=
             case '+':
                 // check next token to see if it's an equal sign
                 if (scanner_peek(context, 0) == '=') {
                     scanner_advance(context, 1);
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        context->name,
-                        T_PLUS_EQUAL,
-                        "+="
-                    );
-                } else {
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        context->name,
-                        T_PLUS,
-                        "+"
-                    );
+                    return lexer_create_token(context, T_PLUS_EQUAL, "+=");
                 }
-                break;
+                return lexer_create_token(context, T_PLUS, "+");
 
             // - -=
             case '-':
                 // check next token to see if it's an equal sign
                 if (scanner_peek(context, 0) == '=') {
                     scanner_advance(context, 1);
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        context->name,
-                        T_MINUS,
-                        "-="
-                    );
-                } else {
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        context->name,
-                        T_MINUS,
-                        "-"
-                    );
+                    return lexer_create_token(context, T_MINUS, "-=");
                 }
-                break;
+                return lexer_create_token(context, T_MINUS, "-");
 
             // = ==
             case '=':
                 // check next token to see if it's an equal sign
                 if (scanner_peek(context, 0) == '=') {
                     scanner_advance(context, 1);
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        context->name,
-                        T_IS_EQUAL,
-                        "=="
-                    );
-                } else {
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        context->name,
-                        T_EQUAL,
-                        "="
-                    );
+                    return lexer_create_token(context, T_IS_EQUAL, "==");
                 }
-                break;
+                return lexer_create_token(context, T_EQUAL, "=");
 
             // ! !=
             case '!':
                 // check next token to see if it's an equal sign
                 if (scanner_peek(context, 0) == '=') {
                     scanner_advance(context, 1);
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        context->name,
-                        T_IS_NOT_EQUAL,
-                        "!="
-                    );
-                } else {
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        context->name,
-                        T_LOGICAL_NOT,
-                        "!"
-                    );
+                    return lexer_create_token(context, T_IS_NOT_EQUAL, "!=");
                 }
-                break;
+                return lexer_create_token(context, T_LOGICAL_NOT, "!");
 
             // > >=
             case '>':
                 // check next token to see if it's an equal sign
                 if (scanner_peek(context, 0) == '=') {
                     scanner_advance(context, 1);
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        context->name,
-                        T_IS_GREATER_OR_EQUAL,
-                        ">="
-                    );
-                } else {
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        context->name,
-                        T_IS_GREATER,
-                        ">"
-                    );
+                    return lexer_create_token(context, T_IS_GREATER_OR_EQUAL, ">=");
                 }
-                break;
+                return lexer_create_token(context, T_IS_GREATER, ">");
 
             // < <=
             case '<':
                 // check next token to see if it's an equal sign
                 if (scanner_peek(context, 0) == '=') {
                     scanner_advance(context, 1);
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        context->name,
-                        T_IS_LESSER_OR_EQUAL,
-                        "<="
-                    );
-                } else {
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        context->name,
-                        T_IS_LESSER,
-                        "<"
-                    );
+                    return lexer_create_token(context, T_IS_LESSER_OR_EQUAL, "<=");
                 }
-                break;
+                return lexer_create_token(context, T_IS_LESSER, "<");
 
             // &&
             case '&':
                 if (scanner_peek(context, 0) == '&') {
                     scanner_advance(context, 1);
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        context->name,
-                        T_LOGICAL_AND,
-                        "&&"
-                    );
-                } else { // nothing else starts with &
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        context->name,
-                        T_ILLEGAL,
-                        "&"
-                   );
+                    return lexer_create_token(context, T_LOGICAL_AND, "&&");
                 }
-                break;
+                // nothing else starts with &
 
             // ||
             case '|':
                 if (scanner_peek(context, 0) == '|') {
                     scanner_advance(context, 1);
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        context->name,
-                        T_LOGICAL_OR,
-                        "||"
-                    );
-                } else { // nothing else starts with |
-                    token = token_create(
-                        context->line,
-                        context->column,
-                        context->name,
-                        T_ILLEGAL,
-                        "|"
-                   );
+                    return lexer_create_token(context, T_LOGICAL_OR, "||");
                 }
-                break;
+                // nothing else starts with |
 
             // looks like the beginning of a char
             case '\'':
-                token = lexer_lex_char(context);
-                break;
+                return lexer_lex_char(context);
 
             // looks like the beginning of a string
             case '\"':
-                token = lexer_lex_string(context);
-                break;
-
-            // nothing matched so far, try variable matching
-            default:
-                // try to match normal whitespace to skip it
-                if (isspace(character) && character != 0xC) {
-                    token = token_create(context->line, context->column, context->name, T_WHITESPACE, " ");
-                    break;
-                }
-
-                // looks like the start of an identifier
-                if (isalpha(character) || character == '_') {
-                    token = lexer_lex_identifier(context);
-                    break;
-                }
-
-                // start of an int literal
-                if (isdigit(character)) {
-                    token = lexer_lex_int(context);
-                    break;
-                }
-
-                // we tried everything, lets call it a day
-                lexer_error(context, character, -1);
-                token = token_create(
-                    context->line,
-                    context->column,
-                    context->name,
-                    T_ILLEGAL,
-                    scanner_get_string(context, -1)
-                );
+                return lexer_lex_string(context);
         }
-    } while (token.type == T_WHITESPACE);
 
-    return token;
+        // nothing matched so far, try variable matching
+        // looks like the start of an identifier
+        if (isalpha(character) || character == '_') {
+            return lexer_lex_identifier(context);
+        }
+
+        // start of an int literal
+        if (isdigit(character)) {
+            return lexer_lex_int(context);
+        }
+
+        // we tried everything, lets call it a day
+        lexer_error(context, character, -1);
+        return lexer_create_token(
+            context,
+            T_ILLEGAL,
+            scanner_get_string(context, -1)
+        );
+    }
 }
 
 /**
@@ -463,13 +330,7 @@ Token lexer_lex_identifier(ScannerContext* context)
             }
 
             // valid, non keyword identifier - create a token
-            return token_create(
-                context->line,
-                context->column,
-                context->name,
-                T_IDENTIFIER,
-                identifier
-            );
+            return lexer_create_token(context, T_IDENTIFIER, identifier);
         }
 
         // consume the peeked char
@@ -515,20 +376,16 @@ Token lexer_lex_int(ScannerContext* context)
     if (hexadecimal && length <= 2) {
         lexer_error(context, scanner_next(context), -1);
 
-        return token_create(
-            context->line,
-            context->column,
-            context->name,
+        return lexer_create_token(
+            context,
             T_ILLEGAL,
             scanner_get_string(context, 0 - length)
         );
     }
 
     // we made it! return the token
-    return token_create(
-        context->line,
-        context->column,
-        context->name,
+    return lexer_create_token(
+        context,
         T_INT_LITERAL,
         scanner_get_string(context, 0 - length)
     );
@@ -550,10 +407,8 @@ Token lexer_lex_char(ScannerContext* context)
 
         // was it a valid escape char?
         if (character == -1) {
-            return token_create(
-                context->line,
-                context->column,
-                context->name,
+            return lexer_create_token(
+                context,
                 T_ILLEGAL,
                 scanner_get_string(context, -2)
             );
@@ -563,10 +418,8 @@ Token lexer_lex_char(ScannerContext* context)
     // invalid character
     else if (character < 32 || character > 126 || character == '\'' || character == '"') {
         lexer_error(context, character, -1);
-        return token_create(
-            context->line,
-            context->column,
-            context->name,
+        return lexer_create_token(
+            context,
             T_ILLEGAL,
             scanner_get_string(context, -2)
         );
@@ -576,20 +429,16 @@ Token lexer_lex_char(ScannerContext* context)
     character = scanner_next(context);
     if (character != '\'') {
         lexer_error(context, character, '\'');
-        return token_create(
-            context->line,
-            context->column,
-            context->name,
+        return lexer_create_token(
+            context,
             T_ILLEGAL,
             scanner_get_string(context, -2)
         );
     }
 
     // if we made it this far, the char literal must be valid!
-    return token_create(
-        context->line,
-        context->column,
-        context->name,
+    return lexer_create_token(
+        context,
         T_CHAR_LITERAL,
         scanner_get_string(context, is_escaped ? -4 : -3)
     );
@@ -623,10 +472,8 @@ Token lexer_lex_string(ScannerContext* context)
         // invalid character
         else if (character < 32 || character > 126 || character == '\'') {
             lexer_error(context, character, '\"');
-            return token_create(
-                context->line,
-                context->column,
-                context->name,
+            return lexer_create_token(
+                context,
                 T_ILLEGAL,
                 scanner_get_string(context, -1 - length)
             );
@@ -635,10 +482,8 @@ Token lexer_lex_string(ScannerContext* context)
     }
 
     // we made it this far; must be OK
-    return token_create(
-        context->line,
-        context->column,
-        context->name,
+    return lexer_create_token(
+        context,
         T_STRING_LITERAL,
         scanner_get_string(context, -2 - length)
     );
@@ -690,16 +535,11 @@ Token lexer_create_keyword_token(char* keyword, ScannerContext* context)
     // loop over all keywords for a match
     for (int i = 0; i < KEYWORD_COUNT; i++) {
         if (strcmp(keyword, keyword_identifiers[i]) == 0) {
-            return token_create(
-                context->line,
-                context->column,
-                context->name,
-                keyword_token_types[i],
-                keyword
-            );
+            return lexer_create_token(context, keyword_token_types[i], keyword);
         }
     }
-    return token_create(context->line, context->column, context->name, T_ILLEGAL, keyword);
+
+    return lexer_create_token(context, T_ILLEGAL, keyword);
 }
 
 /**
@@ -753,7 +593,8 @@ char* lexer_char_printable(char character, bool quoted)
  */
 void lexer_error(ScannerContext* context, char unexpected, char expected)
 {
-    printf("%s line %d:%d: ", basename(context->name), context->line, context->column);
+    printf("%s line %d:%d: ", basename(context->file), context->line, context->column);
+
     if (expected >= 0) {
         printf("expecting %s, found %s\n", lexer_char_printable(expected, true), lexer_char_printable(unexpected, true));
     } else {
