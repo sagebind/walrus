@@ -14,7 +14,9 @@ Error parser_parse(Lexer* lexer)
 {
     // the source file should contain a single program (duh!)
     if (!parser_parse_program(lexer)) {
-        return E_PARSE_ERROR;
+        char buffer[512];
+        sprintf(buffer, "Failed to parse file \"%s\".", lexer->context->file);
+        return error(E_PARSE_ERROR, buffer);
     }
 
     return E_SUCCESS;
@@ -118,15 +120,13 @@ bool parser_parse_field_decl_list(Lexer* lexer)
         // might be a field decl, do a further lookahead
         token = lexer_lookahead(lexer, 3);
 
-        if (token.type == T_BRACKET_LEFT || token.type == T_COMMA || token.type == T_STATEMENT_END) {
+        if (token.type != T_PAREN_LEFT) {
             if (!parser_parse_field_decl(lexer)) {
-                parser_error(lexer, "Parse failed during parser_parse_field_decl - parse of field_decl was invalid.");
                 return false;
             }
 
             // if that worked, we must have a field_decl_list next
             if (!parser_parse_field_decl_list(lexer)) {
-                parser_error(lexer, "Parse failed during parser_parse_field_decl_list - parse of field_decl_list was invalid.");
                 return false;
             }
         }
@@ -164,17 +164,8 @@ bool parser_parse_method_decl_list(Lexer* lexer)
  */
 bool parser_parse_field_decl(Lexer* lexer)
 {
-    if(parser_parse_type(lexer)) {
-        if(parser_parse_field_id_list(lexer)) {
-            return true;
-        } else {
-            parser_error(lexer, "Error in parsing var_decl - failed at parser_field_id_list.");
-            return false;
-        }
-    } else {
-        parser_error(lexer, "Error in parsing field_decl - failed at parser_parse_type.");
-        return false;
-    }
+    return parser_parse_type(lexer)
+        && parser_parse_field_id_list(lexer);
 }
 
 /**
@@ -182,25 +173,12 @@ bool parser_parse_field_decl(Lexer* lexer)
  */
 bool parser_parse_field_id_list(Lexer* lexer)
 {
-    if(parser_parse_id(lexer)) {
-        if(parser_parse_array_dim_decl(lexer)) {
-            if(parser_parse_field_id_list_tail(lexer)) {
-                return true;
-            } else {
-                parser_error(lexer, "Error in parsing field_id_list - failed at parser_parse_field_id_list_tail.");
-                return false;
-            }
-        } else {
-            parser_error(lexer, "Error in parsing field_id_list - failed at parser_parse_array_dim_decl.");
-            return false;
-        }
-    } else {
-        parser_error(lexer, "Error in parsing field_id_list - failed at parser_parse_id.");
+    if (!parser_parse_id(lexer)) {
+        parser_error(lexer, "Expected field name.");
         return false;
     }
-
-    parser_error(lexer, "Unexpected point reached in parser_parse_field_id_list.");
-    return false;
+    return parser_parse_array_dim_decl(lexer)
+        && parser_parse_field_id_list_tail(lexer);
 }
 
 /**
@@ -214,13 +192,13 @@ bool parser_parse_array_dim_decl(Lexer* lexer)
         lexer_next(lexer);
 
         if (!parser_parse_int_literal(lexer)) {
-            parser_error(lexer, "Error in parsing array_dim_decl - failed at parser_parse_int_literal.");
+            parser_error(lexer, "Expected array length.");
             return false;
         }
 
         token = lexer_next(lexer);
         if (token.type != T_BRACKET_RIGHT) {
-            parser_error(lexer, "Expected closing bracket for array declaration.");
+            parser_error(lexer, "Missing closing bracket in array declaration.");
             return false;
         }
     }
@@ -247,7 +225,7 @@ bool parser_parse_field_id_list_tail(Lexer* lexer)
         return true;
     }
 
-    parser_error(lexer, "Expected , or ; when parsing field_id_list_tail and got neither.");
+    parser_error(lexer, "Missing semicolon ';' or comma ',' after field declaration.");
     return false;
 }
 
@@ -291,7 +269,6 @@ bool parser_parse_method_decl(Lexer* lexer)
 
     // ... then finally a block
     if (!parser_parse_block(lexer)) {
-        parser_error(lexer, "Expected block following method definition.");
         return false;
     }
 
@@ -370,22 +347,20 @@ bool parser_parse_method_param_decl(Lexer* lexer)
 bool parser_parse_block(Lexer* lexer)
 {
     if (lexer_next(lexer).type != T_BRACE_LEFT) {
-        parser_error(lexer, "Expected left curly brace when parsing block and did not get one.");
+        parser_error(lexer, "Missing left curly brace when parsing block.");
         return false;
     }
 
     if (!parser_parse_var_decl_list(lexer)) {
-        parser_error(lexer, "Expected variable declaration list.");
         return false;
     }
 
     if (!parser_parse_statement_list(lexer)) {
-        parser_error(lexer, "Expected statement list.");
         return false;
     }
 
     if (lexer_next(lexer).type != T_BRACE_RIGHT) {
-        parser_error(lexer, "Expected right curly brace when parsing block during parsing and did not get one.");
+        parser_error(lexer, "Missing right curly brace when parsing block.");
         return false;
     }
 
@@ -402,12 +377,10 @@ bool parser_parse_var_decl_list(Lexer* lexer)
     // first derivation
     if (token.type == T_BOOLEAN || token.type == T_INT) {
         if (!parser_parse_var_decl(lexer)) {
-            parser_error(lexer, "Expected variable declaration.");
             return false;
         }
 
         if (!parser_parse_var_decl_list(lexer)) {
-            parser_error(lexer, "Expected variable declaration list.");
             return false;
         }
     }
@@ -428,12 +401,10 @@ bool parser_parse_statement_list(Lexer* lexer)
 
     // first derivation
     if (!parser_parse_statement(lexer)) {
-        parser_error(lexer, "Expected statement.");
         return false;
     }
 
     if (!parser_parse_statement_list(lexer)) {
-        parser_error(lexer, "Expected statement list.");
         return false;
     }
 
@@ -445,25 +416,17 @@ bool parser_parse_statement_list(Lexer* lexer)
  */
 bool parser_parse_var_decl(Lexer* lexer)
 {
-    if(parser_parse_type(lexer)) {
-        if(parser_parse_id(lexer)) {
-            if(parser_parse_var_id_list_tail(lexer)) {
-                return true;
-            } else {
-                parser_error(lexer, "Error in parsing var_decl - failed at parser_parse_var_id_list_tail.");
-                return false;
-            }
-        } else {
-            parser_error(lexer, "Error in parsing var_decl - failed at parser_parse_id.");
-            return false;
-        }
-    }  else {
-        parser_error(lexer, "Error in parsing var_decl - failed at parser_parse_type.");
+    if (!parser_parse_type(lexer)) {
+        parser_error(lexer, "Expected variable type.");
         return false;
     }
 
-    parser_error(lexer, "Unexpected point reached in parser_parse_var_decl.");
-    return false;
+    if (!parser_parse_id(lexer)) {
+        parser_error(lexer, "Expected variable name.");
+        return false;
+    }
+
+    return parser_parse_var_id_list_tail(lexer);
 }
 
 /**
@@ -489,7 +452,7 @@ bool parser_parse_var_id_list_tail(Lexer* lexer)
         return true;
     }
 
-    parser_error(lexer, "Expected , or ; when parsing var_id_list_tail and got neither.");
+    parser_error(lexer, "Missing semicolon ';' or comma ',' after variable declaration.");
     return false;
 }
 
@@ -500,7 +463,7 @@ bool parser_parse_type(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
     if (token.type != T_BOOLEAN && token.type != T_INT) {
-        parser_error(lexer, "Expected int or boolean during parse and did not get them.");
+        parser_error(lexer, "Expected int or boolean type.");
         return false;
     }
 
@@ -606,7 +569,7 @@ bool parser_parse_statement(Lexer* lexer)
     // fourth derivation
     else if (token.type == T_FOR) {
         if (!parser_parse_id(lexer)) {
-            parser_error(lexer, "Expected identifier.");
+            parser_error(lexer, "Expected variable name.");
             return false;
         }
 
@@ -641,7 +604,6 @@ bool parser_parse_statement(Lexer* lexer)
     // fifth derivation
     else if (token.type == T_RETURN) {
         if (!parser_parse_expr_option(lexer)) {
-            parser_error(lexer, "Expected optional expression. Hmm...");
             return false;
         }
 
@@ -804,12 +766,12 @@ bool parser_parse_expr_list_tail(Lexer* lexer)
         lexer_next(lexer);
 
         if (!parser_parse_expr(lexer)) {
-            parser_error(lexer, "Expected expression after comma in expression list.");
+            parser_error(lexer, "Expected expression following comma in expression list.");
             return false;
         }
 
         if (!parser_parse_expr_list_tail(lexer)) {
-            parser_error(lexer, "Expected expression tail after comma in expression list.");
+            parser_error(lexer, "Expected expression tail following comma in expression list.");
             return false;
         }
     }
@@ -849,11 +811,7 @@ bool parser_parse_callout_arg_list(Lexer* lexer)
  */
 bool parser_parse_method_name(Lexer* lexer)
 {
-    if(parser_parse_id(lexer))
-        return true;
-
-    parser_error(lexer, "Failure in parsing method_name - parser_parse_id failed.");
-    return false;
+    return parser_parse_id(lexer);
 }
 
 /**
@@ -861,20 +819,12 @@ bool parser_parse_method_name(Lexer* lexer)
  */
 bool parser_parse_location(Lexer* lexer)
 {
-    if(parser_parse_id(lexer)) {
-        if(parser_parse_array_subscript_expr(lexer)) {
-            return true;
-        } else {
-            parser_error(lexer, "Failure in parsing location - parser_parse_id failed.");
-            return false;
-        }
-    } else {
-        parser_error(lexer, "Failure in parsing location - parser_parse_array_subscript_expr failed.");
+    if (!parser_parse_id(lexer)) {
+        parser_error(lexer, "Failure in parsing location - parser_parse_id failed.");
         return false;
     }
 
-    parser_error(lexer, "Unexpected point reached in parser_parse_location.");
-    return false;
+    return parser_parse_array_subscript_expr(lexer);
 }
 
 /**
@@ -908,17 +858,8 @@ bool parser_parse_array_subscript_expr(Lexer* lexer)
  */
 bool parser_parse_expr(Lexer* lexer)
 {
-    if (!parser_parse_expr_part(lexer)) {
-        parser_error(lexer, "Error in parsing expr - parsing failed at parser_parse_expr_part.");
-        return false;
-    }
-
-    if (!parser_parse_expr_end(lexer)) {
-        parser_error(lexer, "Error in parsing expr - parsing failed at parser_parse_expr_end.");
-        return false;
-    }
-
-    return true;
+    return parser_parse_expr_part(lexer)
+        && parser_parse_expr_end(lexer);
 }
 
 /**
@@ -1088,11 +1029,7 @@ bool parser_parse_literal(Lexer* lexer)
  */
 bool parser_parse_id(Lexer* lexer)
 {
-    if(lexer_next(lexer).type == T_IDENTIFIER)
-        return true;
-
-    parser_error(lexer, "Error in parsing id in parser_parse_id.");
-    return false;
+    return lexer_next(lexer).type == T_IDENTIFIER;
 }
 
 /**
