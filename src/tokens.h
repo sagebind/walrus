@@ -8,36 +8,50 @@
  * Types of lexical tokens.
  */
 typedef enum {
-    T_BOOLEAN,
-    T_BOOLEAN_LITERAL,
-    T_BRACE_LEFT,
-    T_BRACE_RIGHT,
-    T_BRACKET_LEFT,
-    T_BRACKET_RIGHT,
-    T_BREAK,
-    T_CALLOUT,
-    T_CHAR_LITERAL,
-    T_CLASS,
-    T_COMMA,
-    T_CONTINUE,
-    T_ELSE,
+    T_BOOLEAN,              // boolean
+    T_BOOLEAN_LITERAL,      // true, false
+    T_BRACE_LEFT,           // {
+    T_BRACE_RIGHT,          // }
+    T_BRACKET_LEFT,         // [
+    T_BRACKET_RIGHT,        // ]
+    T_BREAK,                // break
+    T_CALLOUT,              // callout
+    T_CHAR_LITERAL,         // 'a'
+    T_CLASS,                // class
+    T_COMMA,                // ,
+    T_CONTINUE,             // continue
+    T_DIVIDE,               // /
+    T_ELSE,                 // else
     T_EOF,
-    T_FOR,
-    T_IDENTIFIER,
-    T_IF,
-    T_ILLEGAL,
-    T_INT,
-    T_INT_LITERAL,
-    T_OPERATOR,
-    T_PAREN_LEFT,
-    T_PAREN_RIGHT,
-    T_PROGRAM,
-    T_RESERVED,
-    T_RETURN,
-    T_STATEMENT_END,
-    T_STRING_LITERAL,
-    T_VOID,
-    T_WHITESPACE
+    T_EQUAL,                // =
+    T_FOR,                  // for
+    T_IDENTIFIER,           // foo, bar, baz
+    T_IF,                   // if
+    T_ILLEGAL,              // any invalid string of chars
+    T_INT,                  // int
+    T_INT_LITERAL,          // 42, 0xB055
+    T_IS_EQUAL,             // ==
+    T_IS_GREATER,           // >
+    T_IS_GREATER_OR_EQUAL,  // >=
+    T_IS_LESSER,            // <
+    T_IS_LESSER_OR_EQUAL,   // <=
+    T_IS_NOT_EQUAL,         // !=
+    T_LOGICAL_AND,          // &&
+    T_LOGICAL_NOT,          // !
+    T_LOGICAL_OR,           // ||
+    T_MINUS,                // -
+    T_MINUS_EQUAL,          // -=
+    T_MODULO,               // %
+    T_MULTIPLY,             // *
+    T_PAREN_LEFT,           // (
+    T_PAREN_RIGHT,          // )
+    T_PLUS,                 // +
+    T_PLUS_EQUAL,           // +=
+    T_RETURN,               // return
+    T_STATEMENT_END,        // ;
+    T_STRING_LITERAL,       // "hello"
+    T_VOID,                 // void
+    T_WHITESPACE            // any string of whitespace characters
 } TokenType;
 
 /**

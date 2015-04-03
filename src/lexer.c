@@ -6,7 +6,7 @@
 #include "lexer.h"
 #include "tokens.h"
 
-#define KEYWORD_COUNT 14
+#define KEYWORD_COUNT 13
 
 
 /**
@@ -14,7 +14,7 @@
  */
 static char* keyword_identifiers[KEYWORD_COUNT] = {
     "boolean", "break", "callout", "class", "continue", "else", "false", "for",
-    "if", "int", "Program", "return", "true", "void"
+    "if", "int", "return", "true", "void"
 };
 
 /**
@@ -22,7 +22,7 @@ static char* keyword_identifiers[KEYWORD_COUNT] = {
  */
 static TokenType keyword_token_types[KEYWORD_COUNT] = {
     T_BOOLEAN, T_BREAK, T_CALLOUT, T_CLASS, T_CONTINUE, T_ELSE, T_BOOLEAN_LITERAL,
-    T_FOR, T_IF, T_INT, T_PROGRAM, T_RETURN, T_BOOLEAN_LITERAL, T_VOID
+    T_FOR, T_IF, T_INT, T_RETURN, T_BOOLEAN_LITERAL, T_VOID
 };
 
 
@@ -190,17 +190,26 @@ Token lexer_read_token(ScannerContext* context)
                     }
                     token = token_create(context->line, context->column, context->name, T_WHITESPACE, " ");
                 } else {
-                    token = token_create(context->line, context->column, context->name, T_OPERATOR, "/");
+                    token = token_create(context->line, context->column, context->name, T_DIVIDE, "/");
                 }
                 break;
 
             // single-character operators ;)
-            case '*': case '%':
+            case '*':
                 token = token_create(
                     context->line,
                     context->column,
                     context->name,
-                    T_OPERATOR,
+                    T_MULTIPLY,
+                    scanner_get_string(context, -1) // get the string from position-1 to position
+                );
+                break;
+            case '%':
+                token = token_create(
+                    context->line,
+                    context->column,
+                    context->name,
+                    T_MODULO,
                     scanner_get_string(context, -1) // get the string from position-1 to position
                 );
                 break;
@@ -214,7 +223,7 @@ Token lexer_read_token(ScannerContext* context)
                         context->line,
                         context->column,
                         context->name,
-                        T_OPERATOR,
+                        T_PLUS_EQUAL,
                         "+="
                     );
                 } else {
@@ -222,7 +231,7 @@ Token lexer_read_token(ScannerContext* context)
                         context->line,
                         context->column,
                         context->name,
-                        T_OPERATOR,
+                        T_PLUS,
                         "+"
                     );
                 }
@@ -237,7 +246,7 @@ Token lexer_read_token(ScannerContext* context)
                         context->line,
                         context->column,
                         context->name,
-                        T_OPERATOR,
+                        T_MINUS,
                         "-="
                     );
                 } else {
@@ -245,7 +254,7 @@ Token lexer_read_token(ScannerContext* context)
                         context->line,
                         context->column,
                         context->name,
-                        T_OPERATOR,
+                        T_MINUS,
                         "-"
                     );
                 }
@@ -260,7 +269,7 @@ Token lexer_read_token(ScannerContext* context)
                         context->line,
                         context->column,
                         context->name,
-                        T_OPERATOR,
+                        T_IS_EQUAL,
                         "=="
                     );
                 } else {
@@ -268,7 +277,7 @@ Token lexer_read_token(ScannerContext* context)
                         context->line,
                         context->column,
                         context->name,
-                        T_OPERATOR,
+                        T_EQUAL,
                         "="
                     );
                 }
@@ -283,7 +292,7 @@ Token lexer_read_token(ScannerContext* context)
                         context->line,
                         context->column,
                         context->name,
-                        T_OPERATOR,
+                        T_IS_NOT_EQUAL,
                         "!="
                     );
                 } else {
@@ -291,7 +300,7 @@ Token lexer_read_token(ScannerContext* context)
                         context->line,
                         context->column,
                         context->name,
-                        T_OPERATOR,
+                        T_LOGICAL_NOT,
                         "!"
                     );
                 }
@@ -306,7 +315,7 @@ Token lexer_read_token(ScannerContext* context)
                         context->line,
                         context->column,
                         context->name,
-                        T_OPERATOR,
+                        T_IS_GREATER_OR_EQUAL,
                         ">="
                     );
                 } else {
@@ -314,7 +323,7 @@ Token lexer_read_token(ScannerContext* context)
                         context->line,
                         context->column,
                         context->name,
-                        T_OPERATOR,
+                        T_IS_GREATER,
                         ">"
                     );
                 }
@@ -329,7 +338,7 @@ Token lexer_read_token(ScannerContext* context)
                         context->line,
                         context->column,
                         context->name,
-                        T_OPERATOR,
+                        T_IS_LESSER_OR_EQUAL,
                         "<="
                     );
                 } else {
@@ -337,7 +346,7 @@ Token lexer_read_token(ScannerContext* context)
                         context->line,
                         context->column,
                         context->name,
-                        T_OPERATOR,
+                        T_IS_LESSER,
                         "<"
                     );
                 }
@@ -351,7 +360,7 @@ Token lexer_read_token(ScannerContext* context)
                         context->line,
                         context->column,
                         context->name,
-                        T_OPERATOR,
+                        T_LOGICAL_AND,
                         "&&"
                     );
                 } else { // nothing else starts with &
@@ -373,7 +382,7 @@ Token lexer_read_token(ScannerContext* context)
                         context->line,
                         context->column,
                         context->name,
-                        T_OPERATOR,
+                        T_LOGICAL_OR,
                         "||"
                     );
                 } else { // nothing else starts with |

@@ -41,6 +41,26 @@ Error parser_error(Lexer* lexer, char* message)
 }
 
 /**
+ * Checks if a token is a binary operator.
+ */
+static inline bool token_is_bin_op(Token token)
+{
+    return token.type == T_DIVIDE
+        || token.type == T_IS_EQUAL
+        || token.type == T_IS_GREATER
+        || token.type == T_IS_GREATER_OR_EQUAL
+        || token.type == T_IS_LESSER
+        || token.type == T_IS_LESSER_OR_EQUAL
+        || token.type == T_IS_NOT_EQUAL
+        || token.type == T_LOGICAL_AND
+        || token.type == T_LOGICAL_OR
+        || token.type == T_MINUS
+        || token.type == T_MODULO
+        || token.type == T_MULTIPLY
+        || token.type == T_PLUS;
+}
+
+/**
  * <program> -> class Program { <field_decl_list> <method_decl_list> }
  */
 bool parser_parse_program(Lexer* lexer)
@@ -52,7 +72,7 @@ bool parser_parse_program(Lexer* lexer)
     }
 
     token = lexer_next(lexer);
-    if (token.type != T_PROGRAM) {
+    if (token.type != T_IDENTIFIER || strcmp(token.lexeme, "Program") != 0) {
         parser_error(lexer, "Expecting 'Program'.");
         return false;
     }
@@ -590,7 +610,7 @@ bool parser_parse_statement(Lexer* lexer)
             return false;
         }
 
-        if (strcmp(lexer_next(lexer).lexeme, "=") != 0) {
+        if (lexer_next(lexer).type != T_EQUAL) {
             parser_error(lexer, "Expected equals '=' sign.");
             return false;
         }
@@ -676,7 +696,7 @@ bool parser_parse_expr_option(Lexer* lexer)
     Token first_token = lexer_lookahead(lexer, 1);
 
     // possible first symbols in <expr>
-    if (first_token.type == T_IDENTIFIER || first_token.type == T_CHAR_LITERAL || first_token.type == T_STRING_LITERAL || first_token.type == T_BOOLEAN_LITERAL || first_token.type == T_INT_LITERAL || first_token.type == T_CALLOUT || first_token.type == T_PAREN_LEFT || strcmp(first_token.lexeme, "-") == 0) {
+    if (first_token.type == T_IDENTIFIER || first_token.type == T_CHAR_LITERAL || first_token.type == T_STRING_LITERAL || first_token.type == T_BOOLEAN_LITERAL || first_token.type == T_INT_LITERAL || first_token.type == T_CALLOUT || first_token.type == T_PAREN_LEFT || first_token.type == T_MINUS) {
         if (!parser_parse_expr(lexer)) {
             parser_error(lexer, "Parse failed during parser_parse_expr_option - parse of expr was not correct.");
             return false;
@@ -694,7 +714,7 @@ bool parser_parse_assign_op(Lexer* lexer)
 {
     // I think I got this
     Token token = lexer_next(lexer);
-    if (strcmp(token.lexeme, "=") != 0 && strcmp(token.lexeme, "+=") != 0 && strcmp(token.lexeme, "-=") != 0) {
+    if (token.type != T_EQUAL && token.type != T_PLUS_EQUAL && token.type != T_MINUS_EQUAL) {
         parser_error(lexer, "Expected one of the following when parsing an assign_op and did not get them: = += -=");
         return false;
     }
@@ -757,7 +777,7 @@ bool parser_parse_expr_list(Lexer* lexer)
     Token first_token = lexer_lookahead(lexer, 1);
 
     // possible first symbols in <expr>
-    if (first_token.type == T_IDENTIFIER || first_token.type == T_CHAR_LITERAL || first_token.type == T_STRING_LITERAL || first_token.type == T_BOOLEAN_LITERAL || first_token.type == T_INT_LITERAL || first_token.type == T_CALLOUT || first_token.type == T_PAREN_LEFT || strcmp(first_token.lexeme, "-") == 0) {
+    if (first_token.type == T_IDENTIFIER || first_token.type == T_CHAR_LITERAL || first_token.type == T_STRING_LITERAL || first_token.type == T_BOOLEAN_LITERAL || first_token.type == T_INT_LITERAL || first_token.type == T_CALLOUT || first_token.type == T_PAREN_LEFT || first_token.type == T_MINUS) {
         if (!parser_parse_expr(lexer)) {
             parser_error(lexer, "Expected expression in expression list.");
             return false;
@@ -806,7 +826,7 @@ bool parser_parse_callout_arg_list(Lexer* lexer)
     Token token = lexer_lookahead(lexer, 1);
 
     // first derivation
-    if (strcmp(token.lexeme, ",") == 0) {
+    if (token.type == T_COMMA) {
         lexer_next(lexer);
 
         if (!parser_parse_callout_arg(lexer)) {
@@ -934,7 +954,7 @@ bool parser_parse_expr_part(Lexer* lexer)
     }
 
     // fourth and fifth derivation
-    if (strcmp(next_token.lexeme, "-") == 0 || strcmp(next_token.lexeme, "!") == 0) {
+    if (next_token.type == T_MINUS || next_token.type == T_LOGICAL_NOT) {
         lexer_next(lexer);
 
         if (!parser_parse_expr(lexer)) {
@@ -979,26 +999,16 @@ bool parser_parse_expr_end(Lexer* lexer)
     Token next_token = lexer_lookahead(lexer, 1);
 
     // check for <bin_op>
-    if (next_token.type == T_OPERATOR) {
-        // check possible operators
-        char* operators[13] = {"+", "-", "/", "*", "%", "<", ">", "<=", ">=", "==", "!=", "&&", "||"};
+    if (token_is_bin_op(next_token)) {
+        // matches! try parsing the rest
+        if (!parser_parse_bin_op(lexer)) {
+            parser_error(lexer, "Expected binary operator.");
+            return false;
+        }
 
-        for (int i = 0; i < 13; i++) {
-            if (strcmp(next_token.lexeme, operators[i]) == 0) {
-                // matches! try parsing the rest
-                if (!parser_parse_bin_op(lexer)) {
-                    parser_error(lexer, "Expected binary operator.");
-                    return false;
-                }
-
-                if (!parser_parse_expr(lexer)) {
-                    parser_error(lexer, "Expected expression.");
-                    return false;
-                }
-
-                // we're still alive!
-                return true;
-            }
+        if (!parser_parse_expr(lexer)) {
+            parser_error(lexer, "Expected expression.");
+            return false;
         }
     }
 
@@ -1033,24 +1043,12 @@ bool parser_parse_callout_arg(Lexer* lexer)
  */
 bool parser_parse_bin_op(Lexer* lexer)
 {
-    Token token = lexer_next(lexer);
-
-    if (token.type != T_OPERATOR) {
-        parser_error(lexer, "Expected operator.");
+    if (!token_is_bin_op(lexer_next(lexer))) {
+        parser_error(lexer, "Invalid operator type.");
         return false;
     }
 
-    // check all valid operators
-    char* operators[13] = {"+", "-", "/", "*", "%", "<", ">", "<=", ">=", "==", "!=", "&&", "||"};
-    for (int i = 0; i < 13; i++) {
-        if (strcmp(token.lexeme, operators[i]) == 0) {
-            // we're still alive!
-            return true;
-        }
-    }
-
-    parser_error(lexer, "Invalid operator type.");
-    return false;
+    return true;
 }
 
 /**
