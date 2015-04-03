@@ -143,19 +143,20 @@ bool parser_parse_method_decl_list(Lexer* lexer)
 {
     Token first_token = lexer_lookahead(lexer, 1);
 
-    // are there any more method declarations?
-    if (first_token.type == T_INT || first_token.type == T_BOOLEAN || first_token.type == T_VOID) {
-        // try to parse a method decl
-        if (!parser_parse_method_decl(lexer)) {
-            return false;
-        }
-        // if that worked, we must have a method_decl_list
-        if (!parser_parse_method_decl_list(lexer)) {
-            return false;
-        }
+    // epsilon
+    if (first_token.type == T_BRACE_RIGHT) {
+        return true;
     }
 
-    // empty string works
+    // try to parse a method decl
+    if (!parser_parse_method_decl(lexer)) {
+        return false;
+    }
+    // if that worked, we must have a method_decl_list
+    if (!parser_parse_method_decl_list(lexer)) {
+        return false;
+    }
+
     return true;
 }
 
@@ -462,12 +463,7 @@ bool parser_parse_var_id_list_tail(Lexer* lexer)
 bool parser_parse_type(Lexer* lexer)
 {
     Token token = lexer_next(lexer);
-    if (token.type != T_BOOLEAN && token.type != T_INT) {
-        parser_error(lexer, "Expected int or boolean type.");
-        return false;
-    }
-
-    return true;
+    return token.type == T_BOOLEAN || token.type == T_INT;
 }
 
 /**
@@ -655,18 +651,13 @@ bool parser_parse_else_expr(Lexer* lexer)
  */
 bool parser_parse_expr_option(Lexer* lexer)
 {
-    Token first_token = lexer_lookahead(lexer, 1);
-
-    // possible first symbols in <expr>
-    if (first_token.type == T_IDENTIFIER || first_token.type == T_CHAR_LITERAL || first_token.type == T_STRING_LITERAL || first_token.type == T_BOOLEAN_LITERAL || first_token.type == T_INT_LITERAL || first_token.type == T_CALLOUT || first_token.type == T_PAREN_LEFT || first_token.type == T_MINUS) {
-        if (!parser_parse_expr(lexer)) {
-            parser_error(lexer, "Parse failed during parser_parse_expr_option - parse of expr was not correct.");
-            return false;
-        }
+    // epsilon
+    if (lexer_lookahead(lexer, 1).type == T_STATEMENT_END) {
+        return true;
     }
 
-    // epsilon
-    return true;
+    // expect an expression
+    return parser_parse_expr(lexer);
 }
 
 /**
@@ -677,7 +668,7 @@ bool parser_parse_assign_op(Lexer* lexer)
     // I think I got this
     Token token = lexer_next(lexer);
     if (token.type != T_EQUAL && token.type != T_PLUS_EQUAL && token.type != T_MINUS_EQUAL) {
-        parser_error(lexer, "Expected one of the following when parsing an assign_op and did not get them: = += -=");
+        parser_error(lexer, "Expected an assignment operator ('=', '+=', '-=').");
         return false;
     }
     return true;
@@ -736,22 +727,14 @@ bool parser_parse_method_call(Lexer* lexer)
  */
 bool parser_parse_expr_list(Lexer* lexer)
 {
-    Token first_token = lexer_lookahead(lexer, 1);
-
-    // possible first symbols in <expr>
-    if (first_token.type == T_IDENTIFIER || first_token.type == T_CHAR_LITERAL || first_token.type == T_STRING_LITERAL || first_token.type == T_BOOLEAN_LITERAL || first_token.type == T_INT_LITERAL || first_token.type == T_CALLOUT || first_token.type == T_PAREN_LEFT || first_token.type == T_MINUS) {
-        if (!parser_parse_expr(lexer)) {
-            parser_error(lexer, "Expected expression in expression list.");
-            return false;
-        }
-
-        if (!parser_parse_expr_list_tail(lexer)) {
-            return false;
-        }
+    // epsilon
+    if (lexer_lookahead(lexer, 1).type == T_PAREN_RIGHT) {
+        return true;
     }
 
-    // epsilon
-    return true;
+    // first derivation
+    return parser_parse_expr(lexer)
+        && parser_parse_expr_list_tail(lexer);
 }
 
 /**
