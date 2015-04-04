@@ -60,9 +60,8 @@ Error walrus_compile(Options options)
 
         // check for errors
         if (context == NULL) {
-            char message[1024];
-            sprintf(message, "The file '%s' could not be opened.\n", options.files[i]);
-            error_exit(E_FILE_NOT_FOUND, message);
+            error(E_FILE_NOT_FOUND, "The file '%s' could not be opened.", options.files[i]);
+            continue;
         }
 
         // create a lexer for the file
