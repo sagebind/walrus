@@ -24,6 +24,7 @@ int main(int argc, char* const* argv)
                "Usage: walrus [options] file1 [file2 [...]]\r\n"
                "Options:\r\n\r\n"
                "  --help                   Displays this help message, but you already knew that\r\n"
+               "  --debug                  Outputs debugging information\r\n"
                "  -s                       Scan only; do not parse or compile\r\n"
                "  -T, --print-tokens       Print out tokens as they are scanned\r\n\r\n"
                "This walrus knows how to avoid boredom.\r\n\r\n");
@@ -98,12 +99,13 @@ Error walrus_compile(Options options)
 Options parse_options(int argc, char* const* argv)
 {
     // create our options struct which contains our flags
-    Options options = {0, 0, 0, 0, NULL};
+    Options options = {0, 0, 0, 0, 0, NULL};
 
     // define our getopt specs
-    const char* short_options = "sT";
+    const char* short_options = "hdsT";
     static struct option long_options[] = {
-        {"help",         no_argument, 0, 0},
+        {"help",         no_argument, 0, 'h'},
+        {"debug",        no_argument, 0, 'd'},
         {"print-tokens", no_argument, 0, 'T'},
         {"bored",        no_argument, 0, 0},
         {0, 0, 0, 0}
@@ -114,31 +116,24 @@ Options parse_options(int argc, char* const* argv)
     int c;
     opterr = 0;
     while ((c = getopt_long(argc, argv, short_options, long_options, &option_index)) != -1) {
-        switch (c) {
-            case 0:
-                if (long_options[option_index].name == "help") {
-                    options.help = true;
-                } else if (long_options[option_index].name == "print-tokens") {
-                    options.print_tokens = true;
-                } else if (long_options[option_index].name == "bored") {
-                    options.bored = true;
-                }
-                break;
-            case 's':
-                options.scan_only = true;
-                break;
-            case 'T':
-                options.print_tokens = true;
-                break;
-            case '?':
-                if (isprint(optopt)) {
-                    fprintf(stderr, "Unknown option `-%c'.\n", optopt);
-                } else {
-                    fprintf(stderr, "Unknown option character `\\x%x'.\n", optopt);
-                }
-                break;
-            default:
-                abort();
+        // parse options
+        if (c == 'h' || c == 0 && long_options[option_index].name == "help") {
+            options.help = true;
+        } else if (c == 'd' || c == 0 && long_options[option_index].name == "debug") {
+            options.debug = true;
+        } else if (c == 'T' || c == 0 && long_options[option_index].name == "print-tokens") {
+            options.print_tokens = true;
+        } else if (c == 0 && long_options[option_index].name == "bored") {
+            options.bored = true;
+        } else if (c == 's') {
+            options.scan_only = true;
+        }
+
+        // unknown option
+        else if (isprint(optopt)) {
+            error(E_UNKNOWN_OPTION, "Unknown option `-%c'.", optopt);
+        } else {
+            error(E_UNKNOWN_OPTION, "Unknown option character `\\x%x'.", optopt);
         }
     }
 
