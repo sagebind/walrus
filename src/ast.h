@@ -5,11 +5,41 @@
 #include "tokens.h"
 
 
+typedef enum {
+    TYPE_BOOLEAN,
+    TYPE_INT,
+    TYPE_VOID
+} DataType;
+
+typedef enum {
+    AST_ASSIGN_STATEMENT,
+    AST_BINOP_EXPR,
+    AST_BLOCK,
+    AST_BOOLEAN_LITERAL,
+    AST_STRING_LITERAL,
+    AST_BREAK_STATEMENT,
+    AST_CALL_EXPR,
+    AST_CALLOUT_EXPR,
+    AST_CHAR_LITERAL,
+    AST_CLASS_DECL,
+    AST_CONTINUE_STATEMENT,
+    AST_FIELD_DECL,
+    AST_FOR_STATEMENT,
+    AST_IF_STATEMENT,
+    AST_INT_LITERAL,
+    AST_INVOKE_STATEMENT,
+    AST_METHOD_CALL_EXPR,
+    AST_METHOD_DECL,
+    AST_PLUS_ASSIGN_STATEMENT,
+    AST_RETURN_STATEMENT,
+    AST_STATEMENT,
+    AST_TYPE,
+    AST_IDENTIFIER,
+    AST_VAR_DECL
+} ASTNodeKind;
+
 typedef struct ASTNode {
-    /**
-     * The token that the node represents.
-     */
-    Token token;
+    ASTNodeKind kind;
 
     /**
      * The parent node of the current node, if any.
@@ -37,13 +67,20 @@ typedef struct ASTNode {
     struct ASTNode* tail;
 } ASTNode;
 
+typedef struct {
+    ASTNode super;
+
+    DataType type;
+    char* name;
+} ASTDecl;
+
 /**
  * Creates an abstract syntax tree node.
  *
  * @param  token The lexical token the node represents.
  * @return       A shiny new abstract syntax tree node.
  */
-ASTNode* ast_create(Token token);
+ASTNode* ast_create(ASTNodeKind kind);
 
 /**
  * Adds an abstract syntax tree node as a child to another node.

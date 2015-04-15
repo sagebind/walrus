@@ -6,7 +6,7 @@
  * A list of error types.
  */
 typedef enum {
-    E_SUCCESS,
+    E_SUCCESS = 0,
     E_UNKNOWN,
     E_BAD_POINTER,
     E_OPERATION_FAILED,

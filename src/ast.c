@@ -8,10 +8,22 @@
 /**
  * Creates an abstract syntax tree node.
  */
-ASTNode* ast_create(Token token)
+ASTNode* ast_create(ASTNodeKind kind)
 {
-    ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode));
-    node->token = token;
+    ASTNode* node;
+
+    switch (kind) {
+        case AST_FIELD_DECL:
+        case AST_METHOD_DECL:
+        case AST_VAR_DECL:
+            node = malloc(sizeof(ASTDecl));
+            break;
+
+        default:
+            node = malloc(sizeof(ASTNode));
+    }
+
+    node->kind = kind;
     return node;
 }
 
@@ -45,33 +57,33 @@ Error ast_add_child(ASTNode* parent, ASTNode* child)
 /**
  * Pretty-prints an abstract syntax tree to the console.
  *
- * @param  parent The subtree to print.
- * @param  prefix The string prefix for the current level.
- * @param  isTail Indicates if the current level is a tail child to the parent.
- * @return        An error code.
+ * @param  parent  The subtree to print.
+ * @param  prefix  The string prefix for the current level.
+ * @param  is_tail Indicates if the current level is a tail child to the parent.
+ * @return         An error code.
  *
  * Here there be dragons, because string manipulation is not fun in C.
  */
-static Error ast_print_subtree(ASTNode* parent, char* prefix, bool isTail)
+static Error ast_print_subtree(ASTNode* parent, char* prefix, bool is_tail)
 {
     // print out the current node
-    printf("%s%s %s\r\n", prefix, isTail ? "└──" : "├──", parent->token.lexeme);
+    printf("%s%s %d\r\n", prefix, is_tail ? "└──" : "├──", parent->kind);
 
     // print every child node recursively
     for (ASTNode* n = parent->head; n != NULL; n = n->next) {
         // append to the prefix
-        char* childPrefix = (char*)malloc(strlen(prefix) + 5);
-        strcpy(childPrefix, prefix);
-        strcat(childPrefix, isTail ? "    " : "│   ");
+        char* child_prefix = (char*)malloc(strlen(prefix) + 5);
+        strcpy(child_prefix, prefix);
+        strcat(child_prefix, is_tail ? "    " : "│   ");
 
         // print the child
         Error e;
-        if ((e = ast_print_subtree(n, childPrefix, n == parent->tail)) != E_SUCCESS) {
+        if ((e = ast_print_subtree(n, child_prefix, n == parent->tail)) != E_SUCCESS) {
             return e;
         }
 
         // clean up our mess
-        free(childPrefix);
+        free(child_prefix);
     }
 
     return E_SUCCESS;
