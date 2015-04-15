@@ -85,6 +85,8 @@ typedef struct {
      * The data type of this declaration.
      */
     DataType type;
+
+    int length;
 } ASTDecl;
 
 typedef struct {
@@ -131,6 +133,16 @@ typedef struct {
      */
     ASTNode* right;
 } ASTBinaryOp;
+
+typedef struct {
+    // 'inherit' from node type
+    ASTNode super;
+
+    /**
+     * A pointer to some value.
+     */
+    void* value;
+} ASTLiteral;
 
 /**
  * Creates an abstract syntax tree node.

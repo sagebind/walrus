@@ -26,6 +26,9 @@ AST_PRINT_FN(ast_print_decl)
     print_indent(level + 1);
     printf("type: %s\r\n", type_str);
 
+    print_indent(level + 1);
+    printf("length: %d\r\n", ((ASTDecl*)this)->length);
+
     print_indent(level);
     printf("}\r\n");
 }
@@ -52,6 +55,36 @@ AST_PRINT_FN(ast_print_class_decl)
     printf("}\r\n");
 }
 
+AST_PRINT_FN(ast_print_method_decl)
+{
+    print_indent(level);
+    printf("{\r\n");
+
+    print_indent(level + 1);
+    printf("identifier: %s\r\n", ((ASTDecl*)this)->identifier);
+
+    // print out a representation of the node data
+    char* type_str;
+    if (((ASTDecl*)this)->type == TYPE_BOOLEAN) {
+        type_str = "boolean";
+    } else if (((ASTDecl*)this)->type == TYPE_INT) {
+        type_str = "int";
+    } else {
+        type_str = "void";
+    }
+
+    print_indent(level + 1);
+    printf("type: %s\r\n", type_str);
+
+    // print out methods
+    print_indent(level + 1);
+    printf("params: ");
+    ast_node_array_print(((ASTMethodDecl*)this)->params, level + 1);
+
+    print_indent(level);
+    printf("}\r\n");
+}
+
 /**
  * Creates an abstract syntax tree node.
  */
@@ -69,13 +102,22 @@ ASTNode* ast_create(ASTNodeKind kind)
 
         case AST_METHOD_DECL:
             node = malloc(sizeof(ASTMethodDecl));
-            node->print = ast_print_decl;
+            ((ASTMethodDecl*)node)->params = ast_node_array_create();
+            node->print = ast_print_method_decl;
             break;
 
         case AST_FIELD_DECL:
         case AST_VAR_DECL:
             node = malloc(sizeof(ASTDecl));
             node->print = ast_print_decl;
+            break;
+
+        // literals
+        case AST_BOOLEAN_LITERAL:
+        case AST_INT_LITERAL:
+        case AST_CHAR_LITERAL:
+        case AST_STRING_LITERAL:
+            node = malloc(sizeof(ASTLiteral));
             break;
 
         default:
@@ -146,7 +188,7 @@ void ast_node_array_add(ASTNodeArray* array, ASTNode* node)
 {
     // reallocate if full
     if (array->length >= array->size) {
-        array->size = array->size * 2;
+        array->size = array->size << 1;
         array->items = realloc(array->items, array->size);
     }
 

@@ -68,17 +68,17 @@ Error parser_parse_method_decl(Lexer* lexer, ASTMethodDecl** node);
 /**
  * <method_param_decl_list> -> <method_param_decl> <method_param_decl_list_tail> | EPSILON
  */
-Error parser_parse_method_param_decl_list(Lexer* lexer);
+Error parser_parse_method_param_decl_list(Lexer* lexer, ASTMethodDecl* method);
 
 /**
  * <method_param_decl_list_tail> -> , <method_param_decl> <method_param_decl_list_tail> | EPSILON
  */
-Error parser_parse_method_param_decl_list_tail(Lexer* lexer);
+Error parser_parse_method_param_decl_list_tail(Lexer* lexer, ASTMethodDecl* method);
 
 /**
  * <method_param_decl> -> <type> <id>
  */
-Error parser_parse_method_param_decl(Lexer* lexer);
+Error parser_parse_method_param_decl(Lexer* lexer, ASTDecl** node);
 
 /**
  * <block> -> { <var_decl_list> <statement_list> }
