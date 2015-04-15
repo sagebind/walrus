@@ -66,8 +66,38 @@ Error ast_add_child(ASTNode* parent, ASTNode* child)
  */
 static Error ast_print_subtree(ASTNode* parent, char* prefix, bool is_tail)
 {
-    // print out the current node
-    printf("%s%s %d\r\n", prefix, is_tail ? "└──" : "├──", parent->kind);
+    // print out the current node branch
+    printf("%s%s ", prefix, is_tail ? "└──" : "├──");
+
+    // print out a representation of the node data
+    char* type_str;
+    switch (parent->kind) {
+        case AST_CLASS_DECL:
+            printf("class");
+            break;
+
+        case AST_FIELD_DECL:
+        case AST_METHOD_DECL:
+        case AST_VAR_DECL:
+            if (((ASTDecl*)parent)->type == TYPE_BOOLEAN) {
+                type_str = "boolean";
+            } else if (((ASTDecl*)parent)->type == TYPE_INT) {
+                type_str = "int";
+            } else {
+                type_str = "void";
+            }
+
+            printf("%s %s", type_str, ((ASTDecl*)parent)->name);
+            break;
+
+        case AST_BLOCK:
+            printf("block");
+            break;
+
+        default:
+            printf("%d", parent->kind);
+    }
+    printf("\r\n");
 
     // print every child node recursively
     for (ASTNode* n = parent->head; n != NULL; n = n->next) {

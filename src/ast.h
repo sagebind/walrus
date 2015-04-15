@@ -38,7 +38,13 @@ typedef enum {
     AST_VAR_DECL
 } ASTNodeKind;
 
+/**
+ * Base struct for all abstract syntax tree nodes.
+ */
 typedef struct ASTNode {
+    /**
+     * The kind of node this node is.
+     */
     ASTNodeKind kind;
 
     /**
@@ -67,11 +73,40 @@ typedef struct ASTNode {
     struct ASTNode* tail;
 } ASTNode;
 
+/**
+ * An abstract syntax tree node that contains a list of nodes.
+ */
 typedef struct {
+    // 'inherit' from node type
     ASTNode super;
 
-    DataType type;
+    /**
+     * The first child node of the current node.
+     */
+    struct ASTNode* head;
+
+    /**
+     * The last child node of the current node.
+     */
+    struct ASTNode* tail;
+} ASTList;
+
+/**
+ * An abstract syntax tree node that also contains declaration information.
+ */
+typedef struct {
+    // 'inherit' from node type
+    ASTNode super;
+
+    /**
+     * The identifier name of this declaration.
+     */
     char* name;
+
+    /**
+     * The data type of this declaration.
+     */
+    DataType type;
 } ASTDecl;
 
 /**

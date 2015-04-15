@@ -176,10 +176,9 @@ Error parser_parse_field_decl(Lexer* lexer, ASTNode* program)
  */
 Error parser_parse_field_id_list(Lexer* lexer, DataType type, ASTNode* program)
 {
-    ASTNode* node = ast_create(AST_FIELD_DECL);
+    ASTDecl* node = (ASTDecl*)ast_create(AST_FIELD_DECL);
 
-    char* id;
-    if (parser_parse_id(lexer, &id) != E_SUCCESS) {
+    if (parser_parse_id(lexer, &node->name) != E_SUCCESS) {
         return parser_error(lexer, "Expected field name.");
     }
 
@@ -192,7 +191,7 @@ Error parser_parse_field_id_list(Lexer* lexer, DataType type, ASTNode* program)
         return E_PARSE_ERROR;
     }
 
-    ast_add_child(program, node);
+    ast_add_child(program, (ASTNode*)node);
     return E_SUCCESS;
 }
 
@@ -246,18 +245,17 @@ Error parser_parse_field_id_list_tail(Lexer* lexer, DataType type, ASTNode* prog
 Error parser_parse_method_decl(Lexer* lexer, ASTNode** node)
 {
     *node = ast_create(AST_METHOD_DECL);
-    DataType type = TYPE_VOID;
+    ((ASTDecl*)*node)->type = TYPE_VOID;
 
     // can start with <type> or void
     if (lexer_lookahead(lexer, 1).type == T_VOID) {
         lexer_next(lexer);
-    } else if (parser_parse_type(lexer, &type) != E_SUCCESS) {
+    } else if (parser_parse_type(lexer, &((ASTDecl*)*node)->type) != E_SUCCESS) {
         return parser_error(lexer, "Expected type name or void.");
     }
 
     // must have an identifier next
-    char* id;
-    if (parser_parse_id(lexer, &id) != E_SUCCESS) {
+    if (parser_parse_id(lexer, &((ASTDecl*)*node)->name) != E_SUCCESS) {
         return parser_error(lexer, "Expected identifier.");
     }
 
