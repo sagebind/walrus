@@ -1,0 +1,4 @@
+#ifndef WALRUS_HASHMAP_H
+#define WALRUS_HASHMAP_H
+
+
