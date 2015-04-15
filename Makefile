@@ -4,8 +4,9 @@ LD_FLAGS :=
 CC_FLAGS := -x c -MMD -std=c99 -Wstrict-prototypes -D_GNU_SOURCE
 SCANNER_TESTS := $(wildcard tests/scanner/*)
 PARSER_TESTS := $(wildcard tests/parser/*)
+SEMANTIC_TESTS := $(wildcard tests/semantics/*.dcf)
 
-.PHONY: all test test-scanner test-parser clean
+.PHONY: all test test-scanner test-parser test-semantics clean
 
 .FORCE:
 
@@ -36,6 +37,14 @@ tests/parser/legal-%: bin/walrus .FORCE
 	bin/walrus $@ > /dev/null 2>&1 || bin/walrus $@
 
 tests/parser/illegal-%: bin/walrus .FORCE
+	bin/walrus $@ > /dev/null 2>&1; test $$? -gt 0
+
+test-semantics: $(SEMANTIC_TESTS)
+
+tests/semantics/legal-%.dcf: bin/walrus .FORCE
+	bin/walrus $@ > /dev/null 2>&1 || bin/walrus $@
+
+tests/semantics/illegal-%.dcf: bin/walrus .FORCE
 	bin/walrus $@ > /dev/null 2>&1; test $$? -gt 0
 
 clean:

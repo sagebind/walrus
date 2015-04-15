@@ -19,7 +19,15 @@ You can run all tests by running:
 make test
 ```
 
-Sets of input files will be compared to expected output files to find any errors with scanning.
+Sets of input files will be compared to expected output files to find any errors with scanning. You can also run individual tests for the scanner and parser separately:
+
+```sh
+make test-scanner
+```
+
+```sh
+make test-parser
+```
 
 ## Usage
 To compile a Decaf program, pass the source code files to Walrus:
@@ -28,4 +36,10 @@ To compile a Decaf program, pass the source code files to Walrus:
 bin/walrus inputfile1 inputfile2...
 ```
 
-To just run the scanner, set the `-s` option. You can also pass the `-T` option to print out the scanned tokens to STDOUT for testing and debugging purposes.
+To just run the scanner, set the `-s` option. You can also pass the `-T` option along with `-s` to print out the scanned tokens to STDOUT for testing and debugging purposes.
+
+Below are all command line options (also accessible with `--help`):
+
+* `--help`: Displays the help message
+* `-s`: Scan only; do not parse or compile
+* `-T`, `--print-tokens`: Print out tokens as they are scanned

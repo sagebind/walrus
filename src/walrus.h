@@ -10,6 +10,7 @@
  */
 typedef struct {
     bool help;
+    bool debug;
     bool scan_only;
     bool print_tokens;
     int files_count;
