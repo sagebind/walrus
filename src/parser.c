@@ -14,12 +14,12 @@
 ASTNode* parser_parse(Lexer* lexer)
 {
     // the source file should contain a single program (duh!)
-    ASTNode* node;
+    ASTClassDecl* node;
     if (parser_parse_program(lexer, &node) != E_SUCCESS) {
         error(E_PARSE_ERROR, "Failed to parse file \"%s\".", lexer->context->file);
     }
 
-    return node;
+    return (ASTNode*)node;
 }
 
 /**
@@ -69,9 +69,10 @@ static inline bool token_is_bin_op(Token token)
 /**
  * <program> -> class Program { <field_decl_list> <method_decl_list> }
  */
-Error parser_parse_program(Lexer* lexer, ASTNode** node)
+Error parser_parse_program(Lexer* lexer, ASTClassDecl** node)
 {
-    *node = ast_create(AST_CLASS_DECL);
+    *node = (ASTClassDecl*)ast_create(AST_CLASS_DECL);
+    ((ASTDecl*)*node)->identifier = "Program";
 
     Token token = lexer_next(lexer);
     if (token.type != T_CLASS) {
@@ -107,7 +108,7 @@ Error parser_parse_program(Lexer* lexer, ASTNode** node)
 /**
  * <field_decl_list> -> <field_decl> <field_decl_list> | EPSILON
  */
-Error parser_parse_field_decl_list(Lexer* lexer, ASTNode* program)
+Error parser_parse_field_decl_list(Lexer* lexer, ASTClassDecl* program)
 {
     // do a lookahead
     Token token = lexer_lookahead(lexer, 1);
@@ -135,7 +136,7 @@ Error parser_parse_field_decl_list(Lexer* lexer, ASTNode* program)
 /**
  * <method_decl_list> -> <method_decl> <method_decl_list> | EPSILON
  */
-Error parser_parse_method_decl_list(Lexer* lexer, ASTNode* program)
+Error parser_parse_method_decl_list(Lexer* lexer, ASTClassDecl* program)
 {
     Token first_token = lexer_lookahead(lexer, 1);
 
@@ -145,11 +146,11 @@ Error parser_parse_method_decl_list(Lexer* lexer, ASTNode* program)
     }
 
     // try to parse a method decl
-    ASTNode* method_decl;
+    ASTMethodDecl* method_decl;
     if (parser_parse_method_decl(lexer, &method_decl) != E_SUCCESS) {
         return E_PARSE_ERROR;
     } else {
-        ast_add_child(program, method_decl);
+        program->methods->add(program->methods, (ASTNode*)method_decl);
     }
 
    // if that worked, we must have a method_decl_list
@@ -159,7 +160,7 @@ Error parser_parse_method_decl_list(Lexer* lexer, ASTNode* program)
 /**
  * <field_decl> -> <type> <field_id_list>
  */
-Error parser_parse_field_decl(Lexer* lexer, ASTNode* program)
+Error parser_parse_field_decl(Lexer* lexer, ASTClassDecl* program)
 {
     // determine the type of the fields listed here
     DataType type;
@@ -174,11 +175,11 @@ Error parser_parse_field_decl(Lexer* lexer, ASTNode* program)
 /**
  * <field_id_list> -> <id> <array_dim_decl> <field_id_list_tail>
  */
-Error parser_parse_field_id_list(Lexer* lexer, DataType type, ASTNode* program)
+Error parser_parse_field_id_list(Lexer* lexer, DataType type, ASTClassDecl* program)
 {
     ASTDecl* node = (ASTDecl*)ast_create(AST_FIELD_DECL);
 
-    if (parser_parse_id(lexer, &node->name) != E_SUCCESS) {
+    if (parser_parse_id(lexer, &node->identifier) != E_SUCCESS) {
         return parser_error(lexer, "Expected field name.");
     }
 
@@ -191,7 +192,7 @@ Error parser_parse_field_id_list(Lexer* lexer, DataType type, ASTNode* program)
         return E_PARSE_ERROR;
     }
 
-    ast_add_child(program, (ASTNode*)node);
+    program->fields->add(program->fields, (ASTNode*)node);
     return E_SUCCESS;
 }
 
@@ -223,7 +224,7 @@ Error parser_parse_array_dim_decl(Lexer* lexer, int* length)
 /**
  * <field_id_list_tail> -> , <field_id_list> | ;
  */
-Error parser_parse_field_id_list_tail(Lexer* lexer, DataType type, ASTNode* program)
+Error parser_parse_field_id_list_tail(Lexer* lexer, DataType type, ASTClassDecl* program)
 {
     Token token = lexer_next(lexer);
     if (token.type == T_COMMA) {
@@ -242,9 +243,9 @@ Error parser_parse_field_id_list_tail(Lexer* lexer, DataType type, ASTNode* prog
  * <method_decl> -> <type> <id> ( <method_param_decl_list> ) <block>
                   | void <id> ( <method_param_decl_list> ) <block>
  */
-Error parser_parse_method_decl(Lexer* lexer, ASTNode** node)
+Error parser_parse_method_decl(Lexer* lexer, ASTMethodDecl** node)
 {
-    *node = ast_create(AST_METHOD_DECL);
+    *node = (ASTMethodDecl*)ast_create(AST_METHOD_DECL);
     ((ASTDecl*)*node)->type = TYPE_VOID;
 
     // can start with <type> or void
@@ -255,7 +256,7 @@ Error parser_parse_method_decl(Lexer* lexer, ASTNode** node)
     }
 
     // must have an identifier next
-    if (parser_parse_id(lexer, &((ASTDecl*)*node)->name) != E_SUCCESS) {
+    if (parser_parse_id(lexer, &((ASTDecl*)*node)->identifier) != E_SUCCESS) {
         return parser_error(lexer, "Expected identifier.");
     }
 
@@ -279,7 +280,7 @@ Error parser_parse_method_decl(Lexer* lexer, ASTNode** node)
     if (parser_parse_block(lexer, &block) != E_SUCCESS) {
         return E_PARSE_ERROR;
     } else {
-        ast_add_child(*node, block);
+        (*node)->block = block;
     }
 
     // we made it!

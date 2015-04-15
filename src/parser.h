@@ -27,27 +27,27 @@ Error parser_error(Lexer* lexer, char* message);
 /**
  * <program> -> class Program { <field_decl_list> <method_decl_list> }
  */
-Error parser_parse_program(Lexer* lexer, ASTNode** node);
+Error parser_parse_program(Lexer* lexer, ASTClassDecl** node);
 
 /**
  * <field_decl_list> -> <field_decl> <field_decl_list> | EPSILON
  */
-Error parser_parse_field_decl_list(Lexer* lexer, ASTNode* program);
+Error parser_parse_field_decl_list(Lexer* lexer, ASTClassDecl* program);
 
 /**
  * <method_decl_list> -> <method_decl> <method_decl_list> | EPSILON
  */
-Error parser_parse_method_decl_list(Lexer* lexer, ASTNode* program);
+Error parser_parse_method_decl_list(Lexer* lexer, ASTClassDecl* program);
 
 /**
  * <field_decl> -> <type> <field_id_list>
  */
-Error parser_parse_field_decl(Lexer* lexer, ASTNode* program);
+Error parser_parse_field_decl(Lexer* lexer, ASTClassDecl* program);
 
 /**
  * <field_id_list> -> <id> <array_dim_decl> <field_id_list_tail>
  */
-Error parser_parse_field_id_list(Lexer* lexer, DataType type, ASTNode* program);
+Error parser_parse_field_id_list(Lexer* lexer, DataType type, ASTClassDecl* program);
 
 /**
  * <array_dim_decl> -> [ <int_literal> ] | EPSILON
@@ -57,13 +57,13 @@ Error parser_parse_array_dim_decl(Lexer* lexer, int* length);
 /**
  * <field_id_list_tail> -> , <field_id_list> | ;
  */
-Error parser_parse_field_id_list_tail(Lexer* lexer, DataType type, ASTNode* program);
+Error parser_parse_field_id_list_tail(Lexer* lexer, DataType type, ASTClassDecl* program);
 
 /**
  * <method_decl> -> <type> <id> ( <method_param_decl_list> ) <block>
                     | void <id> ( <method_param_decl_list> ) <block>
  */
-Error parser_parse_method_decl(Lexer* lexer, ASTNode** node);
+Error parser_parse_method_decl(Lexer* lexer, ASTMethodDecl** node);
 
 /**
  * <method_param_decl_list> -> <method_param_decl> <method_param_decl_list_tail> | EPSILON

@@ -5,6 +5,53 @@
 #include "tokens.h"
 
 
+AST_PRINT_FN(ast_print_decl)
+{
+    print_indent(level);
+    printf("{\r\n");
+
+    print_indent(level + 1);
+    printf("identifier: %s\r\n", ((ASTDecl*)this)->identifier);
+
+    // print out a representation of the node data
+    char* type_str;
+    if (((ASTDecl*)this)->type == TYPE_BOOLEAN) {
+        type_str = "boolean";
+    } else if (((ASTDecl*)this)->type == TYPE_INT) {
+        type_str = "int";
+    } else {
+        type_str = "void";
+    }
+
+    print_indent(level + 1);
+    printf("type: %s\r\n", type_str);
+
+    print_indent(level);
+    printf("}\r\n");
+}
+
+AST_PRINT_FN(ast_print_class_decl)
+{
+    print_indent(level);
+    printf("{\r\n");
+
+    print_indent(level + 1);
+    printf("identifier: %s\r\n", ((ASTDecl*)this)->identifier);
+
+    // print out fields
+    print_indent(level + 1);
+    printf("fields: ");
+    ast_node_array_print(((ASTClassDecl*)this)->fields, level + 1);
+
+    // print out methods
+    print_indent(level + 1);
+    printf("methods: ");
+    ast_node_array_print(((ASTClassDecl*)this)->methods, level + 1);
+
+    print_indent(level);
+    printf("}\r\n");
+}
+
 /**
  * Creates an abstract syntax tree node.
  */
@@ -13,10 +60,22 @@ ASTNode* ast_create(ASTNodeKind kind)
     ASTNode* node;
 
     switch (kind) {
-        case AST_FIELD_DECL:
+        case AST_CLASS_DECL:
+            node = malloc(sizeof(ASTClassDecl));
+            ((ASTClassDecl*)node)->fields = ast_node_array_create();
+            ((ASTClassDecl*)node)->methods = ast_node_array_create();
+            node->print = ast_print_class_decl;
+            break;
+
         case AST_METHOD_DECL:
+            node = malloc(sizeof(ASTMethodDecl));
+            node->print = ast_print_decl;
+            break;
+
+        case AST_FIELD_DECL:
         case AST_VAR_DECL:
             node = malloc(sizeof(ASTDecl));
+            node->print = ast_print_decl;
             break;
 
         default:
@@ -28,109 +87,17 @@ ASTNode* ast_create(ASTNodeKind kind)
 }
 
 /**
- * Adds an abstract syntax tree node as a child to another node.
- */
-Error ast_add_child(ASTNode* parent, ASTNode* child)
-{
-    // make sure pointer isn't null
-    if (parent == NULL || child == NULL) {
-        return E_BAD_POINTER;
-    }
-
-    // set the parent pointer to the new parent node
-    child->parent = parent;
-
-    // add child to parent's list of children
-    if (parent->head == NULL) {
-        parent->head = parent->tail = child;
-        child->previous = child->next = NULL;
-    } else {
-        parent->tail->next = child;
-        child->previous = parent->tail;
-        child->next = NULL;
-        parent->tail = child;
-    }
-
-    return E_SUCCESS;
-}
-
-/**
- * Pretty-prints an abstract syntax tree to the console.
- *
- * @param  parent  The subtree to print.
- * @param  prefix  The string prefix for the current level.
- * @param  is_tail Indicates if the current level is a tail child to the parent.
- * @return         An error code.
- *
- * Here there be dragons, because string manipulation is not fun in C.
- */
-static Error ast_print_subtree(ASTNode* parent, char* prefix, bool is_tail)
-{
-    // print out the current node branch
-    printf("%s%s ", prefix, is_tail ? "└──" : "├──");
-
-    // print out a representation of the node data
-    char* type_str;
-    switch (parent->kind) {
-        case AST_CLASS_DECL:
-            printf("class");
-            break;
-
-        case AST_FIELD_DECL:
-        case AST_METHOD_DECL:
-        case AST_VAR_DECL:
-            if (((ASTDecl*)parent)->type == TYPE_BOOLEAN) {
-                type_str = "boolean";
-            } else if (((ASTDecl*)parent)->type == TYPE_INT) {
-                type_str = "int";
-            } else {
-                type_str = "void";
-            }
-
-            printf("%s %s", type_str, ((ASTDecl*)parent)->name);
-            break;
-
-        case AST_BLOCK:
-            printf("block");
-            break;
-
-        default:
-            printf("%d", parent->kind);
-    }
-    printf("\r\n");
-
-    // print every child node recursively
-    for (ASTNode* n = parent->head; n != NULL; n = n->next) {
-        // append to the prefix
-        char* child_prefix = (char*)malloc(strlen(prefix) + 5);
-        strcpy(child_prefix, prefix);
-        strcat(child_prefix, is_tail ? "    " : "│   ");
-
-        // print the child
-        Error e;
-        if ((e = ast_print_subtree(n, child_prefix, n == parent->tail)) != E_SUCCESS) {
-            return e;
-        }
-
-        // clean up our mess
-        free(child_prefix);
-    }
-
-    return E_SUCCESS;
-}
-
-/**
  * Pretty-prints an abstract syntax tree to the console.
  */
-Error ast_print(ASTNode* parent)
+void ast_print(ASTNode* parent)
 {
-    return ast_print_subtree(parent, "", true);
+    parent->print(parent, 0);
 }
 
 /**
  * Destroys an abstract syntax tree node and all its children.
  */
-Error ast_destroy(ASTNode** node)
+/*Error ast_destroy(ASTNode** node)
 {
     // make sure pointer isn't null
     if (node == NULL) {
@@ -156,4 +123,59 @@ Error ast_destroy(ASTNode** node)
     *node = NULL;
 
     return E_SUCCESS;
+}*/
+
+
+/**
+ * Creates a new node array.
+ */
+ASTNodeArray* ast_node_array_create()
+{
+    ASTNodeArray* array = malloc(sizeof(ASTNodeArray));
+    array->size = sizeof(ASTNode*) * 10;
+    array->length = 0;
+    array->items = malloc(array->size);
+    array->add = ast_node_array_add;
+    return array;
+}
+
+/**
+ * Adds a node to the node array.
+ */
+void ast_node_array_add(ASTNodeArray* array, ASTNode* node)
+{
+    // reallocate if full
+    if (array->length >= array->size) {
+        array->size = array->size * 2;
+        array->items = realloc(array->items, array->size);
+    }
+
+    // add to end of array
+    array->items[array->length++] = node;
+}
+
+/**
+ * Prints the items in a node array.
+ */
+void ast_node_array_print(ASTNodeArray* array, int level)
+{
+    printf("[\r\n");
+
+    // print out each item
+    for (int i = 0; i < array->length; i++) {
+        array->items[i]->print(array->items[i], level + 1);
+    }
+
+    print_indent(level);
+    printf("]\r\n");
+}
+
+/**
+ * Destroys a node array.
+ */
+void ast_node_array_destroy(ASTNodeArray** array)
+{
+    free((*array)->items);
+    free(*array);
+    *array = NULL;
 }
