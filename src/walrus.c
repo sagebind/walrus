@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "ast.h"
 #include "lexer.h"
 #include "parser.h"
 #include "scanner.h"
@@ -81,7 +82,11 @@ Error walrus_compile(Options options)
 
         // go ahead and parse the input
         else {
-            parser_parse(lexer);
+            ASTNode* ast = parser_parse(lexer);
+
+            if (options.debug) {
+                ast_print(ast);
+            }
         }
 
         // clean up after ourselves
