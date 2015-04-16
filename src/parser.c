@@ -365,7 +365,7 @@ Error parser_parse_block(Lexer* lexer, ASTNode** node)
         return parser_error(lexer, "Missing left curly brace when parsing block.");
     }
 
-    if (parser_parse_var_decl_list(lexer) != E_SUCCESS) {
+    if (parser_parse_var_decl_list(lexer, *node) != E_SUCCESS) {
         return E_PARSE_ERROR;
     }
 
@@ -383,18 +383,17 @@ Error parser_parse_block(Lexer* lexer, ASTNode** node)
 /**
  * <var_decl_list> -> <var_decl> <var_decl_list> | EPSILON
  */
-Error parser_parse_var_decl_list(Lexer* lexer)
+Error parser_parse_var_decl_list(Lexer* lexer, ASTNode* parent)
 {
     Token token = lexer_lookahead(lexer, 1);
 
     // first derivation
     if (token.type == T_BOOLEAN || token.type == T_INT) {
-        ASTNode* var_decl;
-        if (parser_parse_var_decl(lexer, &var_decl) != E_SUCCESS) {
+        if (parser_parse_var_decl(lexer, parent) != E_SUCCESS) {
             return E_PARSE_ERROR;
         }
 
-        if (parser_parse_var_decl_list(lexer) != E_SUCCESS) {
+        if (parser_parse_var_decl_list(lexer, parent) != E_SUCCESS) {
             return E_PARSE_ERROR;
         }
     }
@@ -429,38 +428,40 @@ Error parser_parse_statement_list(Lexer* lexer)
 /**
  * <var_decl> -> <type> <id> <var_id_list_tail>
  */
-Error parser_parse_var_decl(Lexer* lexer, ASTNode** node)
+Error parser_parse_var_decl(Lexer* lexer, ASTNode* parent)
 {
-    *node = ast_create_node(AST_VAR_DECL);
-    DataType type;
-    char* id;
+    ASTDecl* node = ast_create_decl(AST_VAR_DECL);
 
-    if (parser_parse_type(lexer, &type) != E_SUCCESS) {
+    if (parser_parse_type(lexer, &node->type) != E_SUCCESS) {
         return parser_error(lexer, "Expected variable type.");
     }
 
-    if (parser_parse_id(lexer, &id) != E_SUCCESS) {
+    if (parser_parse_id(lexer, &node->identifier) != E_SUCCESS) {
         return parser_error(lexer, "Expected variable name.");
     }
 
-    return parser_parse_var_id_list_tail(lexer);
+    ast_add_child(parent, (ASTNode*)node);
+    return parser_parse_var_id_list_tail(lexer, node->type, parent);
 }
 
 /**
  * <var_id_list_tail> -> , <id> <var_id_list_tail> | ;
  */
-Error parser_parse_var_id_list_tail(Lexer* lexer)
+Error parser_parse_var_id_list_tail(Lexer* lexer, DataType type, ASTNode* parent)
 {
-    char* id;
-
     Token token = lexer_next(lexer);
     if (token.type == T_COMMA) {
+        ASTDecl* node = ast_create_decl(AST_VAR_DECL);
+        node->type = type;
+
         //first derivation
-        if (parser_parse_id(lexer, &id) != E_SUCCESS) {
+        if (parser_parse_id(lexer, &node->identifier) != E_SUCCESS) {
             return parser_error(lexer, "Expected identifier.");
         }
 
-        if (parser_parse_var_id_list_tail(lexer) != E_SUCCESS) {
+        ast_add_child(parent, (ASTNode*)node);
+
+        if (parser_parse_var_id_list_tail(lexer, type, parent) != E_SUCCESS) {
             return parser_error(lexer, "Expected variable identifier list tail.");
         }
     } else if (token.type != T_STATEMENT_END) {

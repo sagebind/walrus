@@ -90,17 +90,15 @@ static Error ast_print_subtree(ASTNode* parent, char* prefix, bool is_tail)
             break;
 
         case AST_FIELD_DECL:
-        case AST_METHOD_DECL:
-        case AST_VAR_DECL:
-            if (((ASTDecl*)parent)->type == TYPE_BOOLEAN) {
-                type_str = "boolean";
-            } else if (((ASTDecl*)parent)->type == TYPE_INT) {
-                type_str = "int";
-            } else {
-                type_str = "void";
-            }
+            printf("field_decl( identifier: %s, type: %s, length: %d )", ((ASTDecl*)parent)->identifier, data_type_string(((ASTDecl*)parent)->type), ((ASTDecl*)parent)->length);
+            break;
 
-            printf("decl( identifier: %s, type: %s )", ((ASTDecl*)parent)->identifier, type_str);
+        case AST_METHOD_DECL:
+            printf("method_decl( identifier: %s, type: %s )", ((ASTDecl*)parent)->identifier, data_type_string(((ASTDecl*)parent)->type));
+            break;
+
+        case AST_VAR_DECL:
+            printf("var_decl( identifier: %s, type: %s )", ((ASTDecl*)parent)->identifier, data_type_string(((ASTDecl*)parent)->type));
             break;
 
         case AST_BLOCK:
@@ -166,4 +164,20 @@ Error ast_destroy(ASTNode** node)
     *node = NULL;
 
     return E_SUCCESS;
+}
+
+/**
+ * Gets a string name for a data type.
+ */
+char* data_type_string(DataType type)
+{
+    if (type == TYPE_BOOLEAN) {
+        return "boolean";
+    }
+
+    if (type == TYPE_INT) {
+        return "int";
+    }
+
+    return "void";
 }
