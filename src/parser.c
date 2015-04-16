@@ -14,7 +14,7 @@
 ASTNode* parser_parse(Lexer* lexer)
 {
     // the source file should contain a single program (duh!)
-    ASTClassDecl* node;
+    ASTDecl* node;
     if (parser_parse_program(lexer, &node) != E_SUCCESS) {
         error(E_PARSE_ERROR, "Failed to parse file \"%s\".", lexer->context->file);
     }
@@ -69,10 +69,10 @@ static inline bool token_is_bin_op(Token token)
 /**
  * <program> -> class Program { <field_decl_list> <method_decl_list> }
  */
-Error parser_parse_program(Lexer* lexer, ASTClassDecl** node)
+Error parser_parse_program(Lexer* lexer, ASTDecl** node)
 {
-    *node = (ASTClassDecl*)ast_create(AST_CLASS_DECL);
-    ((ASTDecl*)*node)->identifier = "Program";
+    *node = ast_create_decl(AST_CLASS_DECL);
+    (*node)->identifier = "Program";
 
     Token token = lexer_next(lexer);
     if (token.type != T_CLASS) {
@@ -108,7 +108,7 @@ Error parser_parse_program(Lexer* lexer, ASTClassDecl** node)
 /**
  * <field_decl_list> -> <field_decl> <field_decl_list> | EPSILON
  */
-Error parser_parse_field_decl_list(Lexer* lexer, ASTClassDecl* program)
+Error parser_parse_field_decl_list(Lexer* lexer, ASTDecl* program)
 {
     // do a lookahead
     Token token = lexer_lookahead(lexer, 1);
@@ -136,7 +136,7 @@ Error parser_parse_field_decl_list(Lexer* lexer, ASTClassDecl* program)
 /**
  * <method_decl_list> -> <method_decl> <method_decl_list> | EPSILON
  */
-Error parser_parse_method_decl_list(Lexer* lexer, ASTClassDecl* program)
+Error parser_parse_method_decl_list(Lexer* lexer, ASTDecl* program)
 {
     Token first_token = lexer_lookahead(lexer, 1);
 
@@ -146,11 +146,11 @@ Error parser_parse_method_decl_list(Lexer* lexer, ASTClassDecl* program)
     }
 
     // try to parse a method decl
-    ASTMethodDecl* method_decl;
+    ASTDecl* method_decl;
     if (parser_parse_method_decl(lexer, &method_decl) != E_SUCCESS) {
         return E_PARSE_ERROR;
     } else {
-        program->methods->add(program->methods, (ASTNode*)method_decl);
+        ast_add_child((ASTNode*)program, (ASTNode*)method_decl);
     }
 
    // if that worked, we must have a method_decl_list
@@ -160,7 +160,7 @@ Error parser_parse_method_decl_list(Lexer* lexer, ASTClassDecl* program)
 /**
  * <field_decl> -> <type> <field_id_list>
  */
-Error parser_parse_field_decl(Lexer* lexer, ASTClassDecl* program)
+Error parser_parse_field_decl(Lexer* lexer, ASTDecl* program)
 {
     // determine the type of the fields listed here
     DataType type;
@@ -175,9 +175,9 @@ Error parser_parse_field_decl(Lexer* lexer, ASTClassDecl* program)
 /**
  * <field_id_list> -> <id> <array_dim_decl> <field_id_list_tail>
  */
-Error parser_parse_field_id_list(Lexer* lexer, DataType type, ASTClassDecl* program)
+Error parser_parse_field_id_list(Lexer* lexer, DataType type, ASTDecl* program)
 {
-    ASTDecl* node = (ASTDecl*)ast_create(AST_FIELD_DECL);
+    ASTDecl* node = ast_create_decl(AST_FIELD_DECL);
     node->type = type;
 
     if (parser_parse_id(lexer, &node->identifier) != E_SUCCESS) {
@@ -192,7 +192,7 @@ Error parser_parse_field_id_list(Lexer* lexer, DataType type, ASTClassDecl* prog
         return E_PARSE_ERROR;
     }
 
-    program->fields->add(program->fields, (ASTNode*)node);
+    ast_add_child((ASTNode*)program, (ASTNode*)node);
     return E_SUCCESS;
 }
 
@@ -224,7 +224,7 @@ Error parser_parse_array_dim_decl(Lexer* lexer, int* length)
 /**
  * <field_id_list_tail> -> , <field_id_list> | ;
  */
-Error parser_parse_field_id_list_tail(Lexer* lexer, DataType type, ASTClassDecl* program)
+Error parser_parse_field_id_list_tail(Lexer* lexer, DataType type, ASTDecl* program)
 {
     Token token = lexer_next(lexer);
     if (token.type == T_COMMA) {
@@ -243,9 +243,9 @@ Error parser_parse_field_id_list_tail(Lexer* lexer, DataType type, ASTClassDecl*
  * <method_decl> -> <type> <id> ( <method_param_decl_list> ) <block>
                   | void <id> ( <method_param_decl_list> ) <block>
  */
-Error parser_parse_method_decl(Lexer* lexer, ASTMethodDecl** node)
+Error parser_parse_method_decl(Lexer* lexer, ASTDecl** node)
 {
-    *node = (ASTMethodDecl*)ast_create(AST_METHOD_DECL);
+    *node = ast_create_decl(AST_METHOD_DECL);
     ((ASTDecl*)*node)->type = TYPE_VOID;
 
     // can start with <type> or void
@@ -280,7 +280,7 @@ Error parser_parse_method_decl(Lexer* lexer, ASTMethodDecl** node)
     if (parser_parse_block(lexer, &block) != E_SUCCESS) {
         return E_PARSE_ERROR;
     } else {
-        (*node)->block = block;
+        ast_add_child((ASTNode*)*node, block);
     }
 
     // we made it!
@@ -290,7 +290,7 @@ Error parser_parse_method_decl(Lexer* lexer, ASTMethodDecl** node)
 /**
  * <method_param_decl_list> -> <method_param_decl> <method_param_decl_list_tail> | EPSILON
  */
-Error parser_parse_method_param_decl_list(Lexer* lexer, ASTMethodDecl* method)
+Error parser_parse_method_param_decl_list(Lexer* lexer, ASTDecl* method)
 {
     // epsilon
     if (lexer_lookahead(lexer, 1).type == T_PAREN_RIGHT) {
@@ -301,7 +301,7 @@ Error parser_parse_method_param_decl_list(Lexer* lexer, ASTMethodDecl* method)
     if (parser_parse_method_param_decl(lexer, &param) != E_SUCCESS) {
         return parser_error(lexer, "Expected parameter declaration.");
     } else {
-        method->params->add(method->params, (ASTNode*)param);
+        ast_add_child((ASTNode*)method, (ASTNode*)param);
     }
 
     if (parser_parse_method_param_decl_list_tail(lexer, method) != E_SUCCESS) {
@@ -314,7 +314,7 @@ Error parser_parse_method_param_decl_list(Lexer* lexer, ASTMethodDecl* method)
 /**
  * <method_param_decl_list_tail> -> , <method_param_decl> <method_param_decl_list_tail> | EPSILON
  */
-Error parser_parse_method_param_decl_list_tail(Lexer* lexer, ASTMethodDecl* method)
+Error parser_parse_method_param_decl_list_tail(Lexer* lexer, ASTDecl* method)
 {
     // first derivation
     if (lexer_lookahead(lexer, 1).type == T_COMMA) {
@@ -324,7 +324,7 @@ Error parser_parse_method_param_decl_list_tail(Lexer* lexer, ASTMethodDecl* meth
         if (parser_parse_method_param_decl(lexer, &param) != E_SUCCESS) {
             return parser_error(lexer, "Expected method parameter declaration.");
         } else {
-            method->params->add(method->params, (ASTNode*)param);
+            ast_add_child((ASTNode*)method, (ASTNode*)param);
         }
 
         if (parser_parse_method_param_decl_list_tail(lexer, method) != E_SUCCESS) {
@@ -341,7 +341,7 @@ Error parser_parse_method_param_decl_list_tail(Lexer* lexer, ASTMethodDecl* meth
  */
 Error parser_parse_method_param_decl(Lexer* lexer, ASTDecl** node)
 {
-    *node = (ASTDecl*)ast_create(AST_VAR_DECL);
+    *node = ast_create_decl(AST_VAR_DECL);
 
     if (parser_parse_type(lexer, &(*node)->type) != E_SUCCESS) {
         return parser_error(lexer, "Expected parameter type.");
@@ -359,7 +359,7 @@ Error parser_parse_method_param_decl(Lexer* lexer, ASTDecl** node)
  */
 Error parser_parse_block(Lexer* lexer, ASTNode** node)
 {
-    *node = ast_create(AST_BLOCK);
+    *node = ast_create_node(AST_BLOCK);
 
     if (lexer_next(lexer).type != T_BRACE_LEFT) {
         return parser_error(lexer, "Missing left curly brace when parsing block.");
@@ -431,7 +431,7 @@ Error parser_parse_statement_list(Lexer* lexer)
  */
 Error parser_parse_var_decl(Lexer* lexer, ASTNode** node)
 {
-    *node = ast_create(AST_VAR_DECL);
+    *node = ast_create_node(AST_VAR_DECL);
     DataType type;
     char* id;
 
@@ -549,7 +549,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
     lexer_next(lexer);
     // third derivation - if statement
     if (token.type == T_IF) {
-        *node = ast_create(AST_IF_STATEMENT);
+        *node = ast_create_node(AST_IF_STATEMENT);
 
         if (lexer_next(lexer).type != T_PAREN_LEFT) {
             return parser_error(lexer, "Missing opening parenthesis.");
@@ -577,7 +577,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
 
     // fourth derivation
     else if (token.type == T_FOR) {
-        *node = ast_create(AST_FOR_STATEMENT);
+        *node = ast_create_node(AST_FOR_STATEMENT);
 
         char* id;
         if (parser_parse_id(lexer, &id) != E_SUCCESS) {
@@ -610,7 +610,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
 
     // fifth derivation - return statement
     else if (token.type == T_RETURN) {
-        *node = ast_create(AST_RETURN_STATEMENT);
+        *node = ast_create_node(AST_RETURN_STATEMENT);
 
         if (parser_parse_expr_option(lexer) != E_SUCCESS) {
             return E_PARSE_ERROR;
@@ -625,7 +625,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
 
     // sixth derivation
     else if (token.type == T_BREAK) {
-        *node = ast_create(AST_BREAK_STATEMENT);
+        *node = ast_create_node(AST_BREAK_STATEMENT);
 
         if (lexer_next(lexer).type != T_STATEMENT_END) {
             return parser_error(lexer, "Missing semicolon at end of statement.");
@@ -636,7 +636,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
 
     // seventh derivation
     else if (token.type == T_CONTINUE) {
-        *node = ast_create(AST_CONTINUE_STATEMENT);
+        *node = ast_create_node(AST_CONTINUE_STATEMENT);
 
         if (lexer_next(lexer).type != T_STATEMENT_END) {
             return parser_error(lexer, "Missing semicolon at end of statement.");
@@ -1041,7 +1041,7 @@ Error parser_parse_int_literal(Lexer* lexer, ASTNode** node)
         return parser_error(lexer, "Expected an integer literal.");
     }
 
-    *node = ast_create(AST_INT_LITERAL);
+    *node = ast_create_node(AST_INT_LITERAL);
     return E_SUCCESS;
 }
 
@@ -1054,7 +1054,7 @@ Error parser_parse_bool_literal(Lexer* lexer, ASTNode** node)
         return parser_error(lexer, "Expected 'true' or 'false'.");
     }
 
-    *node = ast_create(AST_BOOLEAN_LITERAL);
+    *node = ast_create_node(AST_BOOLEAN_LITERAL);
     return E_SUCCESS;
 }
 
@@ -1067,7 +1067,7 @@ Error parser_parse_char_literal(Lexer* lexer, ASTNode** node)
         return parser_error(lexer, "Expected a char literal.");
     }
 
-    *node = ast_create(AST_CHAR_LITERAL);
+    *node = ast_create_node(AST_CHAR_LITERAL);
     return E_SUCCESS;
 }
 
@@ -1081,7 +1081,7 @@ Error parser_parse_string_literal(Lexer* lexer, ASTNode** node)
         return parser_error(lexer, "Expected a string literal.");
     }
 
-    *node = ast_create(AST_STRING_LITERAL);
-    ((ASTLiteral*)(*node))->value = token.lexeme;
+    *node = ast_create_node(AST_STRING_LITERAL);
+    (*node)->value = token.lexeme;
     return E_SUCCESS;
 }

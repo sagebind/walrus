@@ -5,22 +5,18 @@
 #include "tokens.h"
 
 
-// forward declarations
-typedef struct ASTNode ASTNode;
-typedef struct ASTNodeArray ASTNodeArray;
-
-// node method macros
-#define AST_PRINT_FN(name) void name(ASTNode* this, int level)
-#define AST_DESTROY_FN(name) void name(ASTNode** this)
-#define print_indent(level) for (int i = level; i--; printf("  "))
-
-
+/**
+ * All data types allowed in an AST.
+ */
 typedef enum {
     TYPE_BOOLEAN,
     TYPE_INT,
     TYPE_VOID
 } DataType;
 
+/**
+ * An enumeration of all kinds of nodes possible in an abstract syntax tree.
+ */
 typedef enum {
     AST_ASSIGN_STATEMENT,
     AST_BINOP_EXPR,
@@ -48,32 +44,45 @@ typedef enum {
     AST_VAR_DECL
 } ASTNodeKind;
 
-
 /**
- * Base struct for all abstract syntax tree nodes.
+ * Generic syntax tree node.
  */
-struct ASTNode {
+typedef struct ASTNode {
     /**
      * The kind of node this node is.
      */
     ASTNodeKind kind;
 
     /**
-     * Pointer to a function that prints out the current node.
+     * A pointer to any value you like.
      */
-    AST_PRINT_FN((*print));
+    void* value;
 
     /**
-     * Pointer to a function that destroys the current node.
+     * The number of nodes in the array.
      */
-    AST_DESTROY_FN((*destroy));
-};
+    int child_count;
+
+    /**
+     * The size of the array.
+     */
+    int child_size;
+
+    /**
+     * A pointer to the start of the array.
+     */
+    struct ASTNode** children;
+
+    /**
+     * The parent node of this one, if any.
+     */
+    struct ASTNode* parent;
+} ASTNode;
 
 /**
  * An abstract syntax tree node that also contains declaration information.
  */
 typedef struct {
-    // 'inherit' from node type
     ASTNode super;
 
     /**
@@ -86,74 +95,30 @@ typedef struct {
      */
     DataType type;
 
+    /**
+     * The length of the declaration, if any.
+     */
     int length;
 } ASTDecl;
-
-typedef struct {
-    // 'inherit' from node type
-    ASTDecl super;
-
-    /**
-     * An array of field declarations.
-     */
-    ASTNodeArray* fields;
-
-    /**
-     * An array of method declarations.
-     */
-    ASTNodeArray* methods;
-} ASTClassDecl;
-
-typedef struct {
-    // 'inherit' from decl type
-    ASTDecl super;
-
-    /**
-     * An array of parameters.
-     */
-    ASTNodeArray* params;
-
-    /**
-     * Method block definition.
-     */
-    ASTNode* block;
-} ASTMethodDecl;
-
-typedef struct {
-    // 'inherit' from node type
-    ASTNode super;
-
-    /**
-     * The left operand.
-     */
-    ASTNode* left;
-
-    /**
-     * The right operand.
-     */
-    ASTNode* right;
-} ASTBinaryOp;
-
-typedef struct {
-    // 'inherit' from node type
-    ASTNode super;
-
-    /**
-     * A pointer to some value.
-     */
-    void* value;
-} ASTLiteral;
 
 /**
  * Creates an abstract syntax tree node.
  *
- * @param  token The lexical token the node represents.
- * @return       A shiny new abstract syntax tree node.
+ * @param  kind The kind of node.
+ * @return      A shiny new abstract syntax tree node.
  */
-ASTNode* ast_create(ASTNodeKind kind);
+ASTNode* ast_create_node(ASTNodeKind kind);
 
 /**
- * Adds an abstract syntax tree node as a child to another node.
+ * Creates an abstract syntax tree declaration-type node.
+ *
+ * @param  kind The kind of node.
+ * @return      A shiny new abstract syntax tree node.
+ */
+ASTDecl* ast_create_decl(ASTNodeKind kind);
+
+/**
+ * Adds an abstract syntax tree node to another node as a child.
  *
  * @param  parent The node to add a child to.
  * @param  child  The node add to parent as a child.
@@ -166,7 +131,7 @@ Error ast_add_child(ASTNode* parent, ASTNode* child);
  *
  * @param  parent The subtree to print.
  */
-void ast_print(ASTNode* parent);
+Error ast_print(ASTNode* parent);
 
 /**
  * Destroys an abstract syntax tree node and all its children.
@@ -174,54 +139,6 @@ void ast_print(ASTNode* parent);
  * @param  node The node to destroy.
  * @return      An error code.
  */
-//Error ast_destroy(ASTNode** node);
-
-
-/**
- * Structure for storing a dynamic array of node pointers.
- */
-struct ASTNodeArray {
-    /**
-     * A pointer to the start of the array.
-     */
-    ASTNode** items;
-
-    /**
-     * The number of nodes in the array.
-     */
-    int length;
-
-    /**
-     * The size of the array.
-     */
-    int size;
-
-    /**
-     * Adds a node to the node array.
-     */
-    void (*add)(ASTNodeArray* array, ASTNode* node);
-};
-
-/**
- * Creates a new node array.
- */
-ASTNodeArray* ast_node_array_create(void);
-
-/**
- * Adds a node to the node array.
- */
-void ast_node_array_add(ASTNodeArray* array, ASTNode* node);
-
-/**
- * Prints the items in a node array.
- *
- * @param array The node array to print.
- */
-void ast_node_array_print(ASTNodeArray* array, int level);
-
-/**
- * Destroys a node array.
- */
-void ast_node_array_destroy(ASTNodeArray** array);
+Error ast_destroy(ASTNode** node);
 
 #endif
