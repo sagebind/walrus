@@ -87,6 +87,8 @@ Error walrus_compile(Options options)
             if (options.debug) {
                 ast_print(ast);
             }
+
+            ast_destroy(&ast);
         }
 
         // clean up after ourselves
