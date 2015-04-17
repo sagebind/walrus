@@ -82,33 +82,60 @@ static Error ast_print_subtree(ASTNode* parent, char* prefix, bool is_tail)
     // print out the current node branch
     printf("%s%s ", prefix, is_tail ? "└──" : "├──");
 
-    // print out a representation of the node data
-    char* type_str;
-    switch (parent->kind) {
-        case AST_CLASS_DECL:
-            printf("class( identifier: %s )", ((ASTDecl*)parent)->identifier);
-            break;
-
-        case AST_FIELD_DECL:
-            printf("field_decl( identifier: %s, type: %s, length: %d )", ((ASTDecl*)parent)->identifier, data_type_string(((ASTDecl*)parent)->type), ((ASTDecl*)parent)->length);
-            break;
-
-        case AST_METHOD_DECL:
-            printf("method_decl( identifier: %s, type: %s )", ((ASTDecl*)parent)->identifier, data_type_string(((ASTDecl*)parent)->type));
-            break;
-
-        case AST_VAR_DECL:
-            printf("var_decl( identifier: %s, type: %s )", ((ASTDecl*)parent)->identifier, data_type_string(((ASTDecl*)parent)->type));
-            break;
-
-        case AST_BLOCK:
-            printf("block");
-            break;
-
-        default:
-            printf("%d", parent->kind);
+    if (parent->kind == AST_RETURN_STATEMENT) {
+        printf("return\r\n");
     }
-    printf("\r\n");
+
+    else {
+        switch (parent->kind) {
+            case AST_ASSIGN_STATEMENT:
+                printf("assign");
+                break;
+
+            case AST_EXPR:
+                printf("expression");
+                break;
+
+            case AST_IF_STATEMENT:
+                printf("if");
+                break;
+
+            case AST_FOR_STATEMENT:
+                printf("for loop");
+                break;
+
+            case AST_CALL_EXPR:
+            case AST_CALLOUT_EXPR:
+                printf("function call");
+                break;
+
+            case AST_CLASS_DECL:
+                printf("class( identifier: %s )", ((ASTDecl*)parent)->identifier);
+                break;
+
+            case AST_FIELD_DECL:
+                printf("field_decl( identifier: %s, type: %s, length: %d )", ((ASTDecl*)parent)->identifier, data_type_string(((ASTDecl*)parent)->type), ((ASTDecl*)parent)->length);
+                break;
+
+            case AST_METHOD_DECL:
+                printf("method_decl( identifier: %s, type: %s )", ((ASTDecl*)parent)->identifier, data_type_string(((ASTDecl*)parent)->type));
+                break;
+
+            case AST_VAR_DECL:
+                printf("var_decl( identifier: %s, type: %s )", ((ASTDecl*)parent)->identifier, data_type_string(((ASTDecl*)parent)->type));
+                break;
+
+            case AST_BLOCK:
+                printf("block");
+                break;
+
+            default:
+                printf("%d", parent->kind);
+        }
+
+        printf("\r\n");
+    }
+
 
     // print every child node recursively
     for (int i = 0; i < parent->child_count; i++) {
