@@ -369,7 +369,7 @@ Error parser_parse_block(Lexer* lexer, ASTNode** node)
         return E_PARSE_ERROR;
     }
 
-    if (parser_parse_statement_list(lexer) != E_SUCCESS) {
+    if (parser_parse_statement_list(lexer, *node) != E_SUCCESS) {
         return E_PARSE_ERROR;
     }
 
@@ -405,7 +405,7 @@ Error parser_parse_var_decl_list(Lexer* lexer, ASTNode* parent)
 /**
  * <statement_list> -> <statement> <statement_list> | EPSILON
  */
-Error parser_parse_statement_list(Lexer* lexer)
+Error parser_parse_statement_list(Lexer* lexer, ASTNode* parent)
 {
     // epsilon
     if (lexer_lookahead(lexer, 1).type == T_BRACE_RIGHT) {
@@ -417,8 +417,9 @@ Error parser_parse_statement_list(Lexer* lexer)
     if (parser_parse_statement(lexer, &statement) != E_SUCCESS) {
         return E_PARSE_ERROR;
     }
+    ast_add_child(parent, statement);
 
-    if (parser_parse_statement_list(lexer) != E_SUCCESS) {
+    if (parser_parse_statement_list(lexer, parent) != E_SUCCESS) {
         return E_PARSE_ERROR;
     }
 
@@ -505,6 +506,8 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
 
     // second derivation - method call
     if (token.type == T_CALLOUT || (token.type == T_IDENTIFIER && lexer_lookahead(lexer, 2).type == T_PAREN_LEFT)) {
+        *node = ast_create_node(AST_CALL_EXPR);
+
         if (parser_parse_method_call(lexer) != E_SUCCESS) {
             return parser_error(lexer, "Expected method call.");
         }
@@ -518,6 +521,8 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
 
     // first derivation - location...
     else if (token.type == T_IDENTIFIER) {
+        *node = ast_create_node(AST_ASSIGN_STATEMENT);
+
         if (parser_parse_location(lexer) != E_SUCCESS) {
             return parser_error(lexer, "Expected location in statement.");
         }
@@ -526,9 +531,11 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
             return parser_error(lexer, "Expected assignment operator.");
         }
 
-        if (parser_parse_expr(lexer) != E_SUCCESS) {
+        ASTNode* expr;
+        if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
             return parser_error(lexer, "Expected expression.");
         }
+        ast_add_child(*node, expr);
 
         if (lexer_next(lexer).type != T_STATEMENT_END) {
             return parser_error(lexer, "Missing semicolon at end of statement.");
@@ -556,9 +563,11 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
             return parser_error(lexer, "Missing opening parenthesis.");
         }
 
-        if (parser_parse_expr(lexer) != E_SUCCESS) {
+        ASTNode* expr;
+        if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
             return parser_error(lexer, "Expected expression.");
         }
+        ast_add_child(*node, expr);
 
         if (lexer_next(lexer).type != T_PAREN_RIGHT) {
             return parser_error(lexer, "Missing closing parenthesis.");
@@ -568,6 +577,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
         if (parser_parse_block(lexer, &block) != E_SUCCESS) {
             return parser_error(lexer, "Expected block.");
         }
+        ast_add_child(*node, block);
 
         if (parser_parse_else_expr(lexer) != E_SUCCESS) {
             return parser_error(lexer, "Expected else expression.");
@@ -589,22 +599,26 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
             return parser_error(lexer, "Expected equals '=' sign.");
         }
 
-        if (parser_parse_expr(lexer) != E_SUCCESS) {
+        ASTNode* expr;
+        if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
             return parser_error(lexer, "Expected expression.");
         }
+        ast_add_child(*node, expr);
 
         if (lexer_next(lexer).type != T_COMMA) {
             return parser_error(lexer, "Expected comma ',' after expression.");
         }
 
-        if (parser_parse_expr(lexer) != E_SUCCESS) {
+        if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
             return parser_error(lexer, "Expected expression.");
         }
+        ast_add_child(*node, expr);
 
         ASTNode* block;
         if (parser_parse_block(lexer, &block) != E_SUCCESS) {
             return parser_error(lexer, "Expected block.");
         }
+        ast_add_child(*node, block);
 
         return E_SUCCESS;
     }
@@ -613,7 +627,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
     else if (token.type == T_RETURN) {
         *node = ast_create_node(AST_RETURN_STATEMENT);
 
-        if (parser_parse_expr_option(lexer) != E_SUCCESS) {
+        if (parser_parse_expr_option(lexer, *node) != E_SUCCESS) {
             return E_PARSE_ERROR;
         }
 
@@ -672,7 +686,7 @@ Error parser_parse_else_expr(Lexer* lexer)
 /**
  * <expr_option> -> <expr> | EPSILON
  */
-Error parser_parse_expr_option(Lexer* lexer)
+Error parser_parse_expr_option(Lexer* lexer, ASTNode* parent)
 {
     // epsilon
     if (lexer_lookahead(lexer, 1).type == T_STATEMENT_END) {
@@ -680,7 +694,13 @@ Error parser_parse_expr_option(Lexer* lexer)
     }
 
     // expect an expression
-    return parser_parse_expr(lexer);
+    ASTNode* expr;
+    if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
+        return E_PARSE_ERROR;
+    }
+    ast_add_child(parent, expr);
+
+    return E_SUCCESS;
 }
 
 /**
@@ -750,7 +770,8 @@ Error parser_parse_expr_list(Lexer* lexer)
     }
 
     // first derivation
-    if (parser_parse_expr(lexer) != E_SUCCESS) {
+    ASTNode* expr;
+    if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
         return E_PARSE_ERROR;
     }
 
@@ -772,7 +793,8 @@ Error parser_parse_expr_list_tail(Lexer* lexer)
     if (first_token.type == T_COMMA) {
         lexer_next(lexer);
 
-        if (parser_parse_expr(lexer) != E_SUCCESS) {
+        ASTNode* expr;
+        if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
             return parser_error(lexer, "Expected expression following comma in expression list.");
         }
 
@@ -842,7 +864,8 @@ Error parser_parse_array_subscript_expr(Lexer* lexer)
         // consume current token
         lexer_next(lexer);
 
-        if (parser_parse_expr(lexer) != E_SUCCESS) {
+        ASTNode* expr;
+        if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
             return parser_error(lexer, "Expected expression inside array subscript.");
         }
 
@@ -858,8 +881,10 @@ Error parser_parse_array_subscript_expr(Lexer* lexer)
 /**
  * <expr> -> <expr_part> <expr_end>
  */
-Error parser_parse_expr(Lexer* lexer)
+Error parser_parse_expr(Lexer* lexer, ASTNode** node)
 {
+    *node = ast_create_node(AST_EXPR);
+
     if (parser_parse_expr_part(lexer) != E_SUCCESS) {
         return E_PARSE_ERROR;
     }
@@ -904,7 +929,8 @@ Error parser_parse_expr_part(Lexer* lexer)
     if (next_token.type == T_MINUS || next_token.type == T_LOGICAL_NOT) {
         lexer_next(lexer);
 
-        if (parser_parse_expr(lexer) != E_SUCCESS) {
+        ASTNode* expr;
+        if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
             return parser_error(lexer, "Expected expression.");
         }
 
@@ -915,7 +941,8 @@ Error parser_parse_expr_part(Lexer* lexer)
     if (next_token.type == T_PAREN_LEFT) {
         lexer_next(lexer);
 
-        if (parser_parse_expr(lexer) != E_SUCCESS) {
+        ASTNode* expr;
+        if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
             return parser_error(lexer, "Expected expression.");
         }
 
@@ -950,7 +977,8 @@ Error parser_parse_expr_end(Lexer* lexer)
             return parser_error(lexer, "Expected binary operator.");
         }
 
-        if (parser_parse_expr(lexer) != E_SUCCESS) {
+        ASTNode* expr;
+        if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
             return parser_error(lexer, "Expected expression.");
         }
     }
@@ -964,6 +992,7 @@ Error parser_parse_expr_end(Lexer* lexer)
  */
 Error parser_parse_callout_arg(Lexer* lexer)
 {
+    ASTNode* expr;
     // second derivation - string literal
     if (lexer_lookahead(lexer, 1).type == T_STRING_LITERAL) {
         ASTNode* string_literal;
@@ -973,7 +1002,7 @@ Error parser_parse_callout_arg(Lexer* lexer)
     }
 
     // first derivation
-    else if (parser_parse_expr(lexer) != E_SUCCESS) {
+    else if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
         return parser_error(lexer, "Expected expression.");
     }
 

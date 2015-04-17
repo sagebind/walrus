@@ -93,7 +93,7 @@ Error parser_parse_var_decl_list(Lexer* lexer, ASTNode* parent);
 /**
  * <statement_list> -> <statement> <statement_list> | EPSILON
  */
-Error parser_parse_statement_list(Lexer* lexer);
+Error parser_parse_statement_list(Lexer* lexer, ASTNode* parent);
 
 /**
  * <var_decl> -> <type> <id> <var_id_list_tail>
@@ -130,7 +130,7 @@ Error parser_parse_else_expr(Lexer* lexer);
 /**
  * <expr_option> -> <expr> | EPSILON
  */
-Error parser_parse_expr_option(Lexer* lexer);
+Error parser_parse_expr_option(Lexer* lexer, ASTNode* parent);
 
 /**
  * <assign_op> -> = | += | -=
@@ -176,7 +176,7 @@ Error parser_parse_array_subscript_expr(Lexer* lexer);
 /**
  * <expr> -> <expr_part> <expr_end>
  */
-Error parser_parse_expr(Lexer* lexer);
+Error parser_parse_expr(Lexer* lexer, ASTNode** node);
 
 /**
  * <expr_part> -> <location>
