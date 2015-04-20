@@ -5,7 +5,7 @@
 typedef struct
    {
       char* table[100];
-    } HashMap;
+    } hashmap;
 
 
 void insert(){
