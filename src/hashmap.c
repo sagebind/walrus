@@ -3,14 +3,12 @@
 #include "hashmap.h"
 
 int scope = 0;
+string table[100];
 void insert(){
 
 }
 
-void initializeScope(){
-	scope++;
+void delete(){
+
 }
 
-void finalizeScope(){
-	scope--;
-}

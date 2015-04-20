@@ -3,8 +3,6 @@
 
 void insert(void);
 
-void initializeScope(void);
-
-void finalizeScope(void);
+void delete(void);
 
 #endif
