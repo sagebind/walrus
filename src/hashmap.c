@@ -2,8 +2,12 @@
 #include <string.h>
 #include "hashmap.h"
 
-int scope = 0;
-string table[100];
+typedef struct
+   {
+      char* table[100];
+    } HashMap;
+
+
 void insert(){
 
 }
