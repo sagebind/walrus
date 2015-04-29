@@ -47,6 +47,14 @@ Error parser_error(Lexer* lexer, char* message)
 }
 
 /**
+ * Tries to parse a numerical string and returns its value.
+ */
+long parser_str_to_long(char* string)
+{
+    return strtol(string, NULL, 0);
+}
+
+/**
  * Checks if a token is a binary operator.
  */
 static inline bool token_is_bin_op(Token token)
