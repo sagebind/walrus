@@ -218,6 +218,8 @@ Error parser_parse_array_dim_decl(Lexer* lexer, int* length)
         if (parser_parse_int_literal(lexer, &int_literal) != E_SUCCESS) {
             return parser_error(lexer, "Expected array length.");
         }
+        // fetch the int value as the length
+        *length = *(int*)(int_literal->value);
 
         token = lexer_next(lexer);
         if (token.type != T_BRACKET_RIGHT) {
@@ -1075,11 +1077,16 @@ Error parser_parse_id(Lexer* lexer, char** id)
  */
 Error parser_parse_int_literal(Lexer* lexer, ASTNode** node)
 {
-    if (lexer_next(lexer).type != T_INT_LITERAL) {
+    Token token = lexer_next(lexer);
+    if (token.type != T_INT_LITERAL) {
         return parser_error(lexer, "Expected an integer literal.");
     }
 
+    // create a node
     *node = ast_create_node(AST_INT_LITERAL);
+    // get the actual int value
+    (*node)->value = malloc(sizeof(int));
+    *(int*)((*node)->value) = parser_str_to_long(token.lexeme);
     return E_SUCCESS;
 }
 
