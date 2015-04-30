@@ -6,4 +6,8 @@ void initializeScope(void);
 
 void finalizeScope(void);
 
+void insert(char* element);
+
+void lookup(char* inp);
+
 #endif

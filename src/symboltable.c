@@ -23,3 +23,11 @@ void finalizeScope(){
 	}
 	/*else probably some kind of error*/
 }
+
+void insert(char* element){
+	
+}
+
+void lookup(char* inp){
+	
+}
