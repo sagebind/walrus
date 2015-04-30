@@ -2,7 +2,7 @@
 #include <string.h>
 #include "hashmap.h"
 
-char*[100] table;
+char* table[100];
 
 
 void insert(){
