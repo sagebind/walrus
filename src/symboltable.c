@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+<<<<<<< HEAD
 #include "hashmap.h"
 int scope = 0;
 
@@ -21,4 +22,15 @@ void finalizeScope(){
 	activeTable = scopes[scope];
 	}
 	/*else probably some kind of error*/
+=======
+#include "symboltable.h"
+
+
+void initializeScope() {
+
+}
+
+void finalizeScope() {
+
+>>>>>>> 2ae68526e7b3f974314156cbbf8bf9c0e249a5fd
 }

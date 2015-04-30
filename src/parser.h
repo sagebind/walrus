@@ -25,6 +25,14 @@ ASTNode* parser_parse(Lexer* lexer);
 Error parser_error(Lexer* lexer, char* message);
 
 /**
+ * Tries to parse a numerical string and returns its value.
+ *
+ * @param  string The string containing a number in decimal or hexadecimal format.
+ * @return        The parsed value in decimal, or zero if it could not be parsed.
+ */
+long parser_str_to_long(char* string);
+
+/**
  * <program> -> class Program { <field_decl_list> <method_decl_list> }
  */
 Error parser_parse_program(Lexer* lexer, ASTDecl** node);
