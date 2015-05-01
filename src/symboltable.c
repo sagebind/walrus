@@ -4,25 +4,23 @@
 #include "hashmap.h"
 int scope = 0;
 
-hashmap scopes[50];
 hashmap activeTable;
-void initializeScope(){
-	scopes[scope] = activeTable;
-	scope++;
-	if(scope <= 50){
-	activeTable = scopes[scope];
-	}
-	/*else allocate more space, but who needs more than 50 scope in decaf?*/
+
+
+
+
+Stack* stack_create(){
+	
 }
 
-void finalizeScope(){
-	scopes[scope] = activeTable;
-	if(scope >= 0){
-	scope--;
-	activeTable = scopes[scope];
-	}
-	/*else probably some kind of error*/
+void push(int* inp){
+	
 }
+
+int* pop(){
+	
+}
+
 
 void insert(char* element){
 	
