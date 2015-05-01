@@ -4,7 +4,8 @@
 
 typedef struct StackNode {
     struct stackNode* previous;
-    HashMap hashmap;
+   // HashMap hashmap;
+   int content;
 } StackNode;
 
 
