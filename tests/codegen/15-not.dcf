@@ -1,0 +1,50 @@
+class Program
+{
+
+	boolean fail(boolean b)
+	{
+		callout("printStr", "INCORRECT - short-circuiting failed\n");
+		return b;
+	}
+
+	void main()
+	{
+		boolean a, b, c;
+		callout("printStr", "should see 6 corrects and no incorrects\n");
+		a = (0 == 0);
+		b = ((0 - 3) == 1);
+		c = ! a;
+		if ((! a) && fail(false)) {
+			callout("printStr", "INCORRECT\n");
+		} else {
+			callout("printStr", "correct\n");
+		}
+		if ((! b) || fail(true)) {
+			callout("printStr", "correct\n");
+		} else {
+			callout("printStr", "INCORRECT\n");
+		}
+		if (c) {
+			callout("printStr", "INCORRECT\n");
+		} else {
+			callout("printStr", "correct\n");
+		}
+		if ((! (! c)) && fail(false)) {
+			callout("printStr", "INCORRECT\n");
+		} else {
+			callout("printStr", "correct\n"); 
+		}
+		if (! (! (! c))) {
+			callout("printStr", "correct\n");
+		} else {
+			callout("printStr", "INCORRECT\n");
+		}
+		c = (! (! a));
+		if ( (! a) != c) {
+			callout("printStr", "correct\n");
+		} else {
+			callout("printStr", "INCORRECT\n");
+		}
+	}
+}
+

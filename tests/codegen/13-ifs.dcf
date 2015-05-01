@@ -1,0 +1,100 @@
+class Program
+{
+    boolean not2(boolean a)
+    {
+        boolean b;
+        
+        b = true;
+        if (a) {
+            b=false;
+        }
+        
+        return b;
+    }
+
+    void phw(boolean a,boolean b,boolean c,boolean d,boolean e,boolean f,
+	     boolean g,boolean h,boolean i,boolean j )
+    {    
+        if (a) {
+            callout("printStr","H");
+            if (b) {
+                callout("printStr","e");
+                if (c) {
+                    callout("printStr","l");
+                    if (d) {
+                        callout("printStr","l");
+                        if (e) {
+                            callout("printStr","*");
+                        }
+                        if (not2(e)) {
+                            callout("printStr","o");
+                        }
+                    }
+                    if (not2(d)) {
+                        callout("printStr","*");
+                    }
+                }
+                if (not2(c)) {
+                    callout("printStr","*");
+                }
+            }
+            if (not2(b)) {
+                callout("printStr","*");
+            }
+        }
+
+        if (not2(a)) {
+            callout("printStr","*");
+        }
+
+        callout("printStr"," ");
+
+        if (not2(f)) { callout ("printStr","*"); }
+        
+	if (g) { 
+            if (not2(h)) { 
+	        callout("printStr","W"); 
+                if (i) { 
+		    callout("printStr","o");
+                    if (j) { callout("printStr","r"); }
+                }
+            }
+        }
+        if (not2(g)) {
+            callout("printStr","*");
+        }   
+    
+        callout("printStr","l");
+        callout("printStr","d");
+    }
+ 
+    void main()
+    {
+        callout("printStr","[");
+        phw(true,true,true,true,false,true,true,false,true,true);
+        callout("printStr","]");
+        callout("printStr","\n");
+
+        if (2 > ((3 - 5)*2))
+	{
+            callout("printStr","should be here\n");
+
+	    if (2 > 5)
+	    {
+                callout("printStr","should not be here\n");
+	    }
+	    else
+	    {
+                callout("printStr","should be here\n");
+	    }
+	} 
+
+	else 
+	{
+            callout("printStr","should not be here\n");
+	}
+     
+    }
+
+}
+

@@ -1,0 +1,69 @@
+// test as many operators as we can
+
+class Program
+{
+    void main () 
+    {
+        int a, b, c;
+        
+        a = (10 + 20);
+        callout("printStr", "10 + 20 is ");
+        callout("printInt", a);
+        callout("printStr", " (30)\n");
+
+        a = (10 - 20);
+        callout("printStr", "10 - 20 is ");
+        callout("printInt", a);
+        callout("printStr", " (-10)\n");
+
+        a = (10 * 20);
+        callout("printStr", "10 * 20 is ");
+        callout("printInt", a);
+        callout("printStr", " (200)\n");
+
+        a = 1;
+        b = 2;
+        c = 2;
+
+        if (a < b) { callout("printStr", "a < b is correct\n"); }
+        if (a <= b) { callout("printStr", "a <= b is correct\n"); }
+        if (a > b) { callout("printStr", "a > b is incorrect\n"); }
+        if (a >= b) { callout("printStr", "a >= b is incorrect\n"); }
+
+        if (c < b) { callout("printStr", "c < b is incorrect\n"); }
+        if (c <= b) { callout("printStr", "c <= b is correct\n"); }
+        if (c > b) { callout("printStr", "c > b is incorrect\n"); }
+        if (c >= b) { callout("printStr", "c >= b is correct\n"); }
+
+        if (a == a) { callout("printStr", "a == a is correct\n"); }
+        if (a != a) { callout("printStr", "a != a is incorrect\n"); }
+
+        if (a == b) { callout("printStr", "a == b is incorrect\n"); }
+        if (a != b) { callout("printStr", "a != b is correct\n"); }
+
+        if ((a == a) && (b == c))
+            { callout("printStr", "true and true is correct\n"); }
+        
+        if ((a != a) && (b == c))
+            { callout("printStr", "false and true is incorrect\n"); }
+        
+        if ((a == a) && (b != c))
+            { callout("printStr", "true and false is incorrect\n"); }
+        
+        if ((a != a) && (b != c))
+            { callout("printStr", "false and false is incorrect\n"); }
+        
+        if ((a == a) || (b == c))
+            { callout("printStr", "true or true is correct\n"); }
+        
+        if ((a != a) || (b == c))
+            { callout("printStr", "false or true is correct\n"); }
+        
+        if ((a == a) || (b != c))
+            { callout("printStr", "true or false is correct\n"); }
+        
+        if ((a != a) || (b != c))
+            { callout("printStr", "false or false is incorrect\n"); }
+    }
+}
+

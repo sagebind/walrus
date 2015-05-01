@@ -1,0 +1,9 @@
+class Program
+{
+    void main()
+    {
+        callout("printStr", "Hello, World.\n");
+    }
+}
+
+      

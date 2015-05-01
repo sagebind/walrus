@@ -1,0 +1,42 @@
+class Program
+{
+    void main () 
+    {
+        int i1;
+    
+        i1 = (-2147483647 - 1);
+        callout("printStr","min int operation: result should be -2147483648, is: ");
+        callout("printInt",i1);
+        callout("printStr","\n");
+        i1 = ((100 - 50) * 2);
+  	callout("printStr","paren assoc: result should be 100, is: ");
+        callout("printInt",i1);
+        callout("printStr","\n");
+  	i1 = ((100 - 50) - 40);
+        callout("printStr","- assoc: result should be 10, is: "); 
+        callout("printInt",i1);
+        callout("printStr","\n");
+  	i1 = ((100 - 50) + 40);
+        callout("printStr","-,+ assoc: result should be 90, is: ");
+        callout("printInt",i1);
+        callout("printStr","\n");
+  	i1 = (100 - (5 * 4));
+        callout("printStr","- * assoc: result should be 80, is: ");
+        callout("printInt",i1);
+        callout("printStr","\n");
+  	i1 = ((10 * 5) - 4);
+        callout("printStr","result should be 46, is: ");
+        callout("printInt",i1);
+        callout("printStr","\n");
+  	i1 = 3;
+  	i1 = ((i1 * i1) - (0 - 2));
+        callout("printStr","*, -, uses var: result should be 11, is: ");
+        callout("printInt",i1);
+        callout("printStr","\n");
+        i1 = ((3 * 4) - (2 * 5));
+        callout("printStr","*,- assoc: result should be 2, is: ");
+        callout("printInt",i1);
+        callout("printStr","\n");
+    }
+}
+

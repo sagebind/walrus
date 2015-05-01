@@ -1,0 +1,21 @@
+class Program {
+    int factorial(int n)
+    {
+        if (n <= 1) {
+            return 1;
+        } else {
+            return (n * factorial(n - 1));
+        }
+    }
+
+    void main()
+    {
+        int res;
+
+        res = factorial(10);
+
+        callout("printStr", "10! = ");
+        callout("printInt", res);
+        callout("printStr", " (3628800)\n");
+    }
+}

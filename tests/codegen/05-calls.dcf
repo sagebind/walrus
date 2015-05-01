@@ -1,0 +1,39 @@
+class Program
+{
+    int add(int a, int b)
+    {
+        return (a + b);
+    }
+
+    int sub(int a, int b)
+    {
+        return (a - b);
+    }
+
+    int sum(int a, int b, int c, int d,
+            int e, int f, int g, int h)
+    {
+        return (((((((a + b) + c) + d) + e) + f) + g) + h);
+    }
+
+    void main()
+    {
+        int a, b, c, d;
+
+        a = 1;
+        b = 2;
+
+        c = add(a, b);
+        d = sub(c, b);
+
+        if (d == a) {
+            callout("printStr", "correct\n");
+        } else {
+            callout("printStr", "INCORRECT\n");
+        }
+
+        callout("printStr", "sum of 1 - 8 is ");
+        callout("printInt", sum(1,2,3,4,5,6,7,8));
+        callout("printStr", " (36)\n");
+    }
+}
