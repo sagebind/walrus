@@ -2,9 +2,21 @@
 #define WALRUS_SYMBOLTABLE_H
 
 
-void initializeScope(void);
+typedef struct SymbolTableNode {
+    struct SymbolTableNode* previous;
+    HashMap hashmap;
+} SymbolTableNode;
 
-void finalizeScope(void);
+
+typedef struct {
+    SymbolTableNode* tail; // grab the linked list by the tail like a real man!
+    SymbolTableNode* current;
+} SymbolTable;
+
+
+SymbolTable* symbol_table_create(void);
+
+void symbol_table_new_scope(void);
 
 void insert(char* element);
 
