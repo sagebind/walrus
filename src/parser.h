@@ -33,6 +33,15 @@ Error parser_error(Lexer* lexer, char* message);
 long parser_str_to_long(char* string);
 
 /**
+ * Creates a copy of a string with single and double quotes stripped from the
+ * ends of the string.
+ *
+ * @param  string The string to strip.
+ * @return        The stripped string.
+ */
+char* parser_strip_quotes(const char* string);
+
+/**
  * <program> -> class Program { <field_decl_list> <method_decl_list> }
  */
 Error parser_parse_program(Lexer* lexer, ASTDecl** node);
@@ -149,7 +158,7 @@ Error parser_parse_assign_op(Lexer* lexer);
  * <method_call> -> <method_name> ( <expr_list> )
  *                  | callout ( <string_literal> <callout_arg_list> )
  */
-Error parser_parse_method_call(Lexer* lexer);
+Error parser_parse_method_call(Lexer* lexer, ASTReference** node);
 
 /**
  * <expr_list> -> <expr> <expr_list_tail> | EPSILON
@@ -169,7 +178,7 @@ Error parser_parse_callout_arg_list(Lexer* lexer);
 /**
  * <method_name> -> <id>
  */
-Error parser_parse_method_name(Lexer* lexer);
+Error parser_parse_method_name(Lexer* lexer, char** identifier);
 
 /**
  * <location> -> <id> <array_subscript_expr>

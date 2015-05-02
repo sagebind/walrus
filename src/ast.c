@@ -107,9 +107,14 @@ static Error ast_print_subtree(ASTNode* parent, char* prefix, bool is_tail)
                 printf("for loop");
                 break;
 
-            case AST_CALL_EXPR:
-            case AST_CALLOUT_EXPR:
-                printf("function call");
+            case AST_METHOD_CALL:
+                printf("method_call( identifier: %s )",
+                    ((ASTReference*)parent)->identifier);
+                break;
+
+            case AST_CALLOUT:
+                printf("library_call( name: %s )",
+                    ((ASTReference*)parent)->identifier);
                 break;
 
             case AST_CLASS_DECL:

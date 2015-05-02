@@ -35,21 +35,18 @@ typedef enum {
     AST_BOOLEAN_LITERAL         = 0x30,
     AST_STRING_LITERAL          = 0x40,
     AST_BREAK_STATEMENT         = 0x50,
-    AST_CALL_EXPR               = 0x60,
-    AST_CALLOUT_EXPR            = 0x70,
-    AST_CHAR_LITERAL            = 0x80,
-    AST_CONTINUE_STATEMENT      = 0x90,
-    AST_EXPR                    = 0xA0,
-    AST_FOR_STATEMENT           = 0xB0,
-    AST_IF_STATEMENT            = 0xC0,
-    AST_INT_LITERAL             = 0xD0,
-    AST_INVOKE_STATEMENT        = 0xE0,
-    AST_METHOD_CALL_EXPR        = 0xF0,
-    AST_PLUS_ASSIGN_STATEMENT   = 0x100,
-    AST_RETURN_STATEMENT        = 0x110,
-    AST_STATEMENT               = 0x120,
-    AST_TYPE                    = 0x130,
-    AST_IDENTIFIER              = 0x140,
+    AST_CHAR_LITERAL            = 0x60,
+    AST_CONTINUE_STATEMENT      = 0x70,
+    AST_EXPR                    = 0x80,
+    AST_FOR_STATEMENT           = 0x90,
+    AST_IF_STATEMENT            = 0xA0,
+    AST_INT_LITERAL             = 0xB0,
+    AST_INVOKE_STATEMENT        = 0xC0,
+    AST_PLUS_ASSIGN_STATEMENT   = 0xD0,
+    AST_RETURN_STATEMENT        = 0xE0,
+    AST_STATEMENT               = 0xF0,
+    AST_TYPE                    = 0x100,
+    AST_IDENTIFIER              = 0x110,
 
     // decl kinds
     AST_CLASS_DECL              = 0x11,
@@ -58,7 +55,9 @@ typedef enum {
     AST_VAR_DECL                = 0x41,
 
     // reference kinds
-    AST_LOCATION                = 0x12
+    AST_LOCATION                = 0x12,
+    AST_METHOD_CALL             = 0x22,
+    AST_CALLOUT                 = 0x32
 } ASTNodeKind;
 
 /**

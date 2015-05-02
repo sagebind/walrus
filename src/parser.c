@@ -55,6 +55,19 @@ long parser_str_to_long(char* string)
 }
 
 /**
+ * Creates a copy of a string with single and double quotes stripped from the
+ * ends of the string.
+ */
+char* parser_strip_quotes(const char* string)
+{
+    size_t new_length = strlen(string) - 2;
+    char* new_string = malloc(sizeof(char) * (new_length + 1));
+    strncpy(new_string, string + 1, new_length);
+    new_string[new_length] = 0;
+    return new_string;
+}
+
+/**
  * Checks if a token is a binary operator.
  */
 static inline bool token_is_bin_op(Token token)
@@ -516,9 +529,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
 
     // second derivation - method call
     if (token.type == T_CALLOUT || (token.type == T_IDENTIFIER && lexer_lookahead(lexer, 2).type == T_PAREN_LEFT)) {
-        *node = ast_create_node(AST_CALL_EXPR);
-
-        if (parser_parse_method_call(lexer) != E_SUCCESS) {
+        if (parser_parse_method_call(lexer, (ASTReference**)node) != E_SUCCESS) {
             return parser_error(lexer, "Expected method call.");
         }
 
@@ -752,15 +763,20 @@ Error parser_parse_assign_op(Lexer* lexer)
  * <method_call> -> <method_name> ( <expr_list> )
  *                | callout ( <string_literal> <callout_arg_list> )
  */
-Error parser_parse_method_call(Lexer* lexer)
+Error parser_parse_method_call(Lexer* lexer, ASTReference** node)
 {
     Token first_token = lexer_lookahead(lexer, 1);
 
     // method name or callout
     if (first_token.type == T_CALLOUT) {
         lexer_next(lexer);
-    } else if (parser_parse_method_name(lexer) != E_SUCCESS) {
-        return parser_error(lexer, "Expected method name in method call.");
+        *node = ast_create_node(AST_CALLOUT);
+    } else {
+        *node = ast_create_node(AST_METHOD_CALL);
+
+        if (parser_parse_method_name(lexer, &(*node)->identifier) != E_SUCCESS) {
+            return parser_error(lexer, "Expected method name in method call.");
+        }
     }
 
     // left paren
@@ -775,6 +791,7 @@ Error parser_parse_method_call(Lexer* lexer)
         if (parser_parse_string_literal(lexer, &string_literal) != E_SUCCESS) {
             return parser_error(lexer, "Expected library function name in callout.");
         }
+        (*node)->identifier = (char*)string_literal->value;
 
         if (parser_parse_callout_arg_list(lexer) != E_SUCCESS) {
             return parser_error(lexer, "Expected argument list in callout.");
@@ -866,10 +883,9 @@ Error parser_parse_callout_arg_list(Lexer* lexer)
 /**
  * <method_name> -> <id>
  */
-Error parser_parse_method_name(Lexer* lexer)
+Error parser_parse_method_name(Lexer* lexer, char** identifier)
 {
-    char* id;
-    return parser_parse_id(lexer, &id);
+    return parser_parse_id(lexer, identifier);
 }
 
 /**
@@ -943,7 +959,9 @@ Error parser_parse_expr_part(Lexer* lexer)
 
     // second derivation - method call
     if (next_token.type == T_CALLOUT || (next_token.type == T_IDENTIFIER && lexer_lookahead(lexer, 2).type == T_PAREN_LEFT)) {
-        if (parser_parse_method_call(lexer) != E_SUCCESS) {
+
+        ASTReference* call;
+        if (parser_parse_method_call(lexer, &call) != E_SUCCESS) {
             return parser_error(lexer, "Expected method call.");
         }
 
@@ -1152,6 +1170,6 @@ Error parser_parse_string_literal(Lexer* lexer, ASTNode** node)
     }
 
     *node = ast_create_node(AST_STRING_LITERAL);
-    (*node)->value = &token.lexeme;
+    (*node)->value = parser_strip_quotes(token.lexeme);
     return E_SUCCESS;
 }
