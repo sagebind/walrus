@@ -550,7 +550,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
         }
         ast_add_child(*node, location);
 
-        if (parser_parse_assign_op(lexer) != E_SUCCESS) {
+        if (parser_parse_assign_op(lexer, &((ASTAssign*)(*node))->operator) != E_SUCCESS) {
             return parser_error(lexer, "Expected assignment operator.");
         }
 
@@ -749,13 +749,15 @@ Error parser_parse_expr_option(Lexer* lexer, ASTNode* parent)
 /**
  * <assign_op> -> = | += | -=
  */
-Error parser_parse_assign_op(Lexer* lexer)
+Error parser_parse_assign_op(Lexer* lexer, char** operator)
 {
     // I think I got this
     Token token = lexer_next(lexer);
     if (token.type != T_EQUAL && token.type != T_PLUS_EQUAL && token.type != T_MINUS_EQUAL) {
         return parser_error(lexer, "Expected an assignment operator ('=', '+=', '-=').");
     }
+
+    *operator = token.lexeme;
     return E_SUCCESS;
 }
 

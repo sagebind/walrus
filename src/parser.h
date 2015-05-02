@@ -152,7 +152,7 @@ Error parser_parse_expr_option(Lexer* lexer, ASTNode* parent);
 /**
  * <assign_op> -> = | += | -=
  */
-Error parser_parse_assign_op(Lexer* lexer);
+Error parser_parse_assign_op(Lexer* lexer, char** operator);
 
 /**
  * <method_call> -> <method_name> ( <expr_list> )
