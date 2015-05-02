@@ -137,6 +137,10 @@ static Error ast_print_subtree(ASTNode* parent, char* prefix, bool is_tail)
                 printf("block");
                 break;
 
+            case AST_STRING_LITERAL:
+                printf("string( \"%s\" )", (char*)parent->value);
+                break;
+
             default:
                 printf("%#06x", parent->kind);
         }

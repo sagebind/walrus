@@ -795,10 +795,10 @@ Error parser_parse_method_call(Lexer* lexer, ASTReference** node)
         }
         (*node)->identifier = (char*)string_literal->value;
 
-        if (parser_parse_callout_arg_list(lexer) != E_SUCCESS) {
+        if (parser_parse_callout_arg_list(lexer, *node) != E_SUCCESS) {
             return parser_error(lexer, "Expected argument list in callout.");
         }
-    } else if (parser_parse_expr_list(lexer) != E_SUCCESS) {
+    } else if (parser_parse_expr_list(lexer, (ASTNode*)*node) != E_SUCCESS) {
         return parser_error(lexer, "Expected argument list in method call.");
     }
 
@@ -813,55 +813,56 @@ Error parser_parse_method_call(Lexer* lexer, ASTReference** node)
 /**
  * <expr_list> -> <expr> <expr_list_tail> | EPSILON
  */
-Error parser_parse_expr_list(Lexer* lexer)
+Error parser_parse_expr_list(Lexer* lexer, ASTNode* parent)
 {
     // epsilon
     if (lexer_lookahead(lexer, 1).type == T_PAREN_RIGHT) {
         return E_SUCCESS;
     }
 
-    // first derivation
+    // parse an expr and add it to the parent node
     ASTNode* expr;
     if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
         return E_PARSE_ERROR;
     }
+    ast_add_child(parent, expr);
 
-    if (parser_parse_expr_list_tail(lexer) != E_SUCCESS) {
-        return E_PARSE_ERROR;
-    }
-
-    return E_SUCCESS;
+    // see if there are more expressions to parse
+    return parser_parse_expr_list_tail(lexer, parent);
 }
 
 /**
  * <expr_list_tail> -> , <expr> <expr_list_tail> | EPSILON
  */
-Error parser_parse_expr_list_tail(Lexer* lexer)
+Error parser_parse_expr_list_tail(Lexer* lexer, ASTNode* parent)
 {
     Token first_token = lexer_lookahead(lexer, 1);
 
-    //first derivation
-    if (first_token.type == T_COMMA) {
-        lexer_next(lexer);
-
-        ASTNode* expr;
-        if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
-            return parser_error(lexer, "Expected expression following comma in expression list.");
-        }
-
-        if (parser_parse_expr_list_tail(lexer) != E_SUCCESS) {
-            return parser_error(lexer, "Expected expression tail following comma in expression list.");
-        }
+    // no more commas - end of expr list
+    if (first_token.type != T_COMMA) {
+        // epsilon derivation
+        return E_SUCCESS;
     }
 
-    //epsilon derivation
-    return E_SUCCESS;
+    // consume the comma
+    lexer_next(lexer);
+
+    // parse another expr and add it to the parent
+
+    ASTNode* expr;
+    if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
+        return parser_error(lexer, "Expected another expression following comma.");
+    }
+    ast_add_child(parent, expr);
+
+    // see if there are more expressions to parse
+    return parser_parse_expr_list_tail(lexer, parent);
 }
 
 /**
  * <callout_arg_list> -> , <callout_arg> <callout_arg_list> | EPSILON
  */
-Error parser_parse_callout_arg_list(Lexer* lexer)
+Error parser_parse_callout_arg_list(Lexer* lexer, ASTReference* parent)
 {
     Token token = lexer_lookahead(lexer, 1);
 
@@ -869,13 +870,14 @@ Error parser_parse_callout_arg_list(Lexer* lexer)
     if (token.type == T_COMMA) {
         lexer_next(lexer);
 
-        if (parser_parse_callout_arg(lexer) != E_SUCCESS) {
+        ASTNode* arg;
+        if (parser_parse_callout_arg(lexer, &arg) != E_SUCCESS) {
             return parser_error(lexer, "Expected another argument in callout argument list.");
         }
+        ast_add_child(parent, arg);
 
-        if (parser_parse_callout_arg_list(lexer) != E_SUCCESS) {
-            return parser_error(lexer, "Expected callout argument list.");
-        }
+        // parse more arguments if there are any
+        return parser_parse_callout_arg_list(lexer, parent);
     }
 
     // epsilon
@@ -980,7 +982,7 @@ Error parser_parse_expr_part(Lexer* lexer)
         return E_SUCCESS;
     }
 
-    // fourth and fifth derivation
+    // fourth and fifth derivation - unary operation
     if (next_token.type == T_MINUS || next_token.type == T_LOGICAL_NOT) {
         lexer_next(lexer);
 
@@ -1027,7 +1029,7 @@ Error parser_parse_expr_end(Lexer* lexer)
     // check for <bin_op>
     if (token_is_bin_op(next_token)) {
         // matches! try parsing the rest
-        ASTNode* bin_op;
+        ASTOperation* bin_op;
         if (parser_parse_bin_op(lexer, &bin_op) != E_SUCCESS) {
             return parser_error(lexer, "Expected binary operator.");
         }
@@ -1045,19 +1047,18 @@ Error parser_parse_expr_end(Lexer* lexer)
 /**
  * <callout_arg> -> <expr> | <string_literal>
  */
-Error parser_parse_callout_arg(Lexer* lexer)
+Error parser_parse_callout_arg(Lexer* lexer, ASTNode** node)
 {
-    ASTNode* expr;
     // second derivation - string literal
     if (lexer_lookahead(lexer, 1).type == T_STRING_LITERAL) {
-        ASTNode* string_literal;
-        if (parser_parse_string_literal(lexer, &string_literal) != E_SUCCESS) {
+        // parse a string and use that as the argument
+        if (parser_parse_string_literal(lexer, node) != E_SUCCESS) {
             return parser_error(lexer, "Expected string literal.");
         }
     }
 
     // first derivation
-    else if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
+    else if (parser_parse_expr(lexer, node) != E_SUCCESS) {
         return parser_error(lexer, "Expected expression.");
     }
 
@@ -1067,11 +1068,18 @@ Error parser_parse_callout_arg(Lexer* lexer)
 /**
  * <bin_op> -> <arith_op> | <rel_op> | <eq_op> | <cond_op>
  */
-Error parser_parse_bin_op(Lexer* lexer, ASTNode** node)
+Error parser_parse_bin_op(Lexer* lexer, ASTOperation** node)
 {
-    if (!token_is_bin_op(lexer_next(lexer))) {
+    // make sure next token is a binary operator
+    Token token = lexer_next(lexer);
+    if (!token_is_bin_op(token)) {
         return parser_error(lexer, "Invalid operator type.");
     }
+
+    // create a binary op node
+    *node = ast_create_node(AST_BINARY_OP);
+    // get the operator from the token lexeme
+    (*node)->operator = token.lexeme;
 
     return E_SUCCESS;
 }
@@ -1153,11 +1161,13 @@ Error parser_parse_bool_literal(Lexer* lexer, ASTNode** node)
  */
 Error parser_parse_char_literal(Lexer* lexer, ASTNode** node)
 {
-    if (lexer_next(lexer).type != T_CHAR_LITERAL) {
+    Token token = lexer_next(lexer);
+    if (token.type != T_CHAR_LITERAL) {
         return parser_error(lexer, "Expected a char literal.");
     }
 
     *node = ast_create_node(AST_CHAR_LITERAL);
+    (*node)->value = parser_strip_quotes(token.lexeme);
     return E_SUCCESS;
 }
 

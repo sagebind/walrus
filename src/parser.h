@@ -163,17 +163,17 @@ Error parser_parse_method_call(Lexer* lexer, ASTReference** node);
 /**
  * <expr_list> -> <expr> <expr_list_tail> | EPSILON
  */
-Error parser_parse_expr_list(Lexer* lexer);
+Error parser_parse_expr_list(Lexer* lexer, ASTNode* parent);
 
 /**
  * <expr_list_tail> -> , <expr> <expr_list_tail> | EPSILON
  */
-Error parser_parse_expr_list_tail(Lexer* lexer);
+Error parser_parse_expr_list_tail(Lexer* lexer, ASTNode* parent);
 
 /**
  * <callout_arg_list> -> , <callout_arg> <callout_arg_list> | EPSILON
  */
-Error parser_parse_callout_arg_list(Lexer* lexer);
+Error parser_parse_callout_arg_list(Lexer* lexer, ASTReference* parent);
 
 /**
  * <method_name> -> <id>
@@ -213,12 +213,12 @@ Error parser_parse_expr_end(Lexer* lexer);
 /**
  * <callout_arg> -> <expr> | <string_literal>
  */
-Error parser_parse_callout_arg(Lexer* lexer);
+Error parser_parse_callout_arg(Lexer* lexer, ASTNode** node);
 
 /**
  * <bin_op> -> <arith_op> | <rel_op> | <eq_op> | <cond_op>
  */
-Error parser_parse_bin_op(Lexer* lexer, ASTNode** node);
+Error parser_parse_bin_op(Lexer* lexer, ASTOperation** node);
 
 /**
  * <literal> -> <int_literal> | <char_literal> | <bool_literal>
