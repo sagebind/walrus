@@ -2,9 +2,9 @@
 #include <string.h>
 #include "symboltable.h"
 #include "hashmap.h"
-int scope = 0;
+int* scope = 0;
 
-hashmap activeTable;
+hashmap* activeTable;
 
 Stack* theStack;
 

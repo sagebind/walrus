@@ -5,11 +5,11 @@
 char* table[100];
 
 
-void insert(){
+void hinsert(){
 
 }
 
-void delete(){
+void hdelete(){
 
 }
 
