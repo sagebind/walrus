@@ -5,11 +5,15 @@
 char* table[100];
 
 
-void insert(){
+void hinsert(char* inp){
 
 }
 
-void delete(){
+void hlookup(char* inp){
 
+}
+
+void hdelete(){
+//don't know if we will actually use it, but here it is
 }
 

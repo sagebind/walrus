@@ -25,4 +25,8 @@ void insert(char* element);
 
 void lookup(char* inp);
 
+void initiateScope(void);
+
+void closeScope(void);
+
 #endif

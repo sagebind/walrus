@@ -2,12 +2,16 @@
 #include <string.h>
 #include "symboltable.h"
 #include "hashmap.h"
-int scope = 0;
 
-hashmap activeTable;
+//hashmap* activeTable;
 
 Stack* theStack;
 
+hashmap* scopes[100];
+
+int* counter, pos;
+
+pos = 0;
 
 
 Stack* stack_create(){
@@ -34,8 +38,24 @@ int* pop(){
 
 void insert(char* element){
 	
+	scopes[theStack.current.content].hinsert(element);
+	
 }
 
 void lookup(char* inp){
+	
+		scopes[theStack.current.content].hlookup(element);
+	
+}
+
+void initiateScope(){
+	pos++;
+	theStack.push(pos);
+	
+}
+
+void closeScope(){
+	
+	pos=theStack.pop();
 	
 }
