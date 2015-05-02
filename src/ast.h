@@ -9,11 +9,13 @@
 
 
 /**
- * All data types allowed in an AST.
+ * All data types allowed in the AST.
  */
 typedef enum {
     TYPE_BOOLEAN,
     TYPE_INT,
+    TYPE_STRING,
+    TYPE_CHAR,
     TYPE_VOID
 } DataType;
 
@@ -79,6 +81,11 @@ typedef struct ASTNode {
     void* value;
 
     /**
+     * The data type of this expression, if relevant.
+     */
+    DataType type;
+
+    /**
      * The number of nodes in the array.
      */
     unsigned int child_count;
@@ -109,11 +116,6 @@ typedef struct {
      * The identifier name of this declaration.
      */
     char* identifier;
-
-    /**
-     * The data type of this declaration.
-     */
-    DataType type;
 
     /**
      * The length of the declaration, if any.

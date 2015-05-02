@@ -96,7 +96,7 @@ static Error ast_print_subtree(ASTNode* parent, char* prefix, bool is_tail)
                 break;
 
             case AST_EXPR:
-                printf("expression");
+                printf("%s expression", data_type_string(parent->type));
                 break;
 
             case AST_IF_STATEMENT:
@@ -122,15 +122,15 @@ static Error ast_print_subtree(ASTNode* parent, char* prefix, bool is_tail)
                 break;
 
             case AST_FIELD_DECL:
-                printf("field_decl( identifier: %s, type: %s, length: %d )", ((ASTDecl*)parent)->identifier, data_type_string(((ASTDecl*)parent)->type), ((ASTDecl*)parent)->length);
+                printf("field_decl( identifier: %s, type: %s, length: %d )", ((ASTDecl*)parent)->identifier, data_type_string(parent->type), ((ASTDecl*)parent)->length);
                 break;
 
             case AST_METHOD_DECL:
-                printf("method_decl( identifier: %s, type: %s )", ((ASTDecl*)parent)->identifier, data_type_string(((ASTDecl*)parent)->type));
+                printf("method_decl( identifier: %s, type: %s )", ((ASTDecl*)parent)->identifier, data_type_string(parent->type));
                 break;
 
             case AST_VAR_DECL:
-                printf("var_decl( identifier: %s, type: %s )", ((ASTDecl*)parent)->identifier, data_type_string(((ASTDecl*)parent)->type));
+                printf("var_decl( identifier: %s, type: %s )", ((ASTDecl*)parent)->identifier, data_type_string(parent->type));
                 break;
 
             case AST_BLOCK:
@@ -138,7 +138,7 @@ static Error ast_print_subtree(ASTNode* parent, char* prefix, bool is_tail)
                 break;
 
             case AST_STRING_LITERAL:
-                printf("string( \"%s\" )", (char*)parent->value);
+                printf("string \"%s\"", (char*)parent->value);
                 break;
 
             default:
