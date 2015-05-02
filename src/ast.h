@@ -12,6 +12,7 @@
  * All data types allowed in the AST.
  */
 typedef enum {
+    TYPE_NONE,
     TYPE_BOOLEAN,
     TYPE_INT,
     TYPE_STRING,
@@ -86,14 +87,14 @@ typedef struct ASTNode {
     DataType type;
 
     /**
-     * The number of nodes in the array.
-     */
-    unsigned int child_count;
-
-    /**
      * The size of the array.
      */
     size_t child_size;
+
+    /**
+     * The number of nodes in the array.
+     */
+    unsigned int child_count;
 
     /**
      * A pointer to the start of the array.
