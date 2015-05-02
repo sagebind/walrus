@@ -3,7 +3,7 @@
 #include "symboltable.h"
 #include "hashmap.h"
 
-hashmap* activeTable;
+//hashmap* activeTable;
 
 Stack* theStack;
 
@@ -38,9 +38,13 @@ int* pop(){
 
 void insert(char* element){
 	
+	scopes[theStack.current.content].hinsert(element);
+	
 }
 
 void lookup(char* inp){
+	
+		scopes[theStack.current.content].hlookup(element);
 	
 }
 

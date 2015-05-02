@@ -6,7 +6,9 @@ typedef struct
       char* table[100];
     } hashmap;
 
-void hinsert(void);
+void hinsert(char* inp);
+
+void hlookup(char* inp);
 
 void hdelete(void);
 
