@@ -83,7 +83,7 @@ static Error ast_print_subtree(ASTNode* parent, char* prefix, bool is_tail)
     else {
         switch (parent->kind) {
             case AST_ASSIGN_STATEMENT:
-                printf("assign");
+                printf("assign( operator: %s )", ((ASTAssign*)parent)->operator);
                 break;
 
             case AST_EXPR:

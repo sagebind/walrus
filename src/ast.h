@@ -20,13 +20,14 @@ typedef enum {
 /**
  * An enumeration of all kinds of nodes possible in an abstract syntax tree.
  *
- * The first 4 bits of the values indicate what category the kind belongs to,
- * which is used to determine the struct type it uses.
+ * The first nibble (4 bits) of the values indicate what category the kind
+ * belongs to, which is used to determine the struct type it uses.
  */
 typedef enum {
     // core kinds with their own struct types
     AST_DECL                    = 0x1,
     AST_ASSIGN_STATEMENT        = 0x2,
+    AST_LOCATION                = 0x3,
 
     // generic kinds
     AST_BINOP_EXPR              = 0x10,
@@ -115,21 +116,28 @@ typedef struct {
 } ASTDecl;
 
 /**
- * An abstract syntax tree node that contains an identifier and assignment operator.
+ * An abstract syntax tree node that contains an assignment operator.
  */
 typedef struct {
     ASTNode super;
-
-    /**
-     * The identifier name being assigned to.
-     */
-    char* identifier;
 
     /**
      * The data type of this declaration.
      */
     char* operator;
 } ASTAssign;
+
+/**
+ * An abstract syntax tree node that contains an identifier.
+ */
+typedef struct {
+    ASTNode super;
+
+    /**
+     * The variable identifier name.
+     */
+    char* identifier;
+} ASTLocation;
 
 /**
  * Creates an abstract syntax tree node.
