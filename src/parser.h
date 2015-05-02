@@ -174,12 +174,12 @@ Error parser_parse_method_name(Lexer* lexer);
 /**
  * <location> -> <id> <array_subscript_expr>
  */
-Error parser_parse_location(Lexer* lexer, ASTLocation** node);
+Error parser_parse_location(Lexer* lexer, ASTReference** node);
 
 /**
  * <array_subscript_expr> -> [ <expr> ] | EPSILON
  */
-Error parser_parse_array_subscript_expr(Lexer* lexer, ASTLocation* parent);
+Error parser_parse_array_subscript_expr(Lexer* lexer, ASTReference* parent);
 
 /**
  * <expr> -> <expr_part> <expr_end>

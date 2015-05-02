@@ -533,7 +533,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
     else if (token.type == T_IDENTIFIER) {
         *node = ast_create_node(AST_ASSIGN_STATEMENT);
 
-        ASTLocation* location;
+        ASTReference* location;
         if (parser_parse_location(lexer, &location) != E_SUCCESS) {
             return parser_error(lexer, "Expected location in statement.");
         }
@@ -625,7 +625,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
         ast_add_child(*node, assignment);
 
         // now make the "location" node - the location assigned to
-        ASTLocation* location = ast_create_node(AST_LOCATION);
+        ASTReference* location = ast_create_node(AST_LOCATION);
         // variable name is same as in declaration
         location->identifier = var->identifier;
         ast_add_child(assignment, location);
@@ -875,7 +875,7 @@ Error parser_parse_method_name(Lexer* lexer)
 /**
  * <location> -> <id> <array_subscript_expr>
  */
-Error parser_parse_location(Lexer* lexer, ASTLocation** node)
+Error parser_parse_location(Lexer* lexer, ASTReference** node)
 {
     *node = ast_create_node(AST_LOCATION);
 
@@ -889,7 +889,7 @@ Error parser_parse_location(Lexer* lexer, ASTLocation** node)
 /**
  * <array_subscript_expr> -> [ <expr> ] | EPSILON
  */
-Error parser_parse_array_subscript_expr(Lexer* lexer, ASTLocation* parent)
+Error parser_parse_array_subscript_expr(Lexer* lexer, ASTReference* parent)
 {
     Token token = lexer_lookahead(lexer, 1);
 
@@ -952,7 +952,7 @@ Error parser_parse_expr_part(Lexer* lexer)
 
     // first derivation - location
     if (next_token.type == T_IDENTIFIER) {
-        ASTLocation* node;
+        ASTReference* node;
         if (parser_parse_location(lexer, &node) != E_SUCCESS) {
             return parser_error(lexer, "Expected location.");
         }

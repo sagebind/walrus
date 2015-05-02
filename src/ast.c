@@ -14,18 +14,18 @@ ASTNode* ast_create_node(ASTNodeKind kind)
     size_t node_size = sizeof(ASTNode);
 
     // decl node
-    if (kind & AST_DECL == AST_DECL) {
+    if ((kind & 0xF) == AST_DECL) {
         node_size = sizeof(ASTDecl);
     }
 
     // assign node
-    else if (kind == AST_ASSIGN_STATEMENT) {
+    else if ((kind & 0xF) == AST_ASSIGN_STATEMENT) {
         node_size = sizeof(ASTAssign);
     }
 
     // location node
-    else if (kind & 0xF == AST_LOCATION) {
-        node_size = sizeof(ASTLocation);
+    else if ((kind & 0xF) == AST_REFERENCE) {
+        node_size = sizeof(ASTReference);
     }
 
     // allocate memory for the node
@@ -92,7 +92,7 @@ static Error ast_print_subtree(ASTNode* parent, char* prefix, bool is_tail)
                 break;
 
             case AST_LOCATION:
-                printf("location( identifier: %s )", ((ASTLocation*)parent)->identifier);
+                printf("location( identifier: %s )", ((ASTReference*)parent)->identifier);
                 break;
 
             case AST_EXPR:
@@ -133,7 +133,7 @@ static Error ast_print_subtree(ASTNode* parent, char* prefix, bool is_tail)
                 break;
 
             default:
-                printf("%d", parent->kind);
+                printf("%#06x", parent->kind);
         }
 
         printf("\r\n");

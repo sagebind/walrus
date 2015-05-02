@@ -26,36 +26,39 @@ typedef enum {
 typedef enum {
     // core kinds with their own struct types
     AST_DECL                    = 0x1,
-    AST_ASSIGN_STATEMENT        = 0x2,
-    AST_LOCATION                = 0x3,
+    AST_REFERENCE               = 0x2,
+    AST_ASSIGN_STATEMENT        = 0x3,
 
     // generic kinds
     AST_BINOP_EXPR              = 0x10,
     AST_BLOCK                   = 0x20,
-    AST_BOOLEAN_LITERAL         = 0x40,
-    AST_STRING_LITERAL          = 0x80,
-    AST_BREAK_STATEMENT         = 0x100,
-    AST_CALL_EXPR               = 0x200,
-    AST_CALLOUT_EXPR            = 0x400,
-    AST_CHAR_LITERAL            = 0x800,
-    AST_CONTINUE_STATEMENT      = 0x1000,
-    AST_EXPR                    = 0x2000,
-    AST_FOR_STATEMENT           = 0x4000,
-    AST_IF_STATEMENT            = 0x8000,
-    AST_INT_LITERAL             = 0x10000,
-    AST_INVOKE_STATEMENT        = 0x20000,
-    AST_METHOD_CALL_EXPR        = 0x40000,
-    AST_PLUS_ASSIGN_STATEMENT   = 0x80000,
-    AST_RETURN_STATEMENT        = 0x100000,
-    AST_STATEMENT               = 0x200000,
-    AST_TYPE                    = 0x400000,
-    AST_IDENTIFIER              = 0x800000,
+    AST_BOOLEAN_LITERAL         = 0x30,
+    AST_STRING_LITERAL          = 0x40,
+    AST_BREAK_STATEMENT         = 0x50,
+    AST_CALL_EXPR               = 0x60,
+    AST_CALLOUT_EXPR            = 0x70,
+    AST_CHAR_LITERAL            = 0x80,
+    AST_CONTINUE_STATEMENT      = 0x90,
+    AST_EXPR                    = 0xA0,
+    AST_FOR_STATEMENT           = 0xB0,
+    AST_IF_STATEMENT            = 0xC0,
+    AST_INT_LITERAL             = 0xD0,
+    AST_INVOKE_STATEMENT        = 0xE0,
+    AST_METHOD_CALL_EXPR        = 0xF0,
+    AST_PLUS_ASSIGN_STATEMENT   = 0x100,
+    AST_RETURN_STATEMENT        = 0x110,
+    AST_STATEMENT               = 0x120,
+    AST_TYPE                    = 0x130,
+    AST_IDENTIFIER              = 0x140,
 
     // decl kinds
     AST_CLASS_DECL              = 0x11,
     AST_FIELD_DECL              = 0x21,
-    AST_METHOD_DECL             = 0x41,
-    AST_VAR_DECL                = 0x81
+    AST_METHOD_DECL             = 0x31,
+    AST_VAR_DECL                = 0x41,
+
+    // reference kinds
+    AST_LOCATION                = 0x12
 } ASTNodeKind;
 
 /**
@@ -75,12 +78,12 @@ typedef struct ASTNode {
     /**
      * The number of nodes in the array.
      */
-    int child_count;
+    unsigned int child_count;
 
     /**
      * The size of the array.
      */
-    int child_size;
+    size_t child_size;
 
     /**
      * A pointer to the start of the array.
@@ -112,7 +115,7 @@ typedef struct {
     /**
      * The length of the declaration, if any.
      */
-    int length;
+    unsigned int length;
 } ASTDecl;
 
 /**
@@ -137,7 +140,7 @@ typedef struct {
      * The variable identifier name.
      */
     char* identifier;
-} ASTLocation;
+} ASTReference;
 
 /**
  * Creates an abstract syntax tree node.
