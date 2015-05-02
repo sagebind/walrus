@@ -4,25 +4,33 @@
 #include "hashmap.h"
 int scope = 0;
 
-hashmap scopes[50];
 hashmap activeTable;
-void initializeScope(){
-	scopes[scope] = activeTable;
-	scope++;
-	if(scope <= 50){
-	activeTable = scopes[scope];
-	}
-	/*else allocate more space, but who needs more than 50 scope in decaf?*/
+
+Stack* theStack;
+
+
+
+Stack* stack_create(){
+	StackNode* tail;
+	tail.previous = null; 
+	tail.content = 0;
+	theStack.tail = tail;
+	theStack.current = tail;
 }
 
-void finalizeScope(){
-	scopes[scope] = activeTable;
-	if(scope >= 0){
-	scope--;
-	activeTable = scopes[scope];
-	}
-	/*else probably some kind of error*/
+void push(int* inp){
+	StackNode* new;
+	new.content = inp;
+	new.previous = theStack.current;
+	theStack.current = new;
+	
 }
+
+int* pop(){
+	int* x = theStack.current.content;
+	theStack.current = theStack.previous;
+}
+
 
 void insert(char* element){
 	
