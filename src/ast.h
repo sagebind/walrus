@@ -4,6 +4,9 @@
 #include <stdbool.h>
 #include "tokens.h"
 
+// macro for doing proper node type casting for us
+#define ast_add_child(parent, child) (ast_add_child)((ASTNode*)parent, (ASTNode*)child)
+
 
 /**
  * All data types allowed in an AST.
@@ -16,33 +19,42 @@ typedef enum {
 
 /**
  * An enumeration of all kinds of nodes possible in an abstract syntax tree.
+ *
+ * The first 4 bits of the values indicate what category the kind belongs to,
+ * which is used to determine the struct type it uses.
  */
 typedef enum {
-    AST_ASSIGN_STATEMENT,
-    AST_BINOP_EXPR,
-    AST_BLOCK,
-    AST_BOOLEAN_LITERAL,
-    AST_STRING_LITERAL,
-    AST_BREAK_STATEMENT,
-    AST_CALL_EXPR,
-    AST_CALLOUT_EXPR,
-    AST_CHAR_LITERAL,
-    AST_CLASS_DECL,
-    AST_CONTINUE_STATEMENT,
-    AST_EXPR,
-    AST_FIELD_DECL,
-    AST_FOR_STATEMENT,
-    AST_IF_STATEMENT,
-    AST_INT_LITERAL,
-    AST_INVOKE_STATEMENT,
-    AST_METHOD_CALL_EXPR,
-    AST_METHOD_DECL,
-    AST_PLUS_ASSIGN_STATEMENT,
-    AST_RETURN_STATEMENT,
-    AST_STATEMENT,
-    AST_TYPE,
-    AST_IDENTIFIER,
-    AST_VAR_DECL
+    // core kinds with their own struct types
+    AST_DECL                    = 0x1,
+    AST_ASSIGN_STATEMENT        = 0x2,
+
+    // generic kinds
+    AST_BINOP_EXPR              = 0x10,
+    AST_BLOCK                   = 0x20,
+    AST_BOOLEAN_LITERAL         = 0x40,
+    AST_STRING_LITERAL          = 0x80,
+    AST_BREAK_STATEMENT         = 0x100,
+    AST_CALL_EXPR               = 0x200,
+    AST_CALLOUT_EXPR            = 0x400,
+    AST_CHAR_LITERAL            = 0x800,
+    AST_CONTINUE_STATEMENT      = 0x1000,
+    AST_EXPR                    = 0x2000,
+    AST_FOR_STATEMENT           = 0x4000,
+    AST_IF_STATEMENT            = 0x8000,
+    AST_INT_LITERAL             = 0x10000,
+    AST_INVOKE_STATEMENT        = 0x20000,
+    AST_METHOD_CALL_EXPR        = 0x40000,
+    AST_PLUS_ASSIGN_STATEMENT   = 0x80000,
+    AST_RETURN_STATEMENT        = 0x100000,
+    AST_STATEMENT               = 0x200000,
+    AST_TYPE                    = 0x400000,
+    AST_IDENTIFIER              = 0x800000,
+
+    // decl kinds
+    AST_CLASS_DECL              = 0x11,
+    AST_FIELD_DECL              = 0x21,
+    AST_METHOD_DECL             = 0x41,
+    AST_VAR_DECL                = 0x81
 } ASTNodeKind;
 
 /**
@@ -103,20 +115,32 @@ typedef struct {
 } ASTDecl;
 
 /**
+ * An abstract syntax tree node that contains an identifier and assignment operator.
+ */
+typedef struct {
+    ASTNode super;
+
+    /**
+     * The identifier name being assigned to.
+     */
+    char* identifier;
+
+    /**
+     * The data type of this declaration.
+     */
+    char* operator;
+} ASTAssign;
+
+/**
  * Creates an abstract syntax tree node.
  *
  * @param  kind The kind of node.
  * @return      A shiny new abstract syntax tree node.
+ *
+ * Be careful; the type and size of the allocated node returned varies depending
+ * on the kind given. Proper casting is required to avoid memory bound errors.
  */
 ASTNode* ast_create_node(ASTNodeKind kind);
-
-/**
- * Creates an abstract syntax tree declaration-type node.
- *
- * @param  kind The kind of node.
- * @return      A shiny new abstract syntax tree node.
- */
-ASTDecl* ast_create_decl(ASTNodeKind kind);
 
 /**
  * Adds an abstract syntax tree node to another node as a child.
@@ -125,7 +149,7 @@ ASTDecl* ast_create_decl(ASTNodeKind kind);
  * @param  child  The node add to parent as a child.
  * @return        An error code.
  */
-Error ast_add_child(ASTNode* parent, ASTNode* child);
+Error (ast_add_child)(ASTNode* parent, ASTNode* child);
 
 /**
  * Pretty-prints an abstract syntax tree to the console.

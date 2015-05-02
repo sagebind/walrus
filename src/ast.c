@@ -10,8 +10,21 @@
  */
 ASTNode* ast_create_node(ASTNodeKind kind)
 {
-    // allocate node object
-    ASTNode* node = malloc(sizeof(ASTNode));
+    // determine what node size to use
+    size_t node_size = sizeof(ASTNode);
+
+    // decl node
+    if (kind & AST_DECL == AST_DECL) {
+        node_size = sizeof(ASTDecl);
+    }
+
+    // assign node
+    else if (kind == AST_ASSIGN_STATEMENT) {
+        node_size = sizeof(ASTAssign);
+    }
+
+    // allocate memory for the node
+    ASTNode* node = malloc(node_size);
 
     // allocate and initialize children array
     node->child_size = sizeof(ASTNode*) * 10;
@@ -25,28 +38,9 @@ ASTNode* ast_create_node(ASTNodeKind kind)
 }
 
 /**
- * Creates an abstract syntax tree declaration-type node.
- */
-ASTDecl* ast_create_decl(ASTNodeKind kind)
-{
-    // allocate node object
-    ASTDecl* node = malloc(sizeof(ASTDecl));
-
-    // allocate and initialize children array
-    ((ASTNode*)node)->child_size = sizeof(ASTNode*) * 10;
-    ((ASTNode*)node)->child_count = 0;
-    ((ASTNode*)node)->children = malloc(((ASTNode*)node)->child_size);
-
-    // set the node kind
-    ((ASTNode*)node)->kind = kind;
-
-    return node;
-}
-
-/**
  * Adds an abstract syntax tree node to another node as a child.
  */
-Error ast_add_child(ASTNode* parent, ASTNode* child)
+Error (ast_add_child)(ASTNode* parent, ASTNode* child)
 {
     // make sure pointer isn't null
     if (parent == NULL || child == NULL) {
@@ -54,7 +48,7 @@ Error ast_add_child(ASTNode* parent, ASTNode* child)
     }
 
     // reallocate if full
-    if (parent->child_count >= parent->child_size) {
+    if (parent->child_count * sizeof(ASTNode*) >= parent->child_size) {
         parent->child_size = parent->child_size << 1;
         parent->children = realloc(parent->children, parent->child_size);
     }
