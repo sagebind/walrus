@@ -6,8 +6,8 @@ typedef struct
       char* table[100];
     } hashmap;
 
-void insert(void);
+void hinsert(void);
 
-void delete(void);
+void hdelete(void);
 
 #endif
