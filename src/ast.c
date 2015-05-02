@@ -189,20 +189,25 @@ Error ast_print(ASTNode* parent)
 Error ast_destroy(ASTNode** node)
 {
     // make sure pointer isn't null
-    if (node == NULL) {
-        return E_BAD_POINTER;
+    if (node == NULL || *node == NULL) {
+        return error(E_BAD_POINTER, "Invalid AST node pointer");
     }
 
     // destroy child nodes, from left to right
     for (int i = 0; i < (*node)->child_count; i++) {
         // destroy child node
         if (ast_destroy(&(*node)->children[i]) != E_SUCCESS) {
-            return E_UNKNOWN;
+            return E_BAD_POINTER;
         }
     }
 
     // free the children array
     free((*node)->children);
+
+    // destroy the associated value if it has one
+    if ((*node)->value != NULL) {
+        free((*node)->value);
+    }
 
     // destroy current node
     free(*node);

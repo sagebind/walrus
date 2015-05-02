@@ -13,8 +13,9 @@ Token token_create(char* file, int line, int column, TokenType type, char* lexem
     Token token = {file, line, column, type, NULL};
 
     // allocate and copy the lexeme string
-    token.lexeme = (char*)malloc(strlen(lexeme) + 1);
-    strcpy(token.lexeme, lexeme);
+    //token.lexeme = (char*)malloc(strlen(lexeme) + 1);
+    //strcpy(token.lexeme, lexeme);
+    token.lexeme = lexeme;
 
     return token;
 }
