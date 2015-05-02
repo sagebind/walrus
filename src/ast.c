@@ -8,7 +8,7 @@
 /**
  * Creates an abstract syntax tree node.
  */
-ASTNode* ast_create_node(ASTNodeKind kind)
+void* ast_create_node(ASTNodeKind kind)
 {
     // determine what node size to use
     size_t node_size = sizeof(ASTNode);

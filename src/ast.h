@@ -27,9 +27,9 @@ typedef enum {
     // core kinds with their own struct types
     AST_DECL                    = 0x1,
     AST_REFERENCE               = 0x2,
-    AST_ASSIGN_STATEMENT        = 0x3,
+    AST_ASSIGN_STATEMENT        = 0x3, // type ASTAssign
 
-    // generic kinds
+    // generic kinds; these will be of type ASTNode
     AST_BINOP_EXPR              = 0x10,
     AST_BLOCK                   = 0x20,
     AST_BOOLEAN_LITERAL         = 0x30,
@@ -48,13 +48,13 @@ typedef enum {
     AST_TYPE                    = 0x100,
     AST_IDENTIFIER              = 0x110,
 
-    // decl kinds
+    // decl kinds; these will be of type ASTDecl
     AST_CLASS_DECL              = 0x11,
     AST_FIELD_DECL              = 0x21,
     AST_METHOD_DECL             = 0x31,
     AST_VAR_DECL                = 0x41,
 
-    // reference kinds
+    // reference kinds; these will be of type ASTReference
     AST_LOCATION                = 0x12,
     AST_METHOD_CALL             = 0x22,
     AST_CALLOUT                 = 0x32
@@ -149,8 +149,10 @@ typedef struct {
  *
  * Be careful; the type and size of the allocated node returned varies depending
  * on the kind given. Proper casting is required to avoid memory bound errors.
+ * See the comments in the declaration of ASTNodeKind to see what struct types
+ * are returned.
  */
-ASTNode* ast_create_node(ASTNodeKind kind);
+void* ast_create_node(ASTNodeKind kind);
 
 /**
  * Adds an abstract syntax tree node to another node as a child.

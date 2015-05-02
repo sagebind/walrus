@@ -92,7 +92,7 @@ static inline bool token_is_bin_op(Token token)
  */
 Error parser_parse_program(Lexer* lexer, ASTDecl** node)
 {
-    *node = (ASTDecl*)ast_create_node(AST_CLASS_DECL);
+    *node = ast_create_node(AST_CLASS_DECL);
     (*node)->identifier = "Program";
 
     Token token = lexer_next(lexer);
@@ -171,7 +171,7 @@ Error parser_parse_method_decl_list(Lexer* lexer, ASTDecl* program)
     if (parser_parse_method_decl(lexer, &method_decl) != E_SUCCESS) {
         return E_PARSE_ERROR;
     } else {
-        ast_add_child((ASTNode*)program, (ASTNode*)method_decl);
+        ast_add_child(program, method_decl);
     }
 
    // if that worked, we must have a method_decl_list
@@ -198,7 +198,7 @@ Error parser_parse_field_decl(Lexer* lexer, ASTDecl* program)
  */
 Error parser_parse_field_id_list(Lexer* lexer, DataType type, ASTDecl* program)
 {
-    ASTDecl* node = (ASTDecl*)ast_create_node(AST_FIELD_DECL);
+    ASTDecl* node = ast_create_node(AST_FIELD_DECL);
     node->type = type;
 
     if (parser_parse_id(lexer, &node->identifier) != E_SUCCESS) {
@@ -213,7 +213,7 @@ Error parser_parse_field_id_list(Lexer* lexer, DataType type, ASTDecl* program)
         return E_PARSE_ERROR;
     }
 
-    ast_add_child((ASTNode*)program, (ASTNode*)node);
+    ast_add_child(program, node);
     return E_SUCCESS;
 }
 
@@ -268,7 +268,7 @@ Error parser_parse_field_id_list_tail(Lexer* lexer, DataType type, ASTDecl* prog
  */
 Error parser_parse_method_decl(Lexer* lexer, ASTDecl** node)
 {
-    *node = (ASTDecl*)ast_create_node(AST_METHOD_DECL);
+    *node = ast_create_node(AST_METHOD_DECL);
     ((ASTDecl*)*node)->type = TYPE_VOID;
 
     // can start with <type> or void
@@ -303,7 +303,7 @@ Error parser_parse_method_decl(Lexer* lexer, ASTDecl** node)
     if (parser_parse_block(lexer, &block) != E_SUCCESS) {
         return E_PARSE_ERROR;
     } else {
-        ast_add_child((ASTNode*)*node, block);
+        ast_add_child(*node, block);
     }
 
     // we made it!
@@ -324,7 +324,7 @@ Error parser_parse_method_param_decl_list(Lexer* lexer, ASTDecl* method)
     if (parser_parse_method_param_decl(lexer, &param) != E_SUCCESS) {
         return parser_error(lexer, "Expected parameter declaration.");
     } else {
-        ast_add_child((ASTNode*)method, (ASTNode*)param);
+        ast_add_child(method, param);
     }
 
     if (parser_parse_method_param_decl_list_tail(lexer, method) != E_SUCCESS) {
@@ -347,7 +347,7 @@ Error parser_parse_method_param_decl_list_tail(Lexer* lexer, ASTDecl* method)
         if (parser_parse_method_param_decl(lexer, &param) != E_SUCCESS) {
             return parser_error(lexer, "Expected method parameter declaration.");
         } else {
-            ast_add_child((ASTNode*)method, (ASTNode*)param);
+            ast_add_child(method, param);
         }
 
         if (parser_parse_method_param_decl_list_tail(lexer, method) != E_SUCCESS) {
@@ -364,7 +364,7 @@ Error parser_parse_method_param_decl_list_tail(Lexer* lexer, ASTDecl* method)
  */
 Error parser_parse_method_param_decl(Lexer* lexer, ASTDecl** node)
 {
-    *node = (ASTDecl*)ast_create_node(AST_VAR_DECL);
+    *node = ast_create_node(AST_VAR_DECL);
 
     if (parser_parse_type(lexer, &(*node)->type) != E_SUCCESS) {
         return parser_error(lexer, "Expected parameter type.");
@@ -454,7 +454,7 @@ Error parser_parse_statement_list(Lexer* lexer, ASTNode* parent)
  */
 Error parser_parse_var_decl(Lexer* lexer, ASTNode* parent)
 {
-    ASTDecl* node = (ASTDecl*)ast_create_node(AST_VAR_DECL);
+    ASTDecl* node = ast_create_node(AST_VAR_DECL);
 
     if (parser_parse_type(lexer, &node->type) != E_SUCCESS) {
         return parser_error(lexer, "Expected variable type.");
@@ -464,7 +464,7 @@ Error parser_parse_var_decl(Lexer* lexer, ASTNode* parent)
         return parser_error(lexer, "Expected variable name.");
     }
 
-    ast_add_child(parent, (ASTNode*)node);
+    ast_add_child(parent, node);
     return parser_parse_var_id_list_tail(lexer, node->type, parent);
 }
 
@@ -475,7 +475,7 @@ Error parser_parse_var_id_list_tail(Lexer* lexer, DataType type, ASTNode* parent
 {
     Token token = lexer_next(lexer);
     if (token.type == T_COMMA) {
-        ASTDecl* node = (ASTDecl*)ast_create_node(AST_VAR_DECL);
+        ASTDecl* node = ast_create_node(AST_VAR_DECL);
         node->type = type;
 
         //first derivation
@@ -483,7 +483,7 @@ Error parser_parse_var_id_list_tail(Lexer* lexer, DataType type, ASTNode* parent
             return parser_error(lexer, "Expected identifier.");
         }
 
-        ast_add_child(parent, (ASTNode*)node);
+        ast_add_child(parent, node);
 
         if (parser_parse_var_id_list_tail(lexer, type, parent) != E_SUCCESS) {
             return parser_error(lexer, "Expected variable identifier list tail.");
@@ -614,7 +614,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
         *node = ast_create_node(AST_FOR_STATEMENT);
 
         // variable used in the loop
-        ASTDecl* var = (ASTDecl*)ast_create_node(AST_VAR_DECL);
+        ASTDecl* var = ast_create_node(AST_VAR_DECL);
         // is always an int
         var->type = TYPE_INT;
 
@@ -626,7 +626,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
 
         // the variable is declared and assigned to in one go; create the
         // assignment node now
-        ASTAssign* assignment = (ASTAssign*)ast_create_node(AST_ASSIGN_STATEMENT);
+        ASTAssign* assignment = ast_create_node(AST_ASSIGN_STATEMENT);
         // get the operator
         Token operator_token = lexer_next(lexer);
         if (operator_token.type != T_EQUAL) {
