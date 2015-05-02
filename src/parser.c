@@ -533,9 +533,11 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
     else if (token.type == T_IDENTIFIER) {
         *node = ast_create_node(AST_ASSIGN_STATEMENT);
 
-        if (parser_parse_location(lexer) != E_SUCCESS) {
+        ASTLocation* location;
+        if (parser_parse_location(lexer, &location) != E_SUCCESS) {
             return parser_error(lexer, "Expected location in statement.");
         }
+        ast_add_child(*node, location);
 
         if (parser_parse_assign_op(lexer) != E_SUCCESS) {
             return parser_error(lexer, "Expected assignment operator.");
@@ -620,6 +622,13 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
             return parser_error(lexer, "Expected equals '=' sign.");
         }
         assignment->operator = operator_token.lexeme;
+        ast_add_child(*node, assignment);
+
+        // now make the "location" node - the location assigned to
+        ASTLocation* location = ast_create_node(AST_LOCATION);
+        // variable name is same as in declaration
+        location->identifier = var->identifier;
+        ast_add_child(assignment, location);
 
         // get the assignment value expression
         ASTNode* expr;
@@ -627,7 +636,6 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
             return parser_error(lexer, "Expected expression.");
         }
         ast_add_child(assignment, expr);
-        ast_add_child(*node, assignment);
 
         if (lexer_next(lexer).type != T_COMMA) {
             return parser_error(lexer, "Expected comma ',' after expression.");
@@ -867,20 +875,21 @@ Error parser_parse_method_name(Lexer* lexer)
 /**
  * <location> -> <id> <array_subscript_expr>
  */
-Error parser_parse_location(Lexer* lexer)
+Error parser_parse_location(Lexer* lexer, ASTLocation** node)
 {
-    char* id;
-    if (parser_parse_id(lexer, &id) != E_SUCCESS) {
+    *node = ast_create_node(AST_LOCATION);
+
+    if (parser_parse_id(lexer, &(*node)->identifier) != E_SUCCESS) {
         return parser_error(lexer, "Failure in parsing location - parser_parse_id failed.");
     }
 
-    return parser_parse_array_subscript_expr(lexer);
+    return parser_parse_array_subscript_expr(lexer, *node);
 }
 
 /**
  * <array_subscript_expr> -> [ <expr> ] | EPSILON
  */
-Error parser_parse_array_subscript_expr(Lexer* lexer)
+Error parser_parse_array_subscript_expr(Lexer* lexer, ASTLocation* parent)
 {
     Token token = lexer_lookahead(lexer, 1);
 
@@ -892,6 +901,7 @@ Error parser_parse_array_subscript_expr(Lexer* lexer)
         if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
             return parser_error(lexer, "Expected expression inside array subscript.");
         }
+        ast_add_child(parent, expr);
 
         if (lexer_next(lexer).type != T_BRACKET_RIGHT) {
             return parser_error(lexer, "Missing closing bracket in array subscript expression.");
@@ -942,7 +952,8 @@ Error parser_parse_expr_part(Lexer* lexer)
 
     // first derivation - location
     if (next_token.type == T_IDENTIFIER) {
-        if (parser_parse_location(lexer) != E_SUCCESS) {
+        ASTLocation* node;
+        if (parser_parse_location(lexer, &node) != E_SUCCESS) {
             return parser_error(lexer, "Expected location.");
         }
 

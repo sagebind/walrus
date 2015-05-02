@@ -23,6 +23,11 @@ ASTNode* ast_create_node(ASTNodeKind kind)
         node_size = sizeof(ASTAssign);
     }
 
+    // location node
+    else if (kind & 0xF == AST_LOCATION) {
+        node_size = sizeof(ASTLocation);
+    }
+
     // allocate memory for the node
     ASTNode* node = malloc(node_size);
 
@@ -84,6 +89,10 @@ static Error ast_print_subtree(ASTNode* parent, char* prefix, bool is_tail)
         switch (parent->kind) {
             case AST_ASSIGN_STATEMENT:
                 printf("assign( operator: %s )", ((ASTAssign*)parent)->operator);
+                break;
+
+            case AST_LOCATION:
+                printf("location( identifier: %s )", ((ASTLocation*)parent)->identifier);
                 break;
 
             case AST_EXPR:
