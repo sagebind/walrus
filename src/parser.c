@@ -940,23 +940,60 @@ Error parser_parse_array_subscript_expr(Lexer* lexer, ASTReference* parent)
 }
 
 /**
- * <expr> -> <expr_part> <expr_end>
+ * Recursively parses a generic expression.
+ *
+ * Note that this function parses the following 2 grammar rules at once:
+ *
+ *     <expr> -> <expr_part> <expr_end>
+ *     <expr_end> -> <bin_op> <expr> | EPSILON
  */
 Error parser_parse_expr(Lexer* lexer, ASTNode** node)
 {
-    *node = ast_create_node(AST_EXPR);
+    // Create a node for the expression parsed. We don't know yet if this
+    // expression is an operand for a binary operation or not.
+    ASTNode* left_expr;
 
-    if (parser_parse_expr_part(lexer) != E_SUCCESS) {
+    // parse the primary expression
+    if (parser_parse_expr_part(lexer, &left_expr) != E_SUCCESS) {
         return E_PARSE_ERROR;
     }
 
-    if (parser_parse_expr_end(lexer) != E_SUCCESS) {
-        return E_PARSE_ERROR;
+    // Now check if there is a binary operator following the above expression.
+    // If there is, try and parse it and make it the parent node for the left
+    // and right operand expressions.
+    if (token_is_bin_op(lexer_lookahead(lexer, 1))) {
+        // We do have a binary operation, so set the following operation node
+        // as the root node of the expression.
+        if (parser_parse_bin_op(lexer, (ASTOperation**)node) != E_SUCCESS) {
+            return parser_error(lexer, "Expected binary operator.");
+        }
+
+        // Now add the original expression we parsed earlier as the left
+        // operand expression.
+        ast_add_child(*node, left_expr);
+
+        // Now parse the right operand expression and add it to the parent
+        // operation node.
+        ASTNode* right_expr;
+        if (parser_parse_expr(lexer, &right_expr) != E_SUCCESS) {
+            return parser_error(lexer, "Expected expression.");
+        }
+        ast_add_child(*node, right_expr);
     }
+
+    // If a binary operator was not found, the left expression is the only
+    // expression and becomes the root node. This is equivalent to the non-
+    // terminal <expr_end> deriving as epsilon.
+    else {
+        *node = left_expr;
+    }
+
     return E_SUCCESS;
 }
 
 /**
+ * Parses the primary part of an expression.
+ *
  * <expr_part> -> <location>
  *              | <method_call>
  *              | <literal>
@@ -964,15 +1001,14 @@ Error parser_parse_expr(Lexer* lexer, ASTNode** node)
  *              | ! <expr>
  *              | ( <expr> )
  */
-Error parser_parse_expr_part(Lexer* lexer)
+Error parser_parse_expr_part(Lexer* lexer, ASTNode** node)
 {
     Token next_token = lexer_lookahead(lexer, 1);
 
     // second derivation - method call
     if (next_token.type == T_CALLOUT || (next_token.type == T_IDENTIFIER && lexer_lookahead(lexer, 2).type == T_PAREN_LEFT)) {
 
-        ASTReference* call;
-        if (parser_parse_method_call(lexer, &call) != E_SUCCESS) {
+        if (parser_parse_method_call(lexer, (ASTReference**)node) != E_SUCCESS) {
             return parser_error(lexer, "Expected method call.");
         }
 
@@ -981,8 +1017,7 @@ Error parser_parse_expr_part(Lexer* lexer)
 
     // first derivation - location
     if (next_token.type == T_IDENTIFIER) {
-        ASTReference* node;
-        if (parser_parse_location(lexer, &node) != E_SUCCESS) {
+        if (parser_parse_location(lexer, (ASTReference**)node) != E_SUCCESS) {
             return parser_error(lexer, "Expected location.");
         }
 
@@ -993,20 +1028,25 @@ Error parser_parse_expr_part(Lexer* lexer)
     if (next_token.type == T_MINUS || next_token.type == T_LOGICAL_NOT) {
         lexer_next(lexer);
 
+        // create a unary expression node
+        *node = ast_create_node(AST_UNARY_OP);
+
+        // Parse a sub-expression and add it as the only child of the unary
+        // operation node.
         ASTNode* expr;
         if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
             return parser_error(lexer, "Expected expression.");
         }
+        ast_add_child(*node, expr);
 
         return E_SUCCESS;
     }
 
-    // last derivation
+    // last derivation - a sub-expression in parenthesis
     if (next_token.type == T_PAREN_LEFT) {
         lexer_next(lexer);
 
-        ASTNode* expr;
-        if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
+        if (parser_parse_expr(lexer, node) != E_SUCCESS) {
             return parser_error(lexer, "Expected expression.");
         }
 
@@ -1017,37 +1057,11 @@ Error parser_parse_expr_part(Lexer* lexer)
         return E_SUCCESS;
     }
 
-    // third derivation
-    ASTNode* literal;
-    if (parser_parse_literal(lexer, &literal) != E_SUCCESS) {
+    // third derivation - a simple literal
+    if (parser_parse_literal(lexer, node) != E_SUCCESS) {
         return parser_error(lexer, "Expected literal expression.");
     }
 
-    return E_SUCCESS;
-}
-
-/**
- * <expr_end> -> <bin_op> <expr> | EPSILON
- */
-Error parser_parse_expr_end(Lexer* lexer)
-{
-    Token next_token = lexer_lookahead(lexer, 1);
-
-    // check for <bin_op>
-    if (token_is_bin_op(next_token)) {
-        // matches! try parsing the rest
-        ASTOperation* bin_op;
-        if (parser_parse_bin_op(lexer, &bin_op) != E_SUCCESS) {
-            return parser_error(lexer, "Expected binary operator.");
-        }
-
-        ASTNode* expr;
-        if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
-            return parser_error(lexer, "Expected expression.");
-        }
-    }
-
-    // epsilon
     return E_SUCCESS;
 }
 
@@ -1147,7 +1161,7 @@ Error parser_parse_int_literal(Lexer* lexer, ASTNode** node)
     (*node)->type = TYPE_INT;
     // get the actual int value
     (*node)->value = malloc(sizeof(int));
-    *(int*)((*node)->value) = parser_str_to_long(token.lexeme);
+    *(int*)(*node)->value = parser_str_to_long(token.lexeme);
     return E_SUCCESS;
 }
 

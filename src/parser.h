@@ -203,12 +203,7 @@ Error parser_parse_expr(Lexer* lexer, ASTNode** node);
  *              | ! <expr>
  *              | ( <expr> )
  */
-Error parser_parse_expr_part(Lexer* lexer);
-
-/**
- * <expr_end> -> <bin_op> <expr> | EPSILON
- */
-Error parser_parse_expr_end(Lexer* lexer);
+Error parser_parse_expr_part(Lexer* lexer, ASTNode** node);
 
 /**
  * <callout_arg> -> <expr> | <string_literal>
