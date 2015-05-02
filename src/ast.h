@@ -27,10 +27,9 @@ typedef enum {
     // core kinds with their own struct types
     AST_DECL                    = 0x1,
     AST_REFERENCE               = 0x2,
-    AST_ASSIGN_STATEMENT        = 0x3, // type ASTAssign
+    AST_OP_EXPR                 = 0x3,
 
     // generic kinds; these will be of type ASTNode
-    AST_BINOP_EXPR              = 0x10,
     AST_BLOCK                   = 0x20,
     AST_BOOLEAN_LITERAL         = 0x30,
     AST_STRING_LITERAL          = 0x40,
@@ -57,7 +56,12 @@ typedef enum {
     // reference kinds; these will be of type ASTReference
     AST_LOCATION                = 0x12,
     AST_METHOD_CALL             = 0x22,
-    AST_CALLOUT                 = 0x32
+    AST_CALLOUT                 = 0x32,
+
+    // operation kinds; these will be of type ASTOperation
+    AST_UNARY_OP                = 0x13,
+    AST_BINARY_OP               = 0x23,
+    AST_ASSIGN_OP               = 0x33
 } ASTNodeKind;
 
 /**
@@ -118,7 +122,7 @@ typedef struct {
 } ASTDecl;
 
 /**
- * An abstract syntax tree node that contains an assignment operator.
+ * An abstract syntax tree node that contains an operator.
  */
 typedef struct {
     ASTNode super;
@@ -127,7 +131,7 @@ typedef struct {
      * The data type of this declaration.
      */
     char* operator;
-} ASTAssign;
+} ASTOperation;
 
 /**
  * An abstract syntax tree node that contains an identifier.

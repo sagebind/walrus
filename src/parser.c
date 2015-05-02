@@ -542,7 +542,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
 
     // first derivation - location...
     else if (token.type == T_IDENTIFIER) {
-        *node = ast_create_node(AST_ASSIGN_STATEMENT);
+        *node = ast_create_node(AST_ASSIGN_OP);
 
         ASTReference* location;
         if (parser_parse_location(lexer, &location) != E_SUCCESS) {
@@ -550,7 +550,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
         }
         ast_add_child(*node, location);
 
-        if (parser_parse_assign_op(lexer, &((ASTAssign*)(*node))->operator) != E_SUCCESS) {
+        if (parser_parse_assign_op(lexer, &((ASTOperation*)(*node))->operator) != E_SUCCESS) {
             return parser_error(lexer, "Expected assignment operator.");
         }
 
@@ -626,7 +626,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
 
         // the variable is declared and assigned to in one go; create the
         // assignment node now
-        ASTAssign* assignment = ast_create_node(AST_ASSIGN_STATEMENT);
+        ASTOperation* assignment = ast_create_node(AST_ASSIGN_OP);
         // get the operator
         Token operator_token = lexer_next(lexer);
         if (operator_token.type != T_EQUAL) {

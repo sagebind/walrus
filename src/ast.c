@@ -18,14 +18,14 @@ void* ast_create_node(ASTNodeKind kind)
         node_size = sizeof(ASTDecl);
     }
 
-    // assign node
-    else if ((kind & 0xF) == AST_ASSIGN_STATEMENT) {
-        node_size = sizeof(ASTAssign);
-    }
-
     // location node
     else if ((kind & 0xF) == AST_REFERENCE) {
         node_size = sizeof(ASTReference);
+    }
+
+    // op expression node
+    else if ((kind & 0xF) == AST_OP_EXPR) {
+        node_size = sizeof(ASTOperation);
     }
 
     // allocate memory for the node
@@ -87,8 +87,8 @@ static Error ast_print_subtree(ASTNode* parent, char* prefix, bool is_tail)
 
     else {
         switch (parent->kind) {
-            case AST_ASSIGN_STATEMENT:
-                printf("assign( operator: %s )", ((ASTAssign*)parent)->operator);
+            case AST_ASSIGN_OP:
+                printf("assign( operator: %s )", ((ASTOperation*)parent)->operator);
                 break;
 
             case AST_LOCATION:
