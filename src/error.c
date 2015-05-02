@@ -7,12 +7,12 @@
 /**
  * Stores the error code of the most recent error.
  */
-Error error_last = E_SUCCESS;
+static Error error_last = E_SUCCESS;
 
 /**
  * Total number of errors that have occurred.
  */
-int error_count = 0;
+static int error_count = 0;
 
 /**
  * Gets the error code of the most recent error.
@@ -38,7 +38,7 @@ Error error(Error code, const char* message, ...)
     // print message to stderr and accept formatting arguments like printf does
     va_list args;
     va_start(args, message);
-    fprintf(stderr, "Error(%d): ", code);
+    fprintf(stderr, "Error(%#06x): ", code);
     vfprintf(stderr, message, args);
     fprintf(stderr, "\n");
     va_end(args);
@@ -56,4 +56,17 @@ void error_exit(Error code, const char* message)
 {
     error(code, message);
     exit(code);
+}
+
+/**
+ * Clears the last error, resetting last error to 0 and decrementing error count.
+ *
+ * Effectively allows you to mark the last error as "caught".
+ */
+void error_catch()
+{
+    if (error_count > 0) {
+        error_last = 0;
+        error_count--;
+    }
 }

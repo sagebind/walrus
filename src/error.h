@@ -50,4 +50,11 @@ Error error(Error code, const char* message, ...);
  */
 void error_exit(Error code, const char* message);
 
+/**
+ * Clears the last error, resetting last error to 0 and decrementing error count.
+ *
+ * Effectively allows you to mark the last error as "caught".
+ */
+void error_catch(void);
+
 #endif
