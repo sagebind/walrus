@@ -115,6 +115,12 @@ static Error ast_print_subtree(ASTNode* parent, const char* prefix, bool is_tail
         case AST_INT_LITERAL:
             printf("%d", *(int*)parent->value);
             break;
+        case AST_BOOLEAN_LITERAL:
+            printf("\"%s\"", (*(bool*)parent->value) ? "true" : "false");
+            break;
+        case AST_CHAR_LITERAL:
+            printf("\"%s\"", (char*)parent->value);
+            break;
         case AST_STRING_LITERAL:
             printf("\"%s\"", (char*)parent->value);
             break;

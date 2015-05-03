@@ -13,10 +13,10 @@
  */
 typedef enum {
     TYPE_NONE,
-    TYPE_BOOLEAN,
     TYPE_INT,
-    TYPE_STRING,
+    TYPE_BOOLEAN,
     TYPE_CHAR,
+    TYPE_STRING,
     TYPE_VOID
 } DataType;
 
@@ -40,8 +40,8 @@ typedef enum {
     AST_BREAK_STATEMENT         = 0x50,
     AST_CONTINUE_STATEMENT      = 0x60,
     AST_RETURN_STATEMENT        = 0x70,
-    AST_BOOLEAN_LITERAL         = 0x80,
-    AST_INT_LITERAL             = 0x90,
+    AST_INT_LITERAL             = 0x80,
+    AST_BOOLEAN_LITERAL         = 0x90,
     AST_CHAR_LITERAL            = 0xa0,
     AST_STRING_LITERAL          = 0xb0,
 
