@@ -86,71 +86,87 @@ static Error ast_print_subtree(ASTNode* parent, const char* prefix, bool is_tail
     // print out the current node branch
     printf("%s%s ", prefix, is_tail ? "└──" : "├──");
 
+    // print out a unique readable string identifying the node kind and attributes
     switch (parent->kind) {
+        // generic kinds
+        case AST_BLOCK:
+            printf("block");
+            break;
+        case AST_IF_STATEMENT:
+            printf("if");
+            break;
+        case AST_ELSE_STATEMENT:
+            printf("else");
+            break;
+        case AST_FOR_STATEMENT:
+            printf("for");
+            break;
+        case AST_BREAK_STATEMENT:
+            printf("break");
+            break;
+        case AST_CONTINUE_STATEMENT:
+            printf("continue");
+            break;
         case AST_RETURN_STATEMENT:
             printf("return");
             break;
 
-        case AST_ASSIGN_OP:
-            printf("assign( operator: %s )", ((ASTOperation*)parent)->operator);
+        // literals
+        case AST_INT_LITERAL:
+            printf("%d", *(int*)parent->value);
             break;
-
-        case AST_BINARY_OP:
-            printf("bin_op( operator: %s )", ((ASTOperation*)parent)->operator);
-            break;
-
-        case AST_LOCATION:
-            printf("location( identifier: %s )", ((ASTReference*)parent)->identifier);
-            break;
-
-        case AST_EXPR:
-            printf("%s expression", data_type_string(parent->type));
-            break;
-
-        case AST_IF_STATEMENT:
-            printf("if");
-            break;
-
-        case AST_FOR_STATEMENT:
-            printf("for loop");
-            break;
-
-        case AST_METHOD_CALL:
-            printf("method_call( identifier: %s )",
-                ((ASTReference*)parent)->identifier);
-            break;
-
-        case AST_CALLOUT:
-            printf("library_call( name: %s )",
-                ((ASTReference*)parent)->identifier);
-            break;
-
-        case AST_CLASS_DECL:
-            printf("class( identifier: %s )", ((ASTDecl*)parent)->identifier);
-            break;
-
-        case AST_FIELD_DECL:
-            printf("field_decl( identifier: %s, type: %s, length: %d )", ((ASTDecl*)parent)->identifier, data_type_string(parent->type), ((ASTDecl*)parent)->length);
-            break;
-
-        case AST_METHOD_DECL:
-            printf("method_decl( identifier: %s, type: %s )", ((ASTDecl*)parent)->identifier, data_type_string(parent->type));
-            break;
-
-        case AST_VAR_DECL:
-            printf("var_decl( identifier: %s, type: %s )", ((ASTDecl*)parent)->identifier, data_type_string(parent->type));
-            break;
-
-        case AST_BLOCK:
-            printf("block");
-            break;
-
         case AST_STRING_LITERAL:
-            printf("string \"%s\"", (char*)parent->value);
+            printf("\"%s\"", (char*)parent->value);
             break;
 
+        // declaration kinds
+        case AST_CLASS_DECL:
+            printf("class { identifier: %s }", ((ASTDecl*)parent)->identifier);
+            break;
+        case AST_FIELD_DECL:
+            printf("field { identifier: %s, length: %d }",
+                ((ASTDecl*)parent)->identifier,
+                ((ASTDecl*)parent)->length);
+            break;
+        case AST_METHOD_DECL:
+            printf("method { identifier: %s }", ((ASTDecl*)parent)->identifier);
+            break;
+        case AST_VAR_DECL:
+            printf("variable { identifier: %s }", ((ASTDecl*)parent)->identifier);
+            break;
+
+        // reference kinds
+        case AST_LOCATION:
+            printf("location { identifier: %s }", ((ASTReference*)parent)->identifier);
+            break;
+        case AST_METHOD_CALL:
+            printf("method call { identifier: %s }",
+                ((ASTReference*)parent)->identifier);
+            break;
+        case AST_CALLOUT:
+            printf("library call { name: %s }",
+                ((ASTReference*)parent)->identifier);
+            break;
+
+        // operator kinds
+        case AST_UNARY_OP:
+            printf("unary op { operator: %s }", ((ASTOperation*)parent)->operator);
+            break;
+        case AST_BINARY_OP:
+            printf("binary op { operator: %s }", ((ASTOperation*)parent)->operator);
+            break;
+        case AST_ASSIGN_OP:
+            printf("assignment { operator: %s }", ((ASTOperation*)parent)->operator);
+            break;
+
+        // unknown
         default:
-            printf("%#06x", parent->kind);
+            printf("unknown node kind %#06x", parent->kind);
+    }
+
+    // print out the datatype of the node if it has one
+    if (parent->type != TYPE_NONE) {
+        printf(" -> %s", data_type_string(parent->type));
     }
 
     printf("\r\n");
@@ -227,6 +243,14 @@ char* data_type_string(DataType type)
 
     if (type == TYPE_INT) {
         return "int";
+    }
+
+    if (type == TYPE_CHAR) {
+        return "char";
+    }
+
+    if (type == TYPE_STRING) {
+        return "string";
     }
 
     return "void";

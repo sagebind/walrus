@@ -142,7 +142,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node);
 /**
  * <else_expr> -> else <block> | EPSILON
  */
-Error parser_parse_else_expr(Lexer* lexer);
+Error parser_parse_else_expr(Lexer* lexer, ASTNode* parent);
 
 /**
  * <expr_option> -> <expr> | EPSILON

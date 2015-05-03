@@ -602,7 +602,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
         }
         ast_add_child(*node, block);
 
-        if (parser_parse_else_expr(lexer) != E_SUCCESS) {
+        if (parser_parse_else_expr(lexer, *node) != E_SUCCESS) {
             return parser_error(lexer, "Expected else expression.");
         }
 
@@ -709,17 +709,24 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
 /**
  * <else_expr> -> else <block> | EPSILON
  */
-Error parser_parse_else_expr(Lexer* lexer)
+Error parser_parse_else_expr(Lexer* lexer, ASTNode* parent)
 {
     Token token = lexer_lookahead(lexer, 1);
 
     // first derivation
     if (token.type == T_ELSE) {
         lexer_next(lexer);
+
+        // create an else node
+        ASTNode* else_expr = ast_create_node(AST_ELSE_STATEMENT);
+        ast_add_child(parent, else_expr);
+
+        // parse the else's block
         ASTNode* block;
         if (parser_parse_block(lexer, &block) != E_SUCCESS) {
             return parser_error(lexer, "Expected block following else statement.");
         }
+        ast_add_child(else_expr, block);
     }
 
     // epsilon
