@@ -540,26 +540,30 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
         return E_SUCCESS;
     }
 
-    // first derivation - location...
+    // first derivation - assignment statement
     else if (token.type == T_IDENTIFIER) {
-        *node = ast_create_node(AST_ASSIGN_OP);
-
+        // Parse the location first. The location will be the first child of the
+        // assignment operation node once we parse it.
         ASTReference* location;
         if (parser_parse_location(lexer, &location) != E_SUCCESS) {
             return parser_error(lexer, "Expected location in statement.");
         }
-        ast_add_child(*node, location);
 
-        if (parser_parse_assign_op(lexer, &((ASTOperation*)(*node))->operator) != E_SUCCESS) {
+        // now parse the assignment node, and add the location as the left
+        // operand
+        if (parser_parse_assign_op(lexer, (ASTOperation**)node) != E_SUCCESS) {
             return parser_error(lexer, "Expected assignment operator.");
         }
+        ast_add_child(*node, location);
 
+        // now parse the right operand expression
         ASTNode* expr;
         if (parser_parse_expr(lexer, &expr) != E_SUCCESS) {
             return parser_error(lexer, "Expected expression.");
         }
         ast_add_child(*node, expr);
 
+        // semicolon
         if (lexer_next(lexer).type != T_STATEMENT_END) {
             return parser_error(lexer, "Missing semicolon at end of statement.");
         }
@@ -756,7 +760,7 @@ Error parser_parse_expr_option(Lexer* lexer, ASTNode* parent)
 /**
  * <assign_op> -> = | += | -=
  */
-Error parser_parse_assign_op(Lexer* lexer, char** operator)
+Error parser_parse_assign_op(Lexer* lexer, ASTOperation** node)
 {
     // I think I got this
     Token token = lexer_next(lexer);
@@ -764,7 +768,8 @@ Error parser_parse_assign_op(Lexer* lexer, char** operator)
         return parser_error(lexer, "Expected an assignment operator ('=', '+=', '-=').");
     }
 
-    *operator = token.lexeme;
+    *node = ast_create_node(AST_ASSIGN_OP);
+    (*node)->operator = token.lexeme;
     return E_SUCCESS;
 }
 
