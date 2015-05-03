@@ -1182,7 +1182,8 @@ Error parser_parse_int_literal(Lexer* lexer, ASTNode** node)
  */
 Error parser_parse_bool_literal(Lexer* lexer, ASTNode** node)
 {
-    if (lexer_next(lexer).type != T_BOOLEAN_LITERAL) {
+    Token token = lexer_next(lexer);
+    if (token.type != T_BOOLEAN_LITERAL) {
         return parser_error(lexer, "Expected 'true' or 'false'.");
     }
 
