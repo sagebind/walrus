@@ -952,8 +952,6 @@ Error parser_parse_array_subscript_expr(Lexer* lexer, ASTReference* parent)
 }
 
 /**
- * Recursively parses a generic expression.
- *
  * Note that this function parses the following 2 grammar rules at once:
  *
  *     <expr> -> <expr_part> <expr_end>
@@ -1146,7 +1144,7 @@ Error parser_parse_literal(Lexer* lexer, ASTNode** node)
 /**
  * <id> -> <alpha> <alpha_num_string>
  */
-Error parser_parse_id(Lexer* lexer, char** id)
+Error parser_parse_id(Lexer* lexer, char** identifier)
 {
     Token token = lexer_next(lexer);
 
@@ -1154,7 +1152,7 @@ Error parser_parse_id(Lexer* lexer, char** id)
         return E_PARSE_ERROR;
     }
 
-    *id = token.lexeme;
+    *identifier = token.lexeme;
     return E_SUCCESS;
 }
 
@@ -1171,9 +1169,11 @@ Error parser_parse_int_literal(Lexer* lexer, ASTNode** node)
     // create a node
     *node = ast_create_node(AST_INT_LITERAL);
     (*node)->type = TYPE_INT;
+
     // get the actual int value
     (*node)->value = malloc(sizeof(int));
     *(int*)(*node)->value = parser_str_to_long(token.lexeme);
+
     return E_SUCCESS;
 }
 
@@ -1186,8 +1186,18 @@ Error parser_parse_bool_literal(Lexer* lexer, ASTNode** node)
         return parser_error(lexer, "Expected 'true' or 'false'.");
     }
 
+    // create a node
     *node = ast_create_node(AST_BOOLEAN_LITERAL);
     (*node)->type = TYPE_BOOLEAN;
+
+    // get the actual boolean value
+    (*node)->value = malloc(sizeof(bool));
+    if (strcmp(token.lexeme, "true") == 0) {
+        *(bool*)(*node)->value = true;
+    } else {
+        *(bool*)(*node)->value = false;
+    }
+
     return E_SUCCESS;
 }
 
@@ -1201,9 +1211,13 @@ Error parser_parse_char_literal(Lexer* lexer, ASTNode** node)
         return parser_error(lexer, "Expected a char literal.");
     }
 
+    // create a node
     *node = ast_create_node(AST_CHAR_LITERAL);
     (*node)->type = TYPE_CHAR;
+
+    // get the actual value
     (*node)->value = parser_strip_quotes(token.lexeme);
+
     return E_SUCCESS;
 }
 
@@ -1217,8 +1231,12 @@ Error parser_parse_string_literal(Lexer* lexer, ASTNode** node)
         return parser_error(lexer, "Expected a string literal.");
     }
 
+    // create a node
     *node = ast_create_node(AST_STRING_LITERAL);
     (*node)->type = TYPE_STRING;
+
+    // get the actual value
     (*node)->value = parser_strip_quotes(token.lexeme);
+
     return E_SUCCESS;
 }
