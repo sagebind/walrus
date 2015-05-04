@@ -11,18 +11,15 @@ Error analyzer_analyze(ASTNode* ast)
 {
     // create a symbol table
     SymbolTable* table = symbol_table_create();
-    // create the "global" scope
-    symbol_table_begin_scope(table);
 
     // begin recursively analyzing the ast
-    if (analyzer_analyze_node(ast, table) != E_SUCCESS) {
-        return error_get_last();
-    }
+    analyzer_analyze_node(ast, table);
 
-    // close the global scope
-    symbol_table_end_scope(table);
-    // destroy the symbol table
+    // destroy the symbol table (even if the analyzer encountered an error)
     symbol_table_destroy(&table);
+
+    // propagate errors
+    return error_get_last();
 }
 
 /**
@@ -46,8 +43,17 @@ Error analyzer_error(ASTNode* node, char* message)
  */
 Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
 {
+    bool new_scope = false;
+
     /* we need to walk and analyze the abstract syntax tree here and fill up the
        symbol table as we go to find errors in the program */
+
+    // the following node kinds open up a new scope level
+    if (node->kind == AST_CLASS_DECL || node->kind == AST_BLOCK) {
+        // open up a new scope level
+        symbol_table_begin_scope(table);
+        new_scope = true;
+    }
 
     // if the node is a declaration of some sort, insert it into the symbol table
     if ((node->kind & 0xF) == AST_DECL) {
@@ -68,6 +74,13 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
     for (int i = 0; i < node->child_count; ++i) {
         analyzer_analyze_node(node->children[i], table);
     }
+
+    // finally, close a scope if we opened one earlier
+    if (new_scope) {
+        symbol_table_end_scope(table);
+    }
+
+    return E_SUCCESS;
 }
 
 Error analyzer_check_if_boolean(ASTNode* node)
