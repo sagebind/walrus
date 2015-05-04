@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "analyzer.h"
 #include "ast.h"
 #include "lexer.h"
 #include "parser.h"
@@ -84,10 +85,15 @@ Error walrus_compile(Options options)
         else {
             ASTNode* ast = parser_parse(lexer);
 
+            // print the ast if the user wants to see it
             if (options.debug) {
                 ast_print(ast);
             }
 
+            // analyze and optimize the ast
+            analyzer_analyze(ast);
+
+            // nothing left to do (yet); destroy the tree
             ast_destroy(&ast);
         }
 
