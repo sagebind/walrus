@@ -14,7 +14,8 @@ typedef enum {
     E_NO_INPUT_FILES,
     E_FILE_NOT_FOUND,
     E_LEXER_ERROR,
-    E_PARSE_ERROR
+    E_PARSE_ERROR,
+    E_ANALYZE_ERROR
 } Error;
 
 

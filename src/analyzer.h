@@ -13,4 +13,13 @@
  */
 Error analyzer_analyze(ASTNode* ast);
 
+/**
+ * Displays an analyzer error.
+ *
+ * @param  node    The node that has you want to fight with.
+ * @param  message The error message.
+ * @return         An error code.
+ */
+Error analyzer_error(ASTNode* node, char* message);
+
 #endif

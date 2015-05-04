@@ -21,3 +21,19 @@ Error analyzer_analyze(ASTNode* ast)
     // destroy the symbol table
     symbol_table_destroy(&table);
 }
+
+/**
+ * Displays an analyzer error.
+ */
+Error analyzer_error(ASTNode* node, char* message)
+{
+    // display the error message
+    return error(
+        E_ANALYZE_ERROR,
+        "in file \"%s\" near line %d, column %d:\n\t%s",
+        node->file,
+        node->line,
+        node->column,
+        message
+    );
+}
