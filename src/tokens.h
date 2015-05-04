@@ -66,12 +66,12 @@ typedef struct {
     /**
      * The line number the token was found in the source file.
      */
-    int line;
+    unsigned int line;
 
     /**
      * The column number the token was found in the source file.
      */
-    int column;
+    unsigned int column;
 
     /**
      * The token type of the token.
