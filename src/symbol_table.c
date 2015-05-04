@@ -1,7 +1,9 @@
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include "error.h"
 #include "symbol_table.h"
+#include "types.h"
 
 
 /**
@@ -100,7 +102,7 @@ SymbolEntry* symbol_table_lookup(SymbolTable* table, char* symbol)
 /**
  * Inserts a symbol into the symbol table.
  */
-Error symbol_table_insert(SymbolTable* table, char* symbol)
+Error symbol_table_insert(SymbolTable* table, char* symbol, DataType type, bool is_function)
 {
     if (table->stack_top == NULL) {
         return error(E_BAD_POINTER, "No symbol table scope to insert into.");
@@ -109,6 +111,8 @@ Error symbol_table_insert(SymbolTable* table, char* symbol)
     // create a symbol entry for the given symbol
     SymbolEntry* entry = malloc(sizeof(SymbolEntry));
     entry->symbol = symbol;
+    entry->type = type;
+    entry->is_function = is_function;
     entry->next = NULL;
 
     // get the hash for the symbol

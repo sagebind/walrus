@@ -1,4 +1,5 @@
 #include "analyzer.h"
+#include "ast.h"
 #include "error.h"
 #include "symbol_table.h"
 

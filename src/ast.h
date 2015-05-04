@@ -4,23 +4,12 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "tokens.h"
+#include "types.h"
 
 // macros for doing proper node type casting for us
 #define ast_add_child(parent, child) (ast_add_child)((ASTNode*)parent, (ASTNode*)child)
 #define ast_remove_child(parent, child_index) (ast_add_child)((ASTNode*)parent, child_index)
 
-
-/**
- * All data types allowed in the AST.
- */
-typedef enum {
-    TYPE_NONE,
-    TYPE_INT,
-    TYPE_BOOLEAN,
-    TYPE_CHAR,
-    TYPE_STRING,
-    TYPE_VOID
-} DataType;
 
 /**
  * An enumeration of all kinds of nodes possible in an abstract syntax tree.

@@ -1,6 +1,9 @@
 #ifndef WALRUS_SYMBOL_TABLE_H
 #define WALRUS_SYMBOL_TABLE_H
 
+#include <stdbool.h>
+#include "types.h"
+
 // set the size of the hastable for a symbol map
 #define SYMBOL_MAP_SIZE 42
 
@@ -15,9 +18,14 @@ typedef struct SymbolEntry {
     char* symbol;
 
     /**
-     * A bitmask of options.
+     * The data type of the symbol.
      */
-    unsigned int options;
+    DataType type;
+
+    /**
+     * Indicates if the symbol refers to a function.
+     */
+    bool is_function;
 
     /**
      * A pointer to the next entry when used in a map bucket.
@@ -111,11 +119,13 @@ SymbolEntry* symbol_table_lookup(SymbolTable* table, char* symbol);
 /**
  * Inserts a symbol into the symbol table.
  *
- * @param  table  The symbol table to insert into.
- * @param  symbol The symbol to insert.
- * @return        An error code.
+ * @param  table       The symbol table to insert into.
+ * @param  symbol      The symbol to insert.
+ * @param  type        The data type of the symbol.
+ * @param  is_function Sets whether the symbol refers to a function.
+ * @return             An error code.
  */
-Error symbol_table_insert(SymbolTable* table, char* symbol);
+Error symbol_table_insert(SymbolTable* table, char* symbol, DataType type, bool is_function);
 
 /**
  * Destroys a symbol table and all of its contents.
