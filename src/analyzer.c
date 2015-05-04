@@ -37,3 +37,8 @@ Error analyzer_error(ASTNode* node, char* message)
         message
     );
 }
+
+Error analyzer_check_if_boolean(ASTNode* node)
+{
+    //Need to make sure if() and for() statements contain a boolean value
+}

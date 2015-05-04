@@ -22,4 +22,12 @@ Error analyzer_analyze(ASTNode* ast);
  */
 Error analyzer_error(ASTNode* node, char* message);
 
+/**
+ * Analyzes a node and checks to see if ti returns a boolean.
+ *
+ * @param  node 	The  node of an abstract syntax tree to analyze.
+ * @return     		An error code.
+ */
+Error analyzer_check_if_boolean(ASTNode* node);
+
 #endif
