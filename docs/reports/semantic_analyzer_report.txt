@@ -1,0 +1,79 @@
+QUESTION 1. How to build your project from the source code. If you use make or ant, tell me. If not, you must
+include the full command(s) you used to build your compiler. (Remember, if I can’t figure out how to compile
+your project, your group gets a Fix & Resubmit grade for the project.)
+
+----------------------------------------------------------------------------------------------------------
+
+In order to build our project from source, ensure that you have a GNU compiler installed, navigate to the root
+directory of the project, and type 'make' in the command line.  To run the test cases, type 'make test'.
+
+
+QUESTION 2. A brief description of how your group divided the work. Summarize each group member’s contribution
+to the project.
+
+----------------------------------------------------------------------------------------------------------
+
+Once again, we didn't have a formal system of dividing up the work.  We just did what we could when we were available.
+
+Stephen: Contributed heavily in creation of the abstract syntax tree and symbol table
+Tyler: Wrote report, contributed to the semantic analysis step
+Trevor:  Contributed to the creation of the symbol table and the semantic analysis process
+Alex: Contributed to the creation of the symbol and the semantic analysis process
+
+
+QUESTION 3. A list of any clarifications, assumptions, or additions to the problem assigned. The project
+specifications are fairly broad and leave many of the decisions to you. This is an aspect of real software
+engineering. If you think major clarifications are necessary, please ask the instructor.
+
+----------------------------------------------------------------------------------------------------------
+
+We were able to derive all information we needed to build the parser from the project specification, and
+therefore have no clarifications or assumptions that need to stated.
+
+
+QUESTION 4. An overview of your design, an analysis of design alternatives you considered (if any), and key design
+decisions. Be sure to document and justify all design decisions you make. Any decision accompanied by
+a convincing argument will be accepted. If you realize there are flaws or deficiencies in your design late
+in the implementation process, discuss those flaws and how you would have done things differently. Also
+include any changes you made to previous parts and why they were necessary.
+
+----------------------------------------------------------------------------------------------------------
+
+TODO
+
+Once the scanner has properly generated up the tokens, they are fed to the parser.  We have created methods to handle
+each grammar rule in the Decaf language.  To kick off the entire process, we begin by parsing the 'Program' grammar rule.  
+Since this is a recursive descent parser, this starts the whole chain of method calls until the end of the file is reached.
+If it encounters an error based on the rules of the grammar we have encoded into our methods, an error message with relevant
+information is displayed.
+
+
+QUESTION 5. A brief description of interesting implementation issues. This should include any non-trivial
+algorithms, techniques, and data structures. It should also include any insights you discovered during this
+phase of the project. (External sources of implementation help, e.g., websites or books, should be cited here.)
+
+----------------------------------------------------------------------------------------------------------
+
+TODO
+
+Ultimately, the design of our parser was fairly simple.  We take the tokenized input we got from the scanner and
+feed it to numerous methods encapsulating the grammar of the Decaf language.  These methods all return true for 
+a successful parse of the rule, or false for an error in the input.
+
+We plan (and are required to as per Project 3) to organize the parse results into a tree format, but as for this
+project we haven't got around to that.  Ultimately, we had very few issues implementing the parser.
+
+
+QUESTION 6. A list of known problems with your project, and as much as you know about the cause.
+• If your project fails a provided test case, but you are unable to fix the problem, describe your
+understanding of the problem.
+• If you discover problems in your project in your own testing that you are unable to fix, but are not
+exposed by the provided test cases, describe the problem as specifically as possible and as much as
+you can about its cause. If this causes your project to fail hidden test cases, you may still be able to
+receive some credit for considering the problem. If this problem is not revealed by the hidden test
+cases, then you will not be penalized for it.
+
+----------------------------------------------------------------------------------------------------------
+
+As far as we are aware there are no issues with any aspects of our semantic analyzer, and all the tests cases run without
+error.
