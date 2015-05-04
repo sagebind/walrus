@@ -23,6 +23,15 @@ Error analyzer_analyze(ASTNode* ast);
 Error analyzer_error(ASTNode* node, char* message);
 
 /**
+ * Recursively analyzes and optimizes an abstract syntax tree subtree.
+ *
+ * @param  node  The root node of an abstract syntax tree to analyze.
+ * @param  table The symbol table.
+ * @return       An error code.
+ */
+Error analyzer_analyze_node(ASTNode* node, SymbolTable* table);
+
+/**
  * Analyzes a node and checks to see if ti returns a boolean.
  *
  * @param  node 	The  node of an abstract syntax tree to analyze.

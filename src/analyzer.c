@@ -13,8 +13,10 @@ Error analyzer_analyze(ASTNode* ast)
     // create the "global" scope
     symbol_table_begin_scope(table);
 
-    /* we need to walk and analyze the abstract syntax tree here and fill up the
-       symbol table as we go to find errors in the program */
+    // begin recursively analyzing the ast
+    if (analyzer_analyze_node(ast, table) != E_SUCCESS) {
+        return error_get_last();
+    }
 
     // close the global scope
     symbol_table_end_scope(table);
@@ -36,6 +38,20 @@ Error analyzer_error(ASTNode* node, char* message)
         node->column,
         message
     );
+}
+
+/**
+ * Recursively analyzes and optimizes an abstract syntax tree subtree.
+ */
+Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
+{
+    /* we need to walk and analyze the abstract syntax tree here and fill up the
+       symbol table as we go to find errors in the program */
+
+    // analyze each child node
+    for (int i = 0; i < node->child_count; ++i) {
+        analyzer_analyze_node(node->children[i], table);
+    }
 }
 
 Error analyzer_check_if_boolean(ASTNode* node)
