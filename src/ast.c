@@ -8,7 +8,7 @@
 /**
  * Creates an abstract syntax tree node.
  */
-void* ast_create_node(ASTNodeKind kind)
+void* ast_create_node(ASTNodeKind kind, char* file)
 {
     // determine what node size to use
     size_t node_size = sizeof(ASTNode);
@@ -37,6 +37,9 @@ void* ast_create_node(ASTNodeKind kind)
     node->children = malloc(node->child_size);
 
     // set other values to default as well
+    node->file = file;
+    node->line = 0;
+    node->column = 0;
     node->parent = NULL;
     node->value = NULL;
     node->type = TYPE_NONE;
@@ -83,8 +86,8 @@ Error (ast_add_child)(ASTNode* parent, ASTNode* child)
  */
 static Error ast_print_subtree(ASTNode* parent, const char* prefix, bool is_tail)
 {
-    // print out the current node branch
-    printf("%s%s ", prefix, is_tail ? "└──" : "├──");
+    // print out the current node branch and file position
+    printf("%s%s [%d:%d]: ", prefix, is_tail ? "└──" : "├──", parent->line, parent->column);
 
     // print out a unique readable string identifying the node kind and attributes
     switch (parent->kind) {

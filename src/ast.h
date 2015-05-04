@@ -73,6 +73,21 @@ typedef struct ASTNode {
     ASTNodeKind kind;
 
     /**
+     * The source file the node came from.
+     */
+    char* file;
+
+    /**
+     * The line number the node was found in the source file.
+     */
+    unsigned int line;
+
+    /**
+     * The column number the node was found in the source file.
+     */
+    unsigned int column;
+
+    /**
      * A pointer to any value you like.
      */
     void* value;
@@ -148,6 +163,7 @@ typedef struct {
  * Creates an abstract syntax tree node.
  *
  * @param  kind The kind of node.
+ * @param  file The file name the node was found in.
  * @return      A shiny new abstract syntax tree node.
  *
  * Be careful; the type and size of the allocated node returned varies depending
@@ -155,7 +171,7 @@ typedef struct {
  * See the comments in the declaration of ASTNodeKind to see what struct types
  * are returned.
  */
-void* ast_create_node(ASTNodeKind kind);
+void* ast_create_node(ASTNodeKind kind, char* file);
 
 /**
  * Adds an abstract syntax tree node to another node as a child.

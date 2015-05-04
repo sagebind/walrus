@@ -92,13 +92,17 @@ static inline bool token_is_bin_op(Token token)
  */
 Error parser_parse_program(Lexer* lexer, ASTDecl** node)
 {
-    *node = ast_create_node(AST_CLASS_DECL);
+    *node = ast_create_node(AST_CLASS_DECL, lexer->context->file);
     (*node)->identifier = "Program";
 
     Token token = lexer_next(lexer);
     if (token.type != T_CLASS) {
         return parser_error(lexer, "A program starts with 'class', you fool.");
     }
+
+    // set line and column
+    ((ASTNode*)*node)->line = token.line;
+    ((ASTNode*)*node)->column = token.column;
 
     token = lexer_next(lexer);
     if (token.type != T_IDENTIFIER || strcmp(token.lexeme, "Program") != 0) {
@@ -198,8 +202,13 @@ Error parser_parse_field_decl(Lexer* lexer, ASTDecl* program)
  */
 Error parser_parse_field_id_list(Lexer* lexer, DataType type, ASTDecl* program)
 {
-    ASTDecl* node = ast_create_node(AST_FIELD_DECL);
+    ASTDecl* node = ast_create_node(AST_FIELD_DECL, lexer->context->file);
     ((ASTNode*)node)->type = type;
+
+    // set line and column
+    Token next_token = lexer_lookahead(lexer, 1);
+    ((ASTNode*)node)->line = next_token.line;
+    ((ASTNode*)node)->column = next_token.column;
 
     if (parser_parse_id(lexer, &node->identifier) != E_SUCCESS) {
         return parser_error(lexer, "Expected field name.");
@@ -268,11 +277,16 @@ Error parser_parse_field_id_list_tail(Lexer* lexer, DataType type, ASTDecl* prog
  */
 Error parser_parse_method_decl(Lexer* lexer, ASTDecl** node)
 {
-    *node = ast_create_node(AST_METHOD_DECL);
+    *node = ast_create_node(AST_METHOD_DECL, lexer->context->file);
     ((ASTNode*)*node)->type = TYPE_VOID;
 
+    // set line and column
+    Token next_token = lexer_lookahead(lexer, 1);
+    ((ASTNode*)*node)->line = next_token.line;
+    ((ASTNode*)*node)->column = next_token.column;
+
     // can start with <type> or void
-    if (lexer_lookahead(lexer, 1).type == T_VOID) {
+    if (next_token.type == T_VOID) {
         lexer_next(lexer);
     } else if (parser_parse_type(lexer, &((ASTNode*)*node)->type) != E_SUCCESS) {
         return parser_error(lexer, "Expected type name or void.");
@@ -364,7 +378,12 @@ Error parser_parse_method_param_decl_list_tail(Lexer* lexer, ASTDecl* method)
  */
 Error parser_parse_method_param_decl(Lexer* lexer, ASTDecl** node)
 {
-    *node = ast_create_node(AST_VAR_DECL);
+    *node = ast_create_node(AST_VAR_DECL, lexer->context->file);
+
+    // set line and column
+    Token next_token = lexer_lookahead(lexer, 1);
+    ((ASTNode*)*node)->line = next_token.line;
+    ((ASTNode*)*node)->column = next_token.column;
 
     if (parser_parse_type(lexer, &((ASTNode*)*node)->type) != E_SUCCESS) {
         return parser_error(lexer, "Expected parameter type.");
@@ -382,11 +401,16 @@ Error parser_parse_method_param_decl(Lexer* lexer, ASTDecl** node)
  */
 Error parser_parse_block(Lexer* lexer, ASTNode** node)
 {
-    *node = ast_create_node(AST_BLOCK);
+    *node = ast_create_node(AST_BLOCK, lexer->context->file);
 
-    if (lexer_next(lexer).type != T_BRACE_LEFT) {
+    Token token = lexer_next(lexer);
+    if (token.type != T_BRACE_LEFT) {
         return parser_error(lexer, "Missing left curly brace when parsing block.");
     }
+
+    // set line and column
+    (*node)->line = token.line;
+    (*node)->column = token.column;
 
     if (parser_parse_var_decl_list(lexer, *node) != E_SUCCESS) {
         return E_PARSE_ERROR;
@@ -454,7 +478,12 @@ Error parser_parse_statement_list(Lexer* lexer, ASTNode* parent)
  */
 Error parser_parse_var_decl(Lexer* lexer, ASTNode* parent)
 {
-    ASTDecl* node = ast_create_node(AST_VAR_DECL);
+    ASTDecl* node = ast_create_node(AST_VAR_DECL, lexer->context->file);
+
+    // set line and column
+    Token next_token = lexer_lookahead(lexer, 1);
+    ((ASTNode*)node)->line = next_token.line;
+    ((ASTNode*)node)->column = next_token.column;
 
     if (parser_parse_type(lexer, &((ASTNode*)node)->type) != E_SUCCESS) {
         return parser_error(lexer, "Expected variable type.");
@@ -475,8 +504,12 @@ Error parser_parse_var_id_list_tail(Lexer* lexer, DataType type, ASTNode* parent
 {
     Token token = lexer_next(lexer);
     if (token.type == T_COMMA) {
-        ASTDecl* node = ast_create_node(AST_VAR_DECL);
+        ASTDecl* node = ast_create_node(AST_VAR_DECL, lexer->context->file);
         ((ASTNode*)node)->type = type;
+
+        // set line and column
+        ((ASTNode*)node)->line = token.line;
+        ((ASTNode*)node)->column = token.column;
 
         //first derivation
         if (parser_parse_id(lexer, &node->identifier) != E_SUCCESS) {
@@ -584,7 +617,11 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
     lexer_next(lexer);
     // third derivation - if statement
     if (token.type == T_IF) {
-        *node = ast_create_node(AST_IF_STATEMENT);
+        *node = ast_create_node(AST_IF_STATEMENT, lexer->context->file);
+
+        // set line and column
+        ((ASTNode*)*node)->line = token.line;
+        ((ASTNode*)*node)->column = token.column;
 
         if (lexer_next(lexer).type != T_PAREN_LEFT) {
             return parser_error(lexer, "Missing opening parenthesis.");
@@ -615,12 +652,21 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
 
     // fourth derivation
     else if (token.type == T_FOR) {
-        *node = ast_create_node(AST_FOR_STATEMENT);
+        *node = ast_create_node(AST_FOR_STATEMENT, lexer->context->file);
+
+        // set line and column
+        (*node)->line = token.line;
+        (*node)->column = token.column;
 
         // variable used in the loop
-        ASTDecl* var = ast_create_node(AST_VAR_DECL);
+        ASTDecl* var = ast_create_node(AST_VAR_DECL, lexer->context->file);
         // is always an int
         ((ASTNode*)var)->type = TYPE_INT;
+
+        // set line and column
+        Token next_token = lexer_lookahead(lexer, 1);
+        ((ASTNode*)var)->line = next_token.line;
+        ((ASTNode*)var)->column = next_token.column;
 
         // get the variable id
         if (parser_parse_id(lexer, &var->identifier) != E_SUCCESS) {
@@ -630,7 +676,7 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
 
         // the variable is declared and assigned to in one go; create the
         // assignment node now
-        ASTOperation* assignment = ast_create_node(AST_ASSIGN_OP);
+        ASTOperation* assignment = ast_create_node(AST_ASSIGN_OP, lexer->context->file);
         // get the operator
         Token operator_token = lexer_next(lexer);
         if (operator_token.type != T_EQUAL) {
@@ -639,11 +685,19 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
         assignment->operator = operator_token.lexeme;
         ast_add_child(*node, assignment);
 
+        // set line and column
+        ((ASTNode*)assignment)->line = operator_token.line;
+        ((ASTNode*)assignment)->column = operator_token.column;
+
         // now make the "location" node - the location assigned to
-        ASTReference* location = ast_create_node(AST_LOCATION);
+        ASTReference* location = ast_create_node(AST_LOCATION, lexer->context->file);
         // variable name is same as in declaration
         location->identifier = var->identifier;
         ast_add_child(assignment, location);
+
+        // set line and column
+        ((ASTNode*)location)->line = next_token.line;
+        ((ASTNode*)location)->column = next_token.column;
 
         // get the assignment value expression
         ASTNode* expr;
@@ -672,7 +726,11 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
 
     // fifth derivation - return statement
     else if (token.type == T_RETURN) {
-        *node = ast_create_node(AST_RETURN_STATEMENT);
+        *node = ast_create_node(AST_RETURN_STATEMENT, lexer->context->file);
+
+        // set line and column
+        (*node)->line = token.line;
+        (*node)->column = token.column;
 
         if (parser_parse_expr_option(lexer, *node) != E_SUCCESS) {
             return E_PARSE_ERROR;
@@ -687,7 +745,11 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
 
     // sixth derivation
     else if (token.type == T_BREAK) {
-        *node = ast_create_node(AST_BREAK_STATEMENT);
+        *node = ast_create_node(AST_BREAK_STATEMENT, lexer->context->file);
+
+        // set line and column
+        (*node)->line = token.line;
+        (*node)->column = token.column;
 
         if (lexer_next(lexer).type != T_STATEMENT_END) {
             return parser_error(lexer, "Missing semicolon at end of statement.");
@@ -698,7 +760,11 @@ Error parser_parse_statement(Lexer* lexer, ASTNode** node)
 
     // seventh derivation
     else if (token.type == T_CONTINUE) {
-        *node = ast_create_node(AST_CONTINUE_STATEMENT);
+        *node = ast_create_node(AST_CONTINUE_STATEMENT, lexer->context->file);
+
+        // set line and column
+        (*node)->line = token.line;
+        (*node)->column = token.column;
 
         if (lexer_next(lexer).type != T_STATEMENT_END) {
             return parser_error(lexer, "Missing semicolon at end of statement.");
@@ -722,8 +788,12 @@ Error parser_parse_else_expr(Lexer* lexer, ASTNode* parent)
         lexer_next(lexer);
 
         // create an else node
-        ASTNode* else_expr = ast_create_node(AST_ELSE_STATEMENT);
+        ASTNode* else_expr = ast_create_node(AST_ELSE_STATEMENT, lexer->context->file);
         ast_add_child(parent, else_expr);
+
+        // set line and column
+        else_expr->line = token.line;
+        else_expr->column = token.column;
 
         // parse the else's block
         ASTNode* block;
@@ -768,8 +838,13 @@ Error parser_parse_assign_op(Lexer* lexer, ASTOperation** node)
         return parser_error(lexer, "Expected an assignment operator ('=', '+=', '-=').");
     }
 
-    *node = ast_create_node(AST_ASSIGN_OP);
+    *node = ast_create_node(AST_ASSIGN_OP, lexer->context->file);
     (*node)->operator = token.lexeme;
+
+    // set line and column
+    ((ASTNode*)*node)->line = token.line;
+    ((ASTNode*)*node)->column = token.column;
+
     return E_SUCCESS;
 }
 
@@ -784,13 +859,21 @@ Error parser_parse_method_call(Lexer* lexer, ASTReference** node)
     // library callout call
     if (first_token.type == T_CALLOUT) {
         lexer_next(lexer);
-        *node = ast_create_node(AST_CALLOUT);
+        *node = ast_create_node(AST_CALLOUT, lexer->context->file);
+
+        // set line and column
+        ((ASTNode*)*node)->line = first_token.line;
+        ((ASTNode*)*node)->column = first_token.column;
 
         // we know the return type already; is always int
         ((ASTNode*)*node)->type = TYPE_INT;
     } else {
         // standard method call
-        *node = ast_create_node(AST_METHOD_CALL);
+        *node = ast_create_node(AST_METHOD_CALL, lexer->context->file);
+
+        // set line and column
+        ((ASTNode*)*node)->line = first_token.line;
+        ((ASTNode*)*node)->column = first_token.column;
 
         // parse the method name
         if (parser_parse_method_name(lexer, &(*node)->identifier) != E_SUCCESS) {
@@ -916,7 +999,12 @@ Error parser_parse_method_name(Lexer* lexer, char** identifier)
  */
 Error parser_parse_location(Lexer* lexer, ASTReference** node)
 {
-    *node = ast_create_node(AST_LOCATION);
+    *node = ast_create_node(AST_LOCATION, lexer->context->file);
+    Token token = lexer_lookahead(lexer, 1);
+
+    // set line and column
+    ((ASTNode*)*node)->line = token.line;
+    ((ASTNode*)*node)->column = token.column;
 
     if (parser_parse_id(lexer, &(*node)->identifier) != E_SUCCESS) {
         return parser_error(lexer, "Failure in parsing location - parser_parse_id failed.");
@@ -1039,7 +1127,11 @@ Error parser_parse_expr_part(Lexer* lexer, ASTNode** node)
         lexer_next(lexer);
 
         // create a unary expression node
-        *node = ast_create_node(AST_UNARY_OP);
+        *node = ast_create_node(AST_UNARY_OP, lexer->context->file);
+
+        // set line and column
+        (*node)->line = next_token.line;
+        (*node)->column = next_token.column;
 
         // Parse a sub-expression and add it as the only child of the unary
         // operation node.
@@ -1108,7 +1200,12 @@ Error parser_parse_bin_op(Lexer* lexer, ASTOperation** node)
     }
 
     // create a binary op node
-    *node = ast_create_node(AST_BINARY_OP);
+    *node = ast_create_node(AST_BINARY_OP, lexer->context->file);
+
+    // set line and column
+    ((ASTNode*)*node)->line = token.line;
+    ((ASTNode*)*node)->column = token.column;
+
     // get the operator from the token lexeme
     (*node)->operator = token.lexeme;
 
@@ -1167,8 +1264,12 @@ Error parser_parse_int_literal(Lexer* lexer, ASTNode** node)
     }
 
     // create a node
-    *node = ast_create_node(AST_INT_LITERAL);
+    *node = ast_create_node(AST_INT_LITERAL, lexer->context->file);
     (*node)->type = TYPE_INT;
+
+    // set line and column
+    (*node)->line = token.line;
+    (*node)->column = token.column;
 
     // get the actual int value
     (*node)->value = malloc(sizeof(int));
@@ -1188,8 +1289,12 @@ Error parser_parse_bool_literal(Lexer* lexer, ASTNode** node)
     }
 
     // create a node
-    *node = ast_create_node(AST_BOOLEAN_LITERAL);
+    *node = ast_create_node(AST_BOOLEAN_LITERAL, lexer->context->file);
     (*node)->type = TYPE_BOOLEAN;
+
+    // set line and column
+    (*node)->line = token.line;
+    (*node)->column = token.column;
 
     // get the actual boolean value
     (*node)->value = malloc(sizeof(bool));
@@ -1213,8 +1318,12 @@ Error parser_parse_char_literal(Lexer* lexer, ASTNode** node)
     }
 
     // create a node
-    *node = ast_create_node(AST_CHAR_LITERAL);
+    *node = ast_create_node(AST_CHAR_LITERAL, lexer->context->file);
     (*node)->type = TYPE_CHAR;
+
+    // set line and column
+    (*node)->line = token.line;
+    (*node)->column = token.column;
 
     // get the actual value
     (*node)->value = parser_strip_quotes(token.lexeme);
@@ -1233,8 +1342,12 @@ Error parser_parse_string_literal(Lexer* lexer, ASTNode** node)
     }
 
     // create a node
-    *node = ast_create_node(AST_STRING_LITERAL);
+    *node = ast_create_node(AST_STRING_LITERAL, lexer->context->file);
     (*node)->type = TYPE_STRING;
+
+    // set line and column
+    (*node)->line = token.line;
+    (*node)->column = token.column;
 
     // get the actual value
     (*node)->value = parser_strip_quotes(token.lexeme);
