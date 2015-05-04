@@ -2,6 +2,7 @@
 #define WALRUS_AST_H
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include "tokens.h"
 
 // macro for doing proper node type casting for us
