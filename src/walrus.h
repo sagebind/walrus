@@ -11,6 +11,7 @@
 typedef struct {
     bool help;
     bool debug;
+    bool parse_only;
     bool scan_only;
     bool print_tokens;
     int files_count;

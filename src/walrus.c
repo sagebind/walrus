@@ -27,6 +27,7 @@ int main(int argc, char* const* argv)
                "Options:\r\n\r\n"
                "  --help                   Displays this help message, but you already knew that\r\n"
                "  --debug                  Outputs debugging information\r\n"
+               "  -p                       Scan and parse, but do not analyze\r\n"
                "  -s                       Scan only; do not parse or compile\r\n"
                "  -T, --print-tokens       Print out tokens as they are scanned\r\n\r\n"
                "This walrus knows how to avoid boredom.\r\n\r\n");
@@ -90,8 +91,10 @@ Error walrus_compile(Options options)
                 ast_print(ast);
             }
 
-            // analyze and optimize the ast
-            analyzer_analyze(ast);
+            if (!options.parse_only) {
+                // analyze and optimize the ast
+                analyzer_analyze(ast);
+            }
 
             // nothing left to do (yet); destroy the tree
             ast_destroy(&ast);
@@ -111,10 +114,10 @@ Error walrus_compile(Options options)
 Options parse_options(int argc, char* const* argv)
 {
     // create our options struct which contains our flags
-    Options options = {0, 0, 0, 0, 0, NULL};
+    Options options = {0, 0, 0, 0, 0, 0, NULL};
 
     // define our getopt specs
-    const char* short_options = "hdsT";
+    const char* short_options = "hdpsT";
     static struct option long_options[] = {
         {"help",         no_argument, 0, 'h'},
         {"debug",        no_argument, 0, 'd'},
@@ -137,6 +140,8 @@ Options parse_options(int argc, char* const* argv)
             options.print_tokens = true;
         } else if (c == 0 && long_options[option_index].name == "bored") {
             options.bored = true;
+        } else if (c == 'p') {
+            options.parse_only = true;
         } else if (c == 's') {
             options.scan_only = true;
         }
