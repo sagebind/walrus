@@ -14,19 +14,19 @@ class Program
         int z;
         
 	x = A[p];
-	i = p - 1;
-	j = r + 1;
+	i = (p - 1);
+	j = (r + 1);
 
-  	for z = 0, length * length {
-	  j = j - 1;
+  	for z = 0, (length * length) {
+	  j = (j - 1);
 	    for a = 0, length {
 	      if (A[j] <= x) {
 		break;
 	      }
-	      j = j - 1;
+	      j = (j - 1);
 	    }
 
-	    for a = i + 1, length {
+	    for a = (i + 1), length {
 	      if (A[a] >= x) {
 		i = a;
 		break;
