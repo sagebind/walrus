@@ -49,6 +49,21 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
     /* we need to walk and analyze the abstract syntax tree here and fill up the
        symbol table as we go to find errors in the program */
 
+    // if the node is a declaration of some sort, insert it into the symbol table
+    if ((node->kind & 0xF) == AST_DECL) {
+        char* symbol = ((ASTDecl*)node)->identifier;
+
+        // make sure the symbol doesn't already exist in the current scope
+        if (symbol_table_exists_local(table, symbol)) {
+            // symbol already exists
+            return analyzer_error(node, "Symbol already declared");
+        }
+
+        // insert the declaration into the symbol table
+        bool is_function = node->kind == AST_METHOD_DECL; // set if it is a function
+        symbol_table_insert(table, symbol, node->type, is_function);
+    }
+
     // analyze each child node
     for (int i = 0; i < node->child_count; ++i) {
         analyzer_analyze_node(node->children[i], table);
