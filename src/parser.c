@@ -378,7 +378,7 @@ Error parser_parse_method_param_decl_list_tail(Lexer* lexer, ASTDecl* method)
  */
 Error parser_parse_method_param_decl(Lexer* lexer, ASTDecl** node)
 {
-    *node = ast_create_node(AST_VAR_DECL, lexer->context->file);
+    *node = ast_create_node(AST_PARAM_DECL, lexer->context->file);
 
     // set line and column
     Token next_token = lexer_lookahead(lexer, 1);

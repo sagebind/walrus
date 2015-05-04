@@ -41,6 +41,7 @@ typedef enum {
     AST_FIELD_DECL              = 0x21,
     AST_METHOD_DECL             = 0x31,
     AST_VAR_DECL                = 0x41,
+    AST_PARAM_DECL              = 0x51,
 
     // reference kinds; these will be of type ASTReference
     AST_LOCATION                = 0x12,
