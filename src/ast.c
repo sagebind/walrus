@@ -57,7 +57,7 @@ Error (ast_add_child)(ASTNode* parent, ASTNode* child)
 {
     // make sure pointer isn't null
     if (parent == NULL || child == NULL) {
-        return E_BAD_POINTER;
+        return error(E_BAD_POINTER, "Bad pointer");
     }
 
     // reallocate if full
@@ -72,6 +72,35 @@ Error (ast_add_child)(ASTNode* parent, ASTNode* child)
     child->parent = parent;
 
     return E_SUCCESS;
+}
+
+/**
+ * Removes an abstract syntax tree node from its parent by its child index.
+ */
+ASTNode* (ast_remove_child)(ASTNode* parent, unsigned int child_index)
+{
+    // make sure pointer isn't null
+    if (parent == NULL) {
+        error(E_BAD_POINTER, "Bad pointer");
+        return NULL;
+    }
+
+    // make sure the given index exists
+    if (child_index >= parent->child_count) {
+        error(E_INVALID_INDEX, "Invalid child node index");
+        return NULL;
+    }
+
+    // get the node at the given index
+    ASTNode* child = parent->children[child_index];
+
+    // shift all remaining children to the left
+    parent->child_count--;
+    for (int i = child_index; i < parent->child_count; ++i) {
+        parent->children[i] = parent->children[i + 1];
+    }
+
+    return child;
 }
 
 /**

@@ -5,8 +5,9 @@
 #include <stdlib.h>
 #include "tokens.h"
 
-// macro for doing proper node type casting for us
+// macros for doing proper node type casting for us
 #define ast_add_child(parent, child) (ast_add_child)((ASTNode*)parent, (ASTNode*)child)
+#define ast_remove_child(parent, child_index) (ast_add_child)((ASTNode*)parent, child_index)
 
 
 /**
@@ -181,6 +182,18 @@ void* ast_create_node(ASTNodeKind kind, char* file);
  * @return        An error code.
  */
 Error (ast_add_child)(ASTNode* parent, ASTNode* child);
+
+/**
+ * Removes an abstract syntax tree node from its parent by its child index.
+ *
+ * This does not destroy the removed node. If you want to destroy the removed
+ * node forever, you must explicitly pass it to ast_destroy().
+ *
+ * @param  parent The parent node.
+ * @param  child  The index of the child node to remove.
+ * @return        The node removed.
+ */
+ASTNode* (ast_remove_child)(ASTNode* parent, unsigned int child_index);
 
 /**
  * Pretty-prints an abstract syntax tree to the console.

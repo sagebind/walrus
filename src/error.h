@@ -9,6 +9,7 @@ typedef enum {
     E_SUCCESS = 0,
     E_UNKNOWN,
     E_BAD_POINTER,
+    E_INVALID_INDEX,
     E_OPERATION_FAILED,
     E_UNKNOWN_OPTION,
     E_NO_INPUT_FILES,
