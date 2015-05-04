@@ -69,6 +69,35 @@ Error symbol_table_end_scope(SymbolTable* table)
 }
 
 /**
+ * Looks up a symbol in the symbol table.
+ *
+ * Looks for the symbol in each of the symbol maps in the sheaf, working down
+ * the scope stack. Yeah, not terribly efficient, is it? Just look at those nasty
+ * nested for loops. Worst case is pretty bad, but average case isn't too shabby.
+ */
+SymbolEntry* symbol_table_lookup(SymbolTable* table, char* symbol)
+{
+    // get the symbol hash first
+    unsigned int hash = symbol_hash(symbol);
+
+    // loop over each map in the stack
+    for (ScopeStackNode* scope = table->stack_top; scope != NULL; scope = scope->previous) {
+        // go to the hash position in the symbol map and loop over each entry at
+        // the hash's location
+        for (SymbolEntry* entry = scope->map->entries[hash]; entry != NULL; entry = entry->next) {
+            // check if the current entry matches the symbol we are looking for
+            if (strcmp(entry->symbol, symbol) == 0) {
+                // we finally found it!
+                return entry;
+            }
+        }
+    }
+
+    // symbol not found
+    return NULL;
+}
+
+/**
  * Inserts a symbol into the symbol table.
  */
 Error symbol_table_insert(SymbolTable* table, char* symbol)

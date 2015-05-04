@@ -100,6 +100,15 @@ Error symbol_table_begin_scope(SymbolTable* table);
 Error symbol_table_end_scope(SymbolTable* table);
 
 /**
+ * Looks up a symbol in the symbol table.
+ *
+ * @param  table  The symbol table to look up in.
+ * @param  symbol The symbol to look up.
+ * @return        A symbol table entry, or NULL if the symbol wasn't found.
+ */
+SymbolEntry* symbol_table_lookup(SymbolTable* table, char* symbol);
+
+/**
  * Inserts a symbol into the symbol table.
  *
  * @param  table  The symbol table to insert into.
