@@ -157,24 +157,49 @@ Error symbol_table_insert(SymbolTable* table, char* symbol, DataType type, bool 
  */
 Error symbol_table_destroy(SymbolTable** table)
 {
+    // bad pointers is bad
     if (table == NULL || *table == NULL) {
         return E_BAD_POINTER;
     }
 
     // free any remaining scope stack items
     ScopeStackNode* previous_node = (*table)->stack_top;
+    // loop through the stack
     while (previous_node != NULL) {
-        ScopeStackNode* current = previous_node;
-        previous_node = current->previous;
-        free(current);
+        // capture the stack node below the current one
+        ScopeStackNode* current_node = previous_node;
+        previous_node = current_node->previous;
+
+        // free the node's memory
+        free(current_node);
     }
 
     // free all symbol maps
     SymbolMap* previous_map = (*table)->sheaf_tail;
     while (previous_map != NULL) {
-        SymbolMap* current = previous_map;
-        previous_map = current->previous;
-        free(current);
+        // capture the previous symbol map to the left of the current one
+        SymbolMap* current_map = previous_map;
+        previous_map = current_map->previous;
+
+        // go through each bucket in the hashtable and free everything thats left
+        for (int i = 0; i < SYMBOL_MAP_SIZE; ++i) {
+            // we have some work to do, so loop over each entry
+            SymbolEntry* next_entry = current_map->entries[i];
+            while (next_entry != NULL) {
+                // capture the next entry in the bucket
+                SymbolEntry* current_entry = next_entry;
+                next_entry = current_entry->next;
+
+                // free the current entry
+                free(current_entry);
+            }
+        }
+
+        // free the actual hashtable array (big memory $avings!)
+        free(current_map->entries);
+
+        // finally, free the map container
+        free(current_map);
     }
 
     // free the table
