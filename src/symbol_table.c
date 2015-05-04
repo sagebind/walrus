@@ -71,6 +71,33 @@ Error symbol_table_end_scope(SymbolTable* table)
 }
 
 /**
+ * Checks if a symbol already exists only in the current scope.
+ */
+bool symbol_table_exists_local(SymbolTable* table, char* symbol)
+{
+    // can't exist if no scope t look in
+    if (table->stack_top == NULL) {
+        return false;
+    }
+
+    // get the hash for the symbol
+    unsigned int hash = symbol_hash(symbol);
+
+    // go to the hash position in the symbol map and loop over each entry at
+    // the hash's location
+    for (SymbolEntry* entry = table->stack_top->map->entries[hash]; entry != NULL; entry = entry->next) {
+        // check if the current entry matches the symbol we are looking for
+        if (strcmp(entry->symbol, symbol) == 0) {
+            // we finally found it!
+            return true;
+        }
+    }
+
+    // we couldn't find it
+    return false;
+}
+
+/**
  * Looks up a symbol in the symbol table.
  *
  * Looks for the symbol in each of the symbol maps in the sheaf, working down

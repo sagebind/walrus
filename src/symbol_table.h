@@ -108,6 +108,15 @@ Error symbol_table_begin_scope(SymbolTable* table);
 Error symbol_table_end_scope(SymbolTable* table);
 
 /**
+ * Checks if a symbol already exists only in the current scope.
+ *
+ * @param  table  The symbol table to check in.
+ * @param  symbol The symbol to check.
+ * @return        True if the symbol exists, otherwise false.
+ */
+bool symbol_table_exists_local(SymbolTable* table, char* symbol);
+
+/**
  * Looks up a symbol in the symbol table.
  *
  * @param  table  The symbol table to look up in.
