@@ -128,6 +128,31 @@ SymbolEntry* symbol_table_lookup(SymbolTable* table, char* symbol)
 }
 
 /**
+ * Looks up a symbol in the symbol table at any scope level.
+ */
+SymbolEntry* symbol_table_lookup_anywhere(SymbolTable* table, char* symbol)
+{
+    // get the symbol hash first
+    unsigned int hash = symbol_hash(symbol);
+
+    // loop over each map in the sheaf
+    for (SymbolMap* map = table->sheaf_tail; map != NULL; map = map->previous) {
+        // go to the hash position in the symbol map and loop over each entry at
+        // the hash's location
+        for (SymbolEntry* entry = map->entries[hash]; entry != NULL; entry = entry->next) {
+            // check if the current entry matches the symbol we are looking for
+            if (strcmp(entry->symbol, symbol) == 0) {
+                // we finally found it!
+                return entry;
+            }
+        }
+    }
+
+    // symbol not found
+    return NULL;
+}
+
+/**
  * Inserts a symbol into the symbol table.
  */
 Error symbol_table_insert(SymbolTable* table, char* symbol, DataType type, SymbolFlags flags)

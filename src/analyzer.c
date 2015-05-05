@@ -17,7 +17,7 @@ Error analyzer_analyze(ASTNode* node, SymbolTable* table)
     analyzer_analyze_node(node, table);
 
     // make sure a main method exists
-    SymbolEntry* main = symbol_table_lookup(table, "main");
+    SymbolEntry* main = symbol_table_lookup_anywhere(table, "main");
     if (main == NULL || (main->flags & SYMBOL_FUNCTION) == 0) {
         analyzer_error(node, "No main method defined");
     }

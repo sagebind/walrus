@@ -135,6 +135,15 @@ bool symbol_table_exists_local(SymbolTable* table, char* symbol);
 SymbolEntry* symbol_table_lookup(SymbolTable* table, char* symbol);
 
 /**
+ * Looks up a symbol in the symbol table in any scope.
+ *
+ * @param  table  The symbol table to look up in.
+ * @param  symbol The symbol to look up.
+ * @return        A symbol table entry, or NULL if the symbol wasn't found.
+ */
+SymbolEntry* symbol_table_lookup_anywhere(SymbolTable* table, char* symbol);
+
+/**
  * Inserts a symbol into the symbol table.
  *
  * @param  table  The symbol table to insert into.
