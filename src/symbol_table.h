@@ -2,6 +2,7 @@
 #define WALRUS_SYMBOL_TABLE_H
 
 #include <stdbool.h>
+#include "error.h"
 #include "types.h"
 
 // set the size of the hastable for a symbol map

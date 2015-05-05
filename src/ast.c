@@ -44,6 +44,9 @@ void* ast_create_node(ASTNodeKind kind, char* file)
     node->parent = NULL;
     node->value = NULL;
     node->type = TYPE_NONE;
+    if ((kind & 0xF) == AST_DECL) {
+        ((ASTDecl*)node)->flags = 0;
+    }
 
     // set the node kind
     node->kind = kind;

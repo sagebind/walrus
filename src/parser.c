@@ -6,6 +6,7 @@
 #include "error.h"
 #include "lexer.h"
 #include "parser.h"
+#include "symbol_table.h"
 
 
 /**
@@ -214,6 +215,11 @@ Error parser_parse_field_id_list(Lexer* lexer, DataType type, ASTDecl* program)
         return parser_error(lexer, "Expected field name.");
     }
 
+    // here check if is an array and set a flag if it is
+    if (lexer_lookahead(lexer, 1).type == T_BRACKET_LEFT) {
+        node->flags = SYMBOL_ARRAY;
+    }
+
     if (parser_parse_array_dim_decl(lexer, &node->length) != E_SUCCESS) {
         return E_PARSE_ERROR;
     }
@@ -279,6 +285,7 @@ Error parser_parse_method_decl(Lexer* lexer, ASTDecl** node)
 {
     *node = ast_create_node(AST_METHOD_DECL, lexer->context->file);
     ((ASTNode*)*node)->type = TYPE_VOID;
+    (*node)->flags = SYMBOL_FUNCTION;
 
     // set line and column
     Token next_token = lexer_lookahead(lexer, 1);

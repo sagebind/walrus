@@ -85,14 +85,7 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
         }
 
         // insert the declaration into the symbol table
-        SymbolFlags flags = 0;
-        if (node->kind == AST_METHOD_DECL) { // set if it is a function
-            flags |= SYMBOL_FUNCTION;
-        }
-        if (((ASTDecl*)node)->length) { // see if it is an array
-            flags |= SYMBOL_ARRAY;
-        }
-        symbol_table_insert(table, symbol, node->type, flags);
+        symbol_table_insert(table, symbol, node->type, ((ASTDecl*)node)->flags);
     }
 
     // analyze each child node

@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include "symbol_table.h"
 #include "tokens.h"
 #include "types.h"
 
@@ -120,6 +121,13 @@ typedef struct {
      * The identifier name of this declaration.
      */
     char* identifier;
+
+    /**
+     * Information about the symbol referred.
+     *
+     * Yes, another kludge.
+     */
+    SymbolFlags flags;
 
     /**
      * The length of the declaration, if any.
