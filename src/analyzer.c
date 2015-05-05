@@ -95,7 +95,13 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
 
     // make sure returns match the types of the functions
     if (node->kind == AST_RETURN_STATEMENT) {
-        if (node->type != node->parent->type) {
+        // find method return statement is in
+        ASTNode* method = node->parent;
+        while (method->kind != AST_METHOD_DECL) {
+            method = method->parent;
+        }
+
+        if (node->type != method->type) {
             analyzer_error(node, "Return value type must match method type");
         }
     }
