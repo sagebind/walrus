@@ -45,7 +45,7 @@ tests/semantics/legal-%.dcf: bin/walrus .FORCE
 	bin/walrus $@ > /dev/null 2>&1 || bin/walrus --debug $@
 
 tests/semantics/illegal-%.dcf: bin/walrus .FORCE
-	bin/walrus $@ > /dev/null 2>&1; test $$? -gt 0 || bin/walrus --debug $@; test $$? -gt 0
+	bin/walrus $@ > /dev/null 2>&1; test $$? -gt 0; bin/walrus --debug $@; test $$? -gt 0
 
 clean:
 	rm -rf obj bin
