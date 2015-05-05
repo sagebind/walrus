@@ -146,6 +146,11 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
         }
     }
 
+    // validate method call arguments
+    if (node->kind == AST_METHOD_CALL) {
+        analyzer_check_method_arguments(node, table);
+    }
+
     // finally, close a scope if we opened one earlier
     if (new_scope) {
         symbol_table_end_scope(table);
@@ -286,6 +291,12 @@ Error analyzer_determine_expr_type(ASTNode* node, SymbolTable* table)
 
     return E_SUCCESS;
 }
+
+/**
+ * Checks and verifies a method call's arguments.
+ */
+Error analyzer_check_method_arguments(ASTNode* node, SymbolTable* table)
+{}
 
 /**
  * Converts a unary minus operation on an int literal into a negative int if necessary.
