@@ -69,6 +69,23 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
         analyzer_determine_expr_type(node, table);
     }
 
+    // make sure arrays are used properly
+    if (node->kind == AST_LOCATION) {
+        SymbolEntry* entry = symbol_table_lookup(table, ((ASTReference*)node)->identifier);
+
+        // accessing a non-array
+        if (node->child_count > 0 && (entry->flags & SYMBOL_ARRAY) != SYMBOL_ARRAY) {
+            analyzer_error(node, "Array access on a non-array");
+        }
+
+        // array index should be int
+        if ((entry->flags & SYMBOL_ARRAY) == SYMBOL_ARRAY) {
+            if (node->children[0]->type != TYPE_INT) {
+                analyzer_error(node, "Array index must be an integer");
+            }
+        }
+    }
+
     // if the node is an assignment operator, check to make sure that the datatype is equal on both sides
     if (node->kind == AST_ASSIGN_OP && ((ASTOperation*)node)->operator[0] == '=') {
         analyzer_assignment_datatype_check(&node);
