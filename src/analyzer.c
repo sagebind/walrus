@@ -54,7 +54,6 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
         symbol_table_begin_scope(table);
         new_scope = true;
     }
-\\\
     // if the node is a declaration of some sort, insert it into the symbol table
     if ((node->kind & 0xF) == AST_DECL && node->kind != AST_PARAM_DECL) {
         char* symbol = ((ASTDecl*)node)->identifier;
