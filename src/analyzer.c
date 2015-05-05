@@ -1,3 +1,4 @@
+#include <string.h>
 #include "analyzer.h"
 #include "ast.h"
 #include "error.h"
@@ -37,14 +38,14 @@ Error analyzer_analyze(ASTNode* node, SymbolTable* table)
         new_scope = true;
     }
 
-    // if the node is some kind of expression, determine its type now
-    if ((node->kind & 0xF) == AST_REFERENCE || (node->kind & 0xF) == AST_OP_EXPR || node->kind == AST_INT_LITERAL || node->kind == AST_BOOLEAN_LITERAL || node->kind == AST_CHAR_LITERAL || node->kind == AST_STRING_LITERAL) {
-        analyzer_determine_expr_type(node, table);
-    }
-
     // if the node is a unary minus, do fixes if necessary
     if (node->kind == AST_UNARY_OP && ((ASTOperation*)node)->operator[0] == '-') {
         analyzer_fix_minus_int(&node);
+    }
+
+    // if the node is some kind of expression, determine its type now
+    if ((node->kind & 0xF) == AST_REFERENCE || (node->kind & 0xF) == AST_OP_EXPR || node->kind == AST_INT_LITERAL || node->kind == AST_BOOLEAN_LITERAL || node->kind == AST_CHAR_LITERAL || node->kind == AST_STRING_LITERAL) {
+        analyzer_determine_expr_type(node, table);
     }
 
     // if the node is an assignment operator, check to make sure that the datatype is equal on both sides
@@ -119,6 +120,22 @@ Error analyzer_determine_expr_type(ASTNode* node, SymbolTable* table)
 
         // inherit types
         node->type = node->children[0]->type;
+    }
+
+    // binary ops
+    if (node->kind == AST_BINARY_OP) {
+        ASTOperation* op = (ASTOperation*)node;
+        // check binary arithmetic operations
+        if (strcmp(op->operator, "+") == 0 || strcmp(op->operator, "-") == 0 || strcmp(op->operator, "*") == 0 || strcmp(op->operator, "/") == 0) {
+            // everything has to be an int
+            if (node->children[0]->type != TYPE_INT) {
+                analyzer_error(node, "Left operand not an int");
+            }
+            if (node->children[1]->type != TYPE_INT) {
+                analyzer_error(node, "Right operand not an int");
+            }
+            node->type = TYPE_INT;
+        }
     }
 
     return E_SUCCESS;
