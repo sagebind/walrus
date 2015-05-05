@@ -53,7 +53,10 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
        symbol table as we go to find errors in the program */
 
     // the following node kinds open up a new scope level
-    if (node->kind == AST_CLASS_DECL || node->kind == AST_METHOD_DECL || (node->kind == AST_BLOCK && node->parent->kind != AST_METHOD_DECL)) { // <-- kind of a kludge here
+    if (node->kind == AST_CLASS_DECL || node->kind == AST_METHOD_DECL || node->kind == AST_FOR_STATEMENT || (node->kind == AST_BLOCK && node->parent->kind != AST_METHOD_DECL && node->parent->kind != AST_FOR_STATEMENT)) {
+        // kind of a kludge here; open up for and method scopes one level up
+        // instead of at the block because AST is weird
+
         // open up a new scope level
         symbol_table_begin_scope(table);
         new_scope = true;
