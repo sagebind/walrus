@@ -80,7 +80,11 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
 
         // array index should be int
         if ((entry->flags & SYMBOL_ARRAY) == SYMBOL_ARRAY) {
-            if (node->children[0]->type != TYPE_INT) {
+            if (node->child_count != 1) {
+                analyzer_error(node, "No array index given");
+            }
+
+            else if (node->children[0]->type != TYPE_INT) {
                 analyzer_error(node, "Array index must be an integer");
             }
         }
