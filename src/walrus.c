@@ -86,14 +86,14 @@ Error walrus_compile(Options options)
         else {
             ASTNode* ast = parser_parse(lexer);
 
-            // print the ast if the user wants to see it
-            if (options.debug) {
-                ast_print(ast);
-            }
-
             if (!options.parse_only) {
                 // analyze and optimize the ast
                 analyzer_analyze(ast);
+            }
+
+            // print the ast if the user wants to see it
+            if (options.debug) {
+                ast_print(ast);
             }
 
             // nothing left to do (yet); destroy the tree
