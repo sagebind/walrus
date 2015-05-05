@@ -60,6 +60,11 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
         analyzer_fix_minus_int(&node);
     }
 
+    // if the node is an assignment operator, check to make sure that the datatype is equal on both sides
+    if (node->kind == AST_ASSIGN_OP && ((ASTOperation*)node)->operator[0] == '=') {
+        analyzer_assignment_datatype_check(&node);
+    }
+
     // if the node is a declaration of some sort, insert it into the symbol table
     if ((node->kind & 0xF) == AST_DECL && node->kind != AST_PARAM_DECL) {
         char* symbol = ((ASTDecl*)node)->identifier;
@@ -86,6 +91,14 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
     }
 
     return E_SUCCESS;
+}
+
+/**
+ * Checks to make sure the datatype on either side of the assignment operator is equal.
+ */
+Error analyzer_assignment_datatype_check(ASTNode** node)
+{
+    
 }
 
 /**
