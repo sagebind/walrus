@@ -194,8 +194,8 @@ Error analyzer_check_if_variable_exists(ASTNode* node) //#2
     if(node->kind == AST_REFERENCE) {
         ASTReference*  new_node; //Do I need to do this and the following line? Or can I just yolo cast the same variable somehow?
         new_node = (ASTReference*) node;
-        if(node->identifier==NULL)
+        if(new_node->identifier==NULL)
             return analyzer_error(node, "Variable has not been intialized");
     }
     return E_SUCCESS;
-} 
+}
