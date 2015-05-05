@@ -122,11 +122,33 @@ Error analyzer_determine_expr_type(ASTNode* node, SymbolTable* table)
         node->type = node->children[0]->type;
     }
 
+    // unary ops
+    if (node->kind == AST_UNARY_OP) {
+        ASTOperation* op = (ASTOperation*)node;
+        // minus
+        if (strcmp(op->operator, "-") == 0) {
+            // everything has to be an int
+            if (node->children[0]->type != TYPE_INT) {
+                analyzer_error(node, "Minus operand not an int");
+            }
+            node->type = TYPE_INT;
+        }
+
+        // not operator
+        else {
+            // everything has to be bool
+            if (node->children[0]->type != TYPE_BOOLEAN) {
+                analyzer_error(node, "Not operator must be applied to a boolean");
+            }
+            node->type = TYPE_BOOLEAN;
+        }
+    }
+
     // binary ops
     if (node->kind == AST_BINARY_OP) {
         ASTOperation* op = (ASTOperation*)node;
         // check binary arithmetic operations
-        if (strcmp(op->operator, "+") == 0 || strcmp(op->operator, "-") == 0 || strcmp(op->operator, "*") == 0 || strcmp(op->operator, "/") == 0) {
+        if (strcmp(op->operator, "+") == 0 || strcmp(op->operator, "-") == 0 || strcmp(op->operator, "*") == 0 || strcmp(op->operator, "/") == 0 || strcmp(op->operator, "%") == 0) {
             // everything has to be an int
             if (node->children[0]->type != TYPE_INT) {
                 analyzer_error(node, "Left operand not an int");
@@ -135,6 +157,31 @@ Error analyzer_determine_expr_type(ASTNode* node, SymbolTable* table)
                 analyzer_error(node, "Right operand not an int");
             }
             node->type = TYPE_INT;
+        }
+
+        // check relational comparisons
+        else if (strcmp(op->operator, "<") == 0 || strcmp(op->operator, "<=") == 0 || strcmp(op->operator, ">=") == 0 || strcmp(op->operator, ">") == 0) {
+            // everything has to be an int
+            if (node->children[0]->type != TYPE_INT) {
+                analyzer_error(node, "Left operand not an int");
+            }
+            if (node->children[1]->type != TYPE_INT) {
+                analyzer_error(node, "Right operand not an int");
+            }
+            // result is boolean
+            node->type = TYPE_BOOLEAN;
+        }
+
+        // conditionals
+        else {
+            // everything has to be bool
+            if (node->children[0]->type != TYPE_BOOLEAN) {
+                analyzer_error(node, "Left operand not boolean");
+            }
+            if (node->children[1]->type != TYPE_BOOLEAN) {
+                analyzer_error(node, "Right operand not boolean");
+            }
+            node->type = TYPE_BOOLEAN;
         }
     }
 
