@@ -2,6 +2,6 @@ class Program {
   boolean b;
 
   void main() {
-    b = true > false;		// operands of > must be ints
+    b = (true > false);		// operands of > must be ints
   }								
 }
