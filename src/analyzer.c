@@ -79,6 +79,20 @@ Error analyzer_analyze(ASTNode* node, SymbolTable* table)
         analyzer_analyze(node->children[i], table);
     }
 
+    // now that child nodes have been examined, verify if and for statements have
+    // proper expression types in them
+    if (node->kind == AST_IF_STATEMENT) {
+        if (node->children[0]->type != TYPE_BOOLEAN) {
+            analyzer_error(node, "Expected boolean expression inside if");
+        }
+    }
+
+    if (node->kind == AST_FOR_STATEMENT) {
+        if (node->children[2]->type != TYPE_INT) {
+            analyzer_error(node, "Expected loop condition to be int type");
+        }
+    }
+
     // finally, close a scope if we opened one earlier
     if (new_scope) {
         symbol_table_end_scope(table);
