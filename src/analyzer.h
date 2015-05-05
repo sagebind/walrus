@@ -43,7 +43,7 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table);
 Error analyzer_determine_expr_type(ASTNode* node, SymbolTable* table);
 
 /**
- * Checks and verifies a method call's arguments
+ * Checks and verifies a method call's arguments.
  *
  * @param  node  The method call node.
  * @param  table The symbol table to use.
