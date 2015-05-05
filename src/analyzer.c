@@ -54,6 +54,12 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
         symbol_table_begin_scope(table);
         new_scope = true;
     }
+
+    // if the node is a unary minus, do fixes if necessary
+    if (node->kind == AST_UNARY_OP && ((ASTOperation*)node)->operator[0] == '-') {
+        analyzer_fix_minus_int(&node);
+    }
+
     // if the node is a declaration of some sort, insert it into the symbol table
     if ((node->kind & 0xF) == AST_DECL && node->kind != AST_PARAM_DECL) {
         char* symbol = ((ASTDecl*)node)->identifier;
@@ -82,6 +88,36 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
     return E_SUCCESS;
 }
 
+/**
+ * Converts a unary minus operation on an int literal into a negative int if necessary.
+ */
+Error analyzer_fix_minus_int(ASTNode** node)
+{
+    // Node is a unary minus operation. Check if the operand (its only child) is
+    // an int literal.
+    if ((*node)->children[0]->kind == AST_INT_LITERAL) {
+        ASTNode* parent = (*node)->parent;
+        ASTNode* int_literal = (*node)->children[0];
+
+        // modify the int literal to be negative (lots of pointer stuff here :( )
+        *((int*)            int_literal->value) = 0 - *((int*)int_literal->value);
+        //  ^cast to int | pointer to value^          ^ dereference
+
+        // below we get rid of the operator node and replace it with the int literal
+        // remove the int from the operator
+        ast_remove_child(*node, int_literal);
+        // get the position of the operator in the parent's children list
+        unsigned int pos = ast_get_child_index(parent, *node);
+        // and add the int literal as the child instead
+        parent->children[pos] = int_literal;
+        // and destroy the operator
+        ast_destroy(node);
+
+        // also note that we update what "node" refers to in the parent function
+        // so that things don't blow up
+        *node = int_literal;
+    }
+}
 
 Error analyzer_check_if_boolean(ASTNode* node)
 {
@@ -99,7 +135,7 @@ Error analyzer_check_if_boolean(ASTNode* node)
 
     // else if (node->kind == AST_FOR_STATEMENT) {
     //     if(node->children[0] != INT) {
-    //         if(node->children[1] != INT)      
+    //         if(node->children[1] != INT)
     //             return analyzer_error(node, "First argument of for loop isn't an integer");
     //     }
     // }

@@ -33,6 +33,14 @@ Error analyzer_error(ASTNode* node, char* message);
 Error analyzer_analyze_node(ASTNode* node, SymbolTable* table);
 
 /**
+ * Converts a unary minus operation on an int literal into a negative int if necessary.
+ *
+ * @param  node  The root node of the operation.
+ * @return       An error code.
+ */
+Error analyzer_fix_minus_int(ASTNode** node);
+
+/**
  * Analyzes a node and checks to see if ti returns a boolean.
  *
  * @param  node 	The  node of an abstract syntax tree to analyze.
