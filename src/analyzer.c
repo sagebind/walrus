@@ -89,7 +89,7 @@ Error analyzer_check_if_boolean(ASTNode* node)
     //Need to make sure if() and for() statements contain a boolean value
     if (node->kind == AST_IF_STATEMENT) {
         for (int i = 0; i < node->child_count; ++i) {
-            if( ode->children[i]->kind == AST_BOOLEAN_LITERAL)
+            if(node->children[i]->kind == AST_BOOLEAN_LITERAL)
                 contains_boolean = true;
         }
         if(!contains_boolean)
@@ -97,12 +97,12 @@ Error analyzer_check_if_boolean(ASTNode* node)
     }
 
 
-    else if (node->kind == AST_FOR_STATEMENT) {
-        if(node->children[0] != INT) {
-            if(node->children[1] != INT)      
-                return analyzer_error(node, "First argument of for loop isn't an integer");
-        }
-    }
+    // else if (node->kind == AST_FOR_STATEMENT) {
+    //     if(node->children[0] != INT) {
+    //         if(node->children[1] != INT)      
+    //             return analyzer_error(node, "First argument of for loop isn't an integer");
+    //     }
+    // }
 
     return E_SUCCESS;
 }
