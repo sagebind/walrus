@@ -1128,6 +1128,7 @@ Error parser_parse_expr_part(Lexer* lexer, ASTNode** node)
 
         // create a unary expression node
         *node = ast_create_node(AST_UNARY_OP, lexer->context->file);
+        ((ASTOperation*)*node)->operator = next_token.lexeme;
 
         // set line and column
         (*node)->line = next_token.line;
