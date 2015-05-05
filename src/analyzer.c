@@ -31,7 +31,7 @@ Error analyzer_analyze(ASTNode* node, SymbolTable* table)
        symbol table as we go to find errors in the program */
 
     // the following node kinds open up a new scope level
-    if (node->kind == AST_CLASS_DECL || node->kind == AST_BLOCK) {
+    if (node->kind == AST_CLASS_DECL || node->kind == AST_METHOD_DECL || (node->kind == AST_BLOCK && node->parent->kind != AST_METHOD_DECL)) { // <-- kind of a kludge here
         // open up a new scope level
         symbol_table_begin_scope(table);
         new_scope = true;
@@ -53,7 +53,7 @@ Error analyzer_analyze(ASTNode* node, SymbolTable* table)
     }
 
     // if the node is a declaration of some sort, insert it into the symbol table
-    if ((node->kind & 0xF) == AST_DECL && node->kind != AST_PARAM_DECL) {
+    if ((node->kind & 0xF) == AST_DECL) {
         char* symbol = ((ASTDecl*)node)->identifier;
 
         // make sure the symbol doesn't already exist in the current scope
