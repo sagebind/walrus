@@ -9,6 +9,14 @@
 
 
 /**
+ * Optional symbol information.
+ */
+typedef enum {
+    SYMBOL_FUNCTION = 0x1,
+    SYMBOL_ARRAY    = 0x2
+} SymbolFlags;
+
+/**
  * Stores information about a single symbol.
  */
 typedef struct SymbolEntry {
@@ -23,9 +31,9 @@ typedef struct SymbolEntry {
     DataType type;
 
     /**
-     * Indicates if the symbol refers to a function.
+     * Extra symbol information.
      */
-    bool is_function;
+    SymbolFlags flags;
 
     /**
      * A pointer to the next entry when used in a map bucket.
@@ -128,13 +136,13 @@ SymbolEntry* symbol_table_lookup(SymbolTable* table, char* symbol);
 /**
  * Inserts a symbol into the symbol table.
  *
- * @param  table       The symbol table to insert into.
- * @param  symbol      The symbol to insert.
- * @param  type        The data type of the symbol.
- * @param  is_function Sets whether the symbol refers to a function.
- * @return             An error code.
+ * @param  table  The symbol table to insert into.
+ * @param  symbol The symbol to insert.
+ * @param  type   The data type of the symbol.
+ * @param  flags  Optional symbol flags.
+ * @return        An error code.
  */
-Error symbol_table_insert(SymbolTable* table, char* symbol, DataType type, bool is_function);
+Error symbol_table_insert(SymbolTable* table, char* symbol, DataType type, SymbolFlags flags);
 
 /**
  * Pretty-prints a symbol table.

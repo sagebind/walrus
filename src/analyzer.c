@@ -64,8 +64,14 @@ Error analyzer_analyze(ASTNode* node, SymbolTable* table)
         }
 
         // insert the declaration into the symbol table
-        bool is_function = node->kind == AST_METHOD_DECL; // set if it is a function
-        symbol_table_insert(table, symbol, node->type, is_function);
+        SymbolFlags flags = 0;
+        if (node->kind == AST_METHOD_DECL) { // set if it is a function
+            flags |= SYMBOL_FUNCTION;
+        }
+        if (((ASTDecl*)node)->length) { // see if it is an array
+            flags |= SYMBOL_ARRAY;
+        }
+        symbol_table_insert(table, symbol, node->type, flags);
     }
 
     // analyze each child node

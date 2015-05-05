@@ -130,7 +130,7 @@ SymbolEntry* symbol_table_lookup(SymbolTable* table, char* symbol)
 /**
  * Inserts a symbol into the symbol table.
  */
-Error symbol_table_insert(SymbolTable* table, char* symbol, DataType type, bool is_function)
+Error symbol_table_insert(SymbolTable* table, char* symbol, DataType type, SymbolFlags flags)
 {
     if (table->stack_top == NULL) {
         return error(E_BAD_POINTER, "No symbol table scope to insert into.");
@@ -140,7 +140,7 @@ Error symbol_table_insert(SymbolTable* table, char* symbol, DataType type, bool 
     SymbolEntry* entry = malloc(sizeof(SymbolEntry));
     entry->symbol = symbol;
     entry->type = type;
-    entry->is_function = is_function;
+    entry->flags = flags;
     entry->next = NULL;
 
     // get the hash for the symbol
@@ -163,7 +163,12 @@ void symbol_table_print(SymbolTable* table)
     for (SymbolMap* map = table->sheaf_tail; map != NULL; map = map->previous) {
         for (int i = 0; i < SYMBOL_MAP_SIZE; i++) {
             for (SymbolEntry* entry = map->entries[i]; entry != NULL; entry = entry->next) {
-                printf("%-10s | %-5d | %s%s\r\n", entry->symbol, scope_id, data_type_string(entry->type), entry->is_function ? ", function" : "");
+                printf("%-10s | %-5d | %s%s%s\r\n",
+                    entry->symbol,
+                    scope_id,
+                    data_type_string(entry->type),
+                    (entry->flags & SYMBOL_FUNCTION) == SYMBOL_FUNCTION ? ", function" : "",
+                    (entry->flags & SYMBOL_ARRAY) == SYMBOL_ARRAY ? ", array" : "");
             }
         }
 
