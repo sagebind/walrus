@@ -296,7 +296,47 @@ Error analyzer_determine_expr_type(ASTNode* node, SymbolTable* table)
  * Checks and verifies a method call's arguments.
  */
 Error analyzer_check_method_arguments(ASTNode* node, SymbolTable* table)
-{}
+{
+    // first, we need to find the definition of the method being called
+    char* method_name = ((ASTReference*)node)->identifier;
+
+    // find the class node
+    ASTNode* class_node = node->parent;
+    while (class_node->kind != AST_CLASS_DECL) {
+        class_node = class_node->parent;
+    }
+
+    // now look for the correct method definition
+    ASTNode* method_node = NULL;
+    for (int i = 0; i < class_node->child_count; ++i) {
+        if (class_node->children[i]->kind == AST_METHOD_DECL) {
+            if (strcmp(((ASTDecl*)class_node->children[i])->identifier, method_name) == 0) {
+                method_node = class_node->children[i];
+            }
+        }
+    }
+
+    if (method_node == NULL) {
+        return analyzer_error(node, "Method not defined");
+    }
+
+    // get the parameter count
+    unsigned int parameter_count = method_node->child_count - 1;
+
+    // if number of args is not the same as the number of parameters, error
+    if (node->child_count != parameter_count) {
+        return analyzer_error(node, "Wrong number of method arguments");
+    }
+
+    // now verify each parameter type by hand
+    for (int i = 0; i < parameter_count; ++i) {
+        if (node->children[i]->type != method_node->children[i]->type) {
+            analyzer_error(node->children[i], "Parameter type mismatch");
+        }
+    }
+
+    return E_SUCCESS;
+}
 
 /**
  * Converts a unary minus operation on an int literal into a negative int if necessary.
