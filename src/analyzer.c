@@ -81,7 +81,14 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
         // make sure the symbol doesn't already exist in the current scope
         if (symbol_table_exists_local(table, symbol)) {
             // symbol already exists
-            return analyzer_error(node, "Symbol already declared");
+            analyzer_error(node, "Symbol already declared");
+        }
+
+        // if a field is an array, validate the length
+        if (node->kind == AST_FIELD_DECL && (((ASTDecl*)node)->flags & SYMBOL_ARRAY) == SYMBOL_ARRAY) {
+            if (((ASTDecl*)node)->length < 1) {
+                analyzer_error(node, "Invalid array size");
+            }
         }
 
         // insert the declaration into the symbol table
