@@ -52,6 +52,27 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
     /* we need to walk and analyze the abstract syntax tree here and fill up the
        symbol table as we go to find errors in the program */
 
+    // if the node is a declaration of some sort, insert it into the symbol table
+    if ((node->kind & 0xF) == AST_DECL) {
+        char* symbol = ((ASTDecl*)node)->identifier;
+
+        // make sure the symbol doesn't already exist in the current scope
+        if (symbol_table_exists_local(table, symbol)) {
+            // symbol already exists
+            analyzer_error(node, "Symbol already declared");
+        }
+
+        // if a field is an array, validate the length
+        if (node->kind == AST_FIELD_DECL && (((ASTDecl*)node)->flags & SYMBOL_ARRAY) == SYMBOL_ARRAY) {
+            if (((ASTDecl*)node)->length < 1) {
+                analyzer_error(node, "Invalid array size");
+            }
+        }
+
+        // insert the declaration into the symbol table
+        symbol_table_insert(table, symbol, node->type, ((ASTDecl*)node)->flags);
+    }
+
     // the following node kinds open up a new scope level
     if (node->kind == AST_CLASS_DECL || node->kind == AST_METHOD_DECL || node->kind == AST_FOR_STATEMENT || (node->kind == AST_BLOCK && node->parent->kind != AST_METHOD_DECL && node->parent->kind != AST_FOR_STATEMENT)) {
         // kind of a kludge here; open up for and method scopes one level up
@@ -106,27 +127,6 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
         }
     }
 
-    // if the node is a declaration of some sort, insert it into the symbol table
-    if ((node->kind & 0xF) == AST_DECL) {
-        char* symbol = ((ASTDecl*)node)->identifier;
-
-        // make sure the symbol doesn't already exist in the current scope
-        if (symbol_table_exists_local(table, symbol)) {
-            // symbol already exists
-            analyzer_error(node, "Symbol already declared");
-        }
-
-        // if a field is an array, validate the length
-        if (node->kind == AST_FIELD_DECL && (((ASTDecl*)node)->flags & SYMBOL_ARRAY) == SYMBOL_ARRAY) {
-            if (((ASTDecl*)node)->length < 1) {
-                analyzer_error(node, "Invalid array size");
-            }
-        }
-
-        // insert the declaration into the symbol table
-        symbol_table_insert(table, symbol, node->type, ((ASTDecl*)node)->flags);
-    }
-
     // analyze each child node
     for (int i = 0; i < node->child_count; ++i) {
         analyzer_analyze_node(node->children[i], table);
@@ -179,6 +179,7 @@ Error analyzer_determine_expr_type(ASTNode* node, SymbolTable* table)
 
         if (entry == NULL) {
             analyzer_error(node, "Unknown symbol");
+            symbol_table_print(table);
         } else {
             // if location is an array, we must have a child expression as the
             // accessor
