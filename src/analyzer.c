@@ -108,7 +108,13 @@ Error analyzer_determine_expr_type(ASTNode* node, SymbolTable* table)
         if (entry == NULL) {
             analyzer_error(node, "Unknown symbol");
         } else {
-            node->type = entry->type;
+            // if location is an array, we must have a child expression as the
+            // accessor
+            if ((entry->flags & SYMBOL_ARRAY) == SYMBOL_ARRAY && node->child_count < 1) {
+                analyzer_error(node, "Array element not specified");
+            } else {
+                node->type = entry->type;
+            }
         }
     }
 
