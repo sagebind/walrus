@@ -49,9 +49,6 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
 {
     bool new_scope = false;
 
-    /* we need to walk and analyze the abstract syntax tree here and fill up the
-       symbol table as we go to find errors in the program */
-
     // if the node is a declaration of some sort, insert it into the symbol table
     if ((node->kind & 0xF) == AST_DECL) {
         char* symbol = ((ASTDecl*)node)->identifier;
@@ -179,7 +176,6 @@ Error analyzer_determine_expr_type(ASTNode* node, SymbolTable* table)
 
         if (entry == NULL) {
             analyzer_error(node, "Unknown symbol");
-            symbol_table_print(table);
         } else {
             // if location is an array, we must have a child expression as the
             // accessor
@@ -369,26 +365,4 @@ Error analyzer_fix_minus_int(ASTNode** node)
         // so that things don't blow up
         *node = int_literal;
     }
-}
-
-/**
- * Makes sure if statements and for loops contain a boolean argument
- */
-Error analyzer_check_if_boolean(ASTNode* node)
-{
-    bool contains_boolean = false;
-    if (node->kind == AST_IF_STATEMENT || node->kind == AST_FOR_STATEMENT) {
-        for (int i = 0; i < node->child_count; ++i) {
-            if(node->children[i]->kind == AST_BOOLEAN_LITERAL)
-                contains_boolean = true;
-        }
-        //If it's an if statement without a boolean, return this
-        if(!contains_boolean && node->kind == AST_IF_STATEMENT)
-            return analyzer_error(node, "If statement does not contain a boolean");
-        //If it's a for loop without a boolean, return this
-        else if(!contains_boolean && node->kind == AST_FOR_STATEMENT)
-            return analyzer_error(node, "For loop does not contain a boolean");
-    }
-
-    return E_SUCCESS;
 }
