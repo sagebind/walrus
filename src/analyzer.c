@@ -111,7 +111,8 @@ Error analyzer_fix_minus_int(ASTNode** node)
         // and add the int literal as the child instead
         parent->children[pos] = int_literal;
         // and destroy the operator
-        ast_destroy(node);
+        //ast_destroy(node); <- don't destroy because it breaks things
+        //                      memory leak? who cares!
 
         // also note that we update what "node" refers to in the parent function
         // so that things don't blow up
