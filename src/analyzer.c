@@ -54,7 +54,7 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
         symbol_table_begin_scope(table);
         new_scope = true;
     }
-
+\\\
     // if the node is a declaration of some sort, insert it into the symbol table
     if ((node->kind & 0xF) == AST_DECL && node->kind != AST_PARAM_DECL) {
         char* symbol = ((ASTDecl*)node)->identifier;
@@ -83,7 +83,27 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
     return E_SUCCESS;
 }
 
+
 Error analyzer_check_if_boolean(ASTNode* node)
 {
+    bool contains_boolean = false;
     //Need to make sure if() and for() statements contain a boolean value
+    if (node->kind == AST_IF_STATEMENT) {
+        for (int i = 0; i < node->child_count; ++i) {
+            if( ode->children[i]->kind == AST_BOOLEAN_LITERAL)
+                contains_boolean = true;
+        }
+        if(!contains_boolean)
+            return analyzer_error(node, "If statement does not contain a boolean");
+    }
+
+
+    else if (node->kind == AST_FOR_STATEMENT) {
+        if(node->children[0] != INT) {
+            if(node->children[1] != INT)      
+                return analyzer_error(node, "First argument of for loop isn't an integer");
+        }
+    }
+
+    return E_SUCCESS;
 }
