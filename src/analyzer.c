@@ -6,6 +6,27 @@
 
 
 /**
+ * Analyzes and optimizes an abstract syntax tree.
+ */
+Error analyzer_analyze(ASTNode* node, SymbolTable* table)
+{
+    // create global scope
+    symbol_table_begin_scope(table);
+
+    // analyze the root
+    analyzer_analyze_node(node, table);
+
+    // make sure a main method exists
+    SymbolEntry* main = symbol_table_lookup(table, "main");
+    if (main == NULL || (main->flags & SYMBOL_FUNCTION) == 0) {
+        analyzer_error(node, "No main method defined");
+    }
+
+    // close global scope
+    symbol_table_end_scope(table);
+}
+
+/**
  * Displays an analyzer error.
  */
 Error analyzer_error(ASTNode* node, char* message)
@@ -24,7 +45,7 @@ Error analyzer_error(ASTNode* node, char* message)
 /**
  * Recursively analyzes and optimizes an abstract syntax tree subtree.
  */
-Error analyzer_analyze(ASTNode* node, SymbolTable* table)
+Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
 {
     bool new_scope = false;
 
@@ -76,7 +97,7 @@ Error analyzer_analyze(ASTNode* node, SymbolTable* table)
 
     // analyze each child node
     for (int i = 0; i < node->child_count; ++i) {
-        analyzer_analyze(node->children[i], table);
+        analyzer_analyze_node(node->children[i], table);
     }
 
     // now that child nodes have been examined, verify if and for statements have

@@ -7,6 +7,15 @@
 
 
 /**
+ * Analyzes and optimizes an abstract syntax tree.
+ *
+ * @param  node  The root node of an abstract syntax tree to analyze.
+ * @param  table The symbol table.
+ * @return       An error code.
+ */
+Error analyzer_analyze(ASTNode* node, SymbolTable* table);
+
+/**
  * Displays an analyzer error.
  *
  * @param  node    The node that has you want to fight with.
@@ -22,7 +31,7 @@ Error analyzer_error(ASTNode* node, char* message);
  * @param  table The symbol table.
  * @return       An error code.
  */
-Error analyzer_analyze(ASTNode* node, SymbolTable* table);
+Error analyzer_analyze_node(ASTNode* node, SymbolTable* table);
 
 /**
  * Determines the type of an expression.
