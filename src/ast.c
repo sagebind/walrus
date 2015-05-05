@@ -51,6 +51,25 @@ void* ast_create_node(ASTNodeKind kind, char* file)
 }
 
 /**
+ * Gets the position of a child in a parent node's child list.
+ */
+int (ast_get_child_index)(ASTNode* parent, ASTNode* child)
+{
+    // make sure pointer isn't null
+    if (parent == NULL || child == NULL) {
+        return error(E_BAD_POINTER, "Bad pointer");
+    }
+
+    for (int i = 0; i < parent->child_count; ++i) {
+        if (parent->children[i] == child) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+/**
  * Adds an abstract syntax tree node to another node as a child.
  */
 Error (ast_add_child)(ASTNode* parent, ASTNode* child)

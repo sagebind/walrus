@@ -7,6 +7,7 @@
 #include "types.h"
 
 // macros for doing proper node type casting for us
+#define ast_get_child_index(parent, child) (ast_get_child_index)((ASTNode*)parent, (ASTNode*)child)
 #define ast_add_child(parent, child) (ast_add_child)((ASTNode*)parent, (ASTNode*)child)
 #define ast_remove_child(parent, child_index) (ast_add_child)((ASTNode*)parent, child_index)
 
@@ -163,6 +164,16 @@ typedef struct {
  * are returned.
  */
 void* ast_create_node(ASTNodeKind kind, char* file);
+
+/**
+ * Gets the position of a child in a parent node's child list.
+ *
+ * @param  parent The parent node.
+ * @param  child  The child node.
+ * @return        The index of the child, or -1 if the child does not belong to
+ *                the parent.
+ */
+int (ast_get_child_index)(ASTNode* parent, ASTNode* child);
 
 /**
  * Adds an abstract syntax tree node to another node as a child.
