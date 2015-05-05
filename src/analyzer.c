@@ -106,11 +106,6 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
         }
     }
 
-    // if the node is an assignment operator, check to make sure that the datatype is equal on both sides
-    if (node->kind == AST_ASSIGN_OP && ((ASTOperation*)node)->operator[0] == '=') {
-        analyzer_assignment_datatype_check(&node);
-    }
-
     // if the node is a declaration of some sort, insert it into the symbol table
     if ((node->kind & 0xF) == AST_DECL) {
         char* symbol = ((ASTDecl*)node)->identifier;
@@ -293,14 +288,6 @@ Error analyzer_determine_expr_type(ASTNode* node, SymbolTable* table)
 }
 
 /**
- * Checks to make sure the datatype on either side of the assignment operator is equal.
- */
-Error analyzer_assignment_datatype_check(ASTNode** node)
-{
-
-}
-
-/**
  * Converts a unary minus operation on an int literal into a negative int if necessary.
  */
 Error analyzer_fix_minus_int(ASTNode** node)
@@ -351,19 +338,5 @@ Error analyzer_check_if_boolean(ASTNode* node)
             return analyzer_error(node, "For loop does not contain a boolean");
     }
 
-    return E_SUCCESS;
-}
-
-/**
- * Makes sure a variable exists when called
- */
-Error analyzer_check_if_variable_exists(ASTNode* node) //#2
-{
-    if(node->kind == AST_REFERENCE) {
-        ASTReference*  new_node; //Do I need to do this and the following line? Or can I just yolo cast the same variable somehow?
-        new_node = (ASTReference*) node;
-        if(new_node->identifier==NULL)
-            return analyzer_error(node, "Variable has not been intialized");
-    }
     return E_SUCCESS;
 }
