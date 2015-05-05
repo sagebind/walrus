@@ -42,6 +42,11 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table);
 Error analyzer_determine_expr_type(ASTNode* node, SymbolTable* table);
 
 /**
+ * Checks to make sure the datatype on either side of the assignment operator is equal.
+ */
+Error analyzer_assignment_datatype_check(ASTNode** node);
+
+/**
  * Converts a unary minus operation on an int literal into a negative int if necessary.
  *
  * @param  node  The root node of the operation.
