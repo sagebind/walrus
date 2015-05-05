@@ -54,3 +54,5 @@ Stephen actually got the idea from the PHP interpreter's implementation of an AS
 - If you discover problems in your project in your own testing that you are unable to fix, but are not exposed by the provided test cases, describe the problem as specifically as possible and as much as you can about its cause. If this causes your project to fail hidden test cases, you may still be able to receive some credit for considering the problem. If this problem is not revealed by the hidden test cases, then you will not be penalized for it.
 
 As far as we are aware there are no issues with any aspects of our semantic analyzer, and all the provided test cases run without error.
+
+However, our compiler does not write its debugging information to a file when `--debug` is given as an option. It is printed to the console instead; originally planned to just be a temporary solution.

@@ -41,5 +41,7 @@ To just run the scanner, set the `-s` option. You can also pass the `-T` option 
 Below are all command line options (also accessible with `--help`):
 
 * `--help`: Displays the help message
+* `--debug`: Outputs debugging information
+* `-p`: Scan and parse, but do not analyze
 * `-s`: Scan only; do not parse or compile
 * `-T`, `--print-tokens`: Print out tokens as they are scanned
