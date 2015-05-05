@@ -55,6 +55,11 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
         new_scope = true;
     }
 
+    // if the node is some kind of expression, determine its type now
+    if ((node->kind & 0xF) == AST_REFERENCE || (node->kind & 0xF) == AST_OP_EXPR || node->kind == AST_INT_LITERAL || node->kind == AST_BOOLEAN_LITERAL || node->kind == AST_CHAR_LITERAL || node->kind == AST_STRING_LITERAL) {
+        analyzer_determine_expr_type(node, table);
+    }
+
     // if the node is a unary minus, do fixes if necessary
     if (node->kind == AST_UNARY_OP && ((ASTOperation*)node)->operator[0] == '-') {
         analyzer_fix_minus_int(&node);
@@ -83,6 +88,49 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
     // finally, close a scope if we opened one earlier
     if (new_scope) {
         symbol_table_end_scope(table);
+    }
+
+    return E_SUCCESS;
+}
+
+/**
+ * Determines the type of an expression.
+ *
+ * Walks down the expression until the type can be determined. Walks back up,
+ * setting types and checking for errors.
+ */
+Error analyzer_determine_expr_type(ASTNode* node, SymbolTable* table)
+{
+    // if type is already determined, stop
+    if (node->type != TYPE_NONE) {
+        return E_SUCCESS;
+    }
+
+    // if node is a reference to something, fetch its type from the symbol table
+    if ((node->kind & 0xF) == AST_REFERENCE) {
+        char* symbol = ((ASTReference*)node)->identifier;
+        SymbolEntry* entry = symbol_table_lookup(table, symbol);
+
+        if (entry == NULL) {
+            analyzer_error(node, "Unknown symbol");
+        } else {
+            node->type = entry->type;
+        }
+    }
+
+    // assignments "return" the value that is assigned, so the type is inherited
+    if (node->kind == AST_ASSIGN_OP) {
+        // determine operand types
+        analyzer_determine_expr_type(node->children[0], table);
+        analyzer_determine_expr_type(node->children[1], table);
+
+        // make sure types match; that the value assigned matches the variable type
+        if (node->children[0]->type != node->children[1]->type) {
+            analyzer_error(node, "Assignment value does not match location type");
+        }
+
+        // inherit types
+        node->type = node->children[0]->type;
     }
 
     return E_SUCCESS;

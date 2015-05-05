@@ -33,6 +33,15 @@ Error analyzer_error(ASTNode* node, char* message);
 Error analyzer_analyze_node(ASTNode* node, SymbolTable* table);
 
 /**
+ * Determines the type of an expression.
+ *
+ * @param  node  The node to start from.
+ * @param  table The symbol table to use.
+ * @return       An error code.
+ */
+Error analyzer_determine_expr_type(ASTNode* node, SymbolTable* table);
+
+/**
  * Converts a unary minus operation on an int literal into a negative int if necessary.
  *
  * @param  node  The root node of the operation.
