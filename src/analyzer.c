@@ -182,6 +182,16 @@ Error analyzer_determine_expr_type(ASTNode* node, SymbolTable* table)
             analyzer_error(node, "Assignment value does not match location type");
         }
 
+        // += and -= can only be used on ints
+        if (((ASTOperation*)node)->operator[0] != '=') {
+            if (node->children[0]->type != TYPE_INT) {
+                analyzer_error(node, "Left operand not an int");
+            }
+            if (node->children[1]->type != TYPE_INT) {
+                analyzer_error(node, "Right operand not an int");
+            }
+        }
+
         // inherit types
         node->type = node->children[0]->type;
     }
