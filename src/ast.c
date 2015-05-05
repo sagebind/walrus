@@ -192,6 +192,9 @@ static Error ast_print_subtree(ASTNode* parent, const char* prefix, bool is_tail
         case AST_VAR_DECL:
             printf("variable { identifier: %s }", ((ASTDecl*)parent)->identifier);
             break;
+        case AST_PARAM_DECL:
+            printf("parameter { identifier: %s }", ((ASTDecl*)parent)->identifier);
+            break;
 
         // reference kinds
         case AST_LOCATION:
