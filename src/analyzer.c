@@ -65,7 +65,7 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
     }
 
     // if the node is some kind of expression, determine its type now
-    if ((node->kind & 0xF) == AST_REFERENCE || (node->kind & 0xF) == AST_OP_EXPR || node->kind == AST_INT_LITERAL || node->kind == AST_BOOLEAN_LITERAL || node->kind == AST_CHAR_LITERAL || node->kind == AST_STRING_LITERAL) {
+    if ((node->kind & 0xF) == AST_REFERENCE || (node->kind & 0xF) == AST_OP_EXPR || node->kind == AST_RETURN_STATEMENT || node->kind == AST_INT_LITERAL || node->kind == AST_BOOLEAN_LITERAL || node->kind == AST_CHAR_LITERAL || node->kind == AST_STRING_LITERAL) {
         analyzer_determine_expr_type(node, table);
     }
 
@@ -83,6 +83,13 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
             if (node->children[0]->type != TYPE_INT) {
                 analyzer_error(node, "Array index must be an integer");
             }
+        }
+    }
+
+    // make sure returns match the types of the functions
+    if (node->kind == AST_RETURN_STATEMENT) {
+        if (node->type != node->parent->type) {
+            analyzer_error(node, "Return value type must match method type");
         }
     }
 
@@ -256,6 +263,16 @@ Error analyzer_determine_expr_type(ASTNode* node, SymbolTable* table)
                 analyzer_error(node, "Right operand not boolean");
             }
             node->type = TYPE_BOOLEAN;
+        }
+    }
+
+    // return statement
+    if (node->kind == AST_RETURN_STATEMENT) {
+        // inherit value returned
+        if (node->child_count > 0) {
+            node->type = node->children[0]->type;
+        } else {
+            node->type = TYPE_VOID;
         }
     }
 
