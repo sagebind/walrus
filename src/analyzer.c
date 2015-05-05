@@ -5,24 +5,6 @@
 
 
 /**
- * Analyzes and optimizes a program's abstract syntax tree and looks for errors.
- */
-Error analyzer_analyze(ASTNode* ast)
-{
-    // create a symbol table
-    SymbolTable* table = symbol_table_create();
-
-    // begin recursively analyzing the ast
-    analyzer_analyze_node(ast, table);
-
-    // destroy the symbol table (even if the analyzer encountered an error)
-    symbol_table_destroy(&table);
-
-    // propagate errors
-    return error_get_last();
-}
-
-/**
  * Displays an analyzer error.
  */
 Error analyzer_error(ASTNode* node, char* message)
@@ -41,7 +23,7 @@ Error analyzer_error(ASTNode* node, char* message)
 /**
  * Recursively analyzes and optimizes an abstract syntax tree subtree.
  */
-Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
+Error analyzer_analyze(ASTNode* node, SymbolTable* table)
 {
     bool new_scope = false;
 
@@ -87,7 +69,7 @@ Error analyzer_analyze_node(ASTNode* node, SymbolTable* table)
 
     // analyze each child node
     for (int i = 0; i < node->child_count; ++i) {
-        analyzer_analyze_node(node->children[i], table);
+        analyzer_analyze(node->children[i], table);
     }
 
     // finally, close a scope if we opened one earlier
@@ -123,12 +105,13 @@ Error analyzer_determine_expr_type(ASTNode* node, SymbolTable* table)
         }
     }
 
+    // determine types for child nodes next
+    for (int i = 0; i < node->child_count; ++i) {
+        analyzer_determine_expr_type(node->children[i], table);
+    }
+
     // assignments "return" the value that is assigned, so the type is inherited
     if (node->kind == AST_ASSIGN_OP) {
-        // determine operand types
-        analyzer_determine_expr_type(node->children[0], table);
-        analyzer_determine_expr_type(node->children[1], table);
-
         // make sure types match; that the value assigned matches the variable type
         if (node->children[0]->type != node->children[1]->type) {
             analyzer_error(node, "Assignment value does not match location type");

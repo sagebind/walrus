@@ -85,15 +85,27 @@ Error walrus_compile(Options options)
         // go ahead and parse the input
         else {
             ASTNode* ast = parser_parse(lexer);
+            SymbolTable* table;
 
             if (!options.parse_only) {
+                // create a symbol table
+                table = symbol_table_create();
+
                 // analyze and optimize the ast
-                analyzer_analyze(ast);
+                analyzer_analyze(ast, table);
             }
 
             // print the ast if the user wants to see it
             if (options.debug) {
                 ast_print(ast);
+                if (!options.parse_only) {
+                    symbol_table_print(table);
+                }
+            }
+
+            // destroy table
+            if (!options.parse_only) {
+                symbol_table_destroy(&table);
             }
 
             // nothing left to do (yet); destroy the tree

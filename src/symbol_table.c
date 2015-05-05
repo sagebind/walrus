@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "error.h"
@@ -150,6 +151,24 @@ Error symbol_table_insert(SymbolTable* table, char* symbol, DataType type, bool 
     table->stack_top->map->entries[hash] = entry;
 
     return E_SUCCESS;
+}
+
+/**
+ * Pretty-prints a symbol table.
+ */
+void symbol_table_print(SymbolTable* table)
+{
+    int scope_id = 0;
+    printf("symbol     | scope | type\r\n--------------------------------\r\n");
+    for (SymbolMap* map = table->sheaf_tail; map != NULL; map = map->previous) {
+        for (int i = 0; i < SYMBOL_MAP_SIZE; i++) {
+            for (SymbolEntry* entry = map->entries[i]; entry != NULL; entry = entry->next) {
+                printf("%-10s | %-5d | %s%s\r\n", entry->symbol, scope_id, data_type_string(entry->type), entry->is_function ? ", function" : "");
+            }
+        }
+
+        scope_id++;
+    }
 }
 
 /**

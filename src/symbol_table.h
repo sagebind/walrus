@@ -137,6 +137,13 @@ SymbolEntry* symbol_table_lookup(SymbolTable* table, char* symbol);
 Error symbol_table_insert(SymbolTable* table, char* symbol, DataType type, bool is_function);
 
 /**
+ * Pretty-prints a symbol table.
+ *
+ * @param table The symbol table to print.
+ */
+void symbol_table_print(SymbolTable* table);
+
+/**
  * Destroys a symbol table and all of its contents.
  *
  * @param  table The symbol table to destroy.

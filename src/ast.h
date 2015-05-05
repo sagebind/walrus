@@ -211,12 +211,4 @@ Error ast_print(ASTNode* parent);
  */
 Error ast_destroy(ASTNode** node);
 
-/**
- * Gets a string name for a data type.
- *
- * @param  type The data type in question.
- * @return      A string naming the given type.
- */
-char* data_type_string(DataType type);
-
 #endif
