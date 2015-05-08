@@ -5,6 +5,7 @@
 #include <string.h>
 #include "analyzer.h"
 #include "ast.h"
+#include "iloc_generator.h"
 #include "lexer.h"
 #include "parser.h"
 #include "scanner.h"
@@ -45,76 +46,88 @@ int main(int argc, char* const* argv)
     }
 
     // run the compiler
-    walrus_compile(options);
+    walrus_compile_all(options);
 
     // exit with the last occurred error code
     return error_get_last();
 }
 
 /**
+ * Compiles a given file.
+ */
+Error walrus_compile(char* filename, Options options)
+{
+    // open the file in a scanner
+    ScannerContext* context = scanner_open(filename);
+
+    // check for errors
+    if (context == NULL) {
+        return error(E_FILE_NOT_FOUND, "The file '%s' could not be opened.", filename);
+    }
+
+    // create a lexer for the file
+    Lexer* lexer = lexer_create(context);
+
+    // manually scan
+    if (options.scan_only) {
+        Token token;
+        do {
+            token = lexer_next(lexer);
+
+            if (options.print_tokens && token.type != T_ILLEGAL && token.type != T_EOF) {
+                lexer_print_token(token);
+            }
+        } while (token.type != T_EOF);
+
+        // that's all we need to do; clean up and go
+        lexer_destroy(&lexer);
+        return E_SUCCESS;
+    }
+
+    // parse the program into an abstract syntax tree
+    ASTNode* ast = parser_parse(lexer);
+    SymbolTable* table;
+
+    if (!options.parse_only) {
+        // create a symbol table
+        table = symbol_table_create();
+
+        // analyze and optimize the ast
+        analyzer_analyze(ast, table);
+    }
+
+    // print the ast if the user wants to see it
+    if (options.debug) {
+        ast_print(ast);
+        if (!options.parse_only) {
+            symbol_table_print(table);
+        }
+    }
+
+    // if the program is perfect, start code generation
+    if (!error_get_last()) {
+        ILOCProgram* program = iloc_generator_generate(ast);
+    }
+
+    // destroy table
+    if (!options.parse_only) {
+        symbol_table_destroy(&table);
+    }
+
+    // clean up after ourselves
+    ast_destroy(&ast);
+    lexer_destroy(&lexer);
+    scanner_close(&context);
+}
+
+/**
  * Runs the compiler on all given files.
  */
-Error walrus_compile(Options options)
+Error walrus_compile_all(Options options)
 {
     // run on all given input files
     for (int i = 0; i < options.files_count; i++) {
-        // open the file in a scanner
-        ScannerContext* context = scanner_open(options.files[i]);
-
-        // check for errors
-        if (context == NULL) {
-            error(E_FILE_NOT_FOUND, "The file '%s' could not be opened.", options.files[i]);
-            continue;
-        }
-
-        // create a lexer for the file
-        Lexer* lexer = lexer_create(context);
-
-        // manually scan
-        if (options.scan_only) {
-            Token token;
-            do {
-                token = lexer_next(lexer);
-
-                if (options.print_tokens && token.type != T_ILLEGAL && token.type != T_EOF) {
-                    lexer_print_token(token);
-                }
-            } while (token.type != T_EOF);
-        }
-
-        // go ahead and parse the input
-        else {
-            ASTNode* ast = parser_parse(lexer);
-            SymbolTable* table;
-
-            if (!options.parse_only) {
-                // create a symbol table
-                table = symbol_table_create();
-
-                // analyze and optimize the ast
-                analyzer_analyze(ast, table);
-            }
-
-            // print the ast if the user wants to see it
-            if (options.debug) {
-                ast_print(ast);
-                if (!options.parse_only) {
-                    symbol_table_print(table);
-                }
-            }
-
-            // destroy table
-            if (!options.parse_only) {
-                symbol_table_destroy(&table);
-            }
-
-            // nothing left to do (yet); destroy the tree
-            ast_destroy(&ast);
-        }
-
-        // clean up after ourselves
-        lexer_destroy(&lexer);
-        scanner_close(&context);
+        walrus_compile(options.files[i], options);
     }
 
     return E_SUCCESS;

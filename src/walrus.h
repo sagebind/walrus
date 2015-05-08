@@ -30,12 +30,21 @@ typedef struct {
 int main(int argc, char* const* argv);
 
 /**
+ * Compiles a given file.
+ *
+ * @param  filename The name of the file to compile.
+ * @param  options  Compiler flags and options.
+ * @return          An error code.
+ */
+Error walrus_compile(char* filename, Options options);
+
+/**
  * Runs the compiler on all given files.
  *
  * @param  options Compiler flags and options.
  * @return         An error code.
  */
-Error walrus_compile(Options options);
+Error walrus_compile_all(Options options);
 
 /**
  * Parses command-line arguments and returns an options struct containing the meaning of the arguments.
