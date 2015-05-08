@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "error.h"
 #include "scanner.h"
 
 
@@ -14,6 +15,7 @@ ScannerContext* scanner_open(char* filename)
     // open the given file
     FILE* stream = fopen(filename, "rb");
     if (stream == NULL) {
+        error(E_FILE_NOT_FOUND, "The file '%s' could not be opened.", filename);
         return NULL;
     }
 
@@ -43,6 +45,7 @@ ScannerContext* scanner_open_string(char* string)
     // create a stream for the char array
     FILE* stream = fmemopen(string, strlen(string), "rb");
     if (stream == NULL) {
+        error(E_FILE_NOT_FOUND, "Could not read input string.");
         return NULL;
     }
 

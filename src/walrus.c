@@ -60,9 +60,9 @@ Error walrus_compile(char* filename, Options options)
     // open the file in a scanner
     ScannerContext* context = scanner_open(filename);
 
-    // check for errors
-    if (context == NULL) {
-        return error(E_FILE_NOT_FOUND, "The file '%s' could not be opened.", filename);
+    // stop now if an error occurred
+    if (error_get_last()) {
+        return error_get_last();
     }
 
     // create a lexer for the file
