@@ -104,13 +104,13 @@ Error walrus_compile(char* filename, Options options)
         }
     }
 
-    // if the program is perfect, start code generation
-    if (!error_get_last()) {
-        ILOCProgram* program = iloc_generator_generate(ast);
-    }
-
-    // destroy table
     if (!options.parse_only) {
+        // if the program is perfect, start code generation
+        if (!error_get_last()) {
+            ILOCProgram* program = iloc_generator_generate(ast);
+        }
+
+        // destroy table
         symbol_table_destroy(&table);
     }
 
