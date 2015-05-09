@@ -369,14 +369,12 @@ Error analyzer_fix_minus_int(ASTNode** node)
 }
 
 /**
- * Pretty-prints an abstract syntax tree to the console.
+ * Writes an abstract syntax tree XML.
  *
+ * @param  stream  A file stream to write to.
  * @param  parent  The subtree to print.
- * @param  prefix  The string prefix for the current level.
- * @param  is_tail Indicates if the current level is a tail child to the parent.
+ * @param  depth   The indentation depth.
  * @return         An error code.
- *
- * Here there be dragons, because string manipulation is not fun in C.
  */
 static Error analyzer_write_subtree(FILE* stream, ASTNode* parent, int depth)
 {
