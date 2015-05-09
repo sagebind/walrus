@@ -33,3 +33,6 @@ obj/
 
 # Sublime files
 *.sublime-workspace
+
+# Walrus debug files
+.dbg
