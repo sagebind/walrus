@@ -110,10 +110,10 @@ Error iloc_generator_node(ILOCProgram* program, ASTNode* root);
 /**
  * Writes an ILOC assembly program to file.
  *
- * @param program An ILOC program to write.
- * @param file    An open file stream to write to.
+ * @param program  An ILOC program to write.
+ * @param filename The name of a file to write to.
  */
-void iloc_generator_write(ILOCProgram* program, FILE* file);
+void iloc_generator_write(ILOCProgram* program, char* filename);
 
 /**
  * Creates an ILOC assembly instruction.

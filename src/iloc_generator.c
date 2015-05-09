@@ -26,13 +26,13 @@ Error iloc_generator_node(ILOCProgram* program, ASTNode* root)
 /**
  * Writes an ILOC assembly program to file.
  */
-void iloc_generator_write(ILOCProgram* program, FILE* file)
+void iloc_generator_write(ILOCProgram* program, char* filename)
 {}
 
 /**
  * Creates an ILOC assembly instruction.
  */
-ILOCInstruction* iloc_instruction_create()
+ILOCInstruction* iloc_instruction_create(ILOCOpcode opcode)
 {
     ILOCInstruction* instruction = malloc(sizeof(ILOCInstruction));
     instruction->previous = NULL;
