@@ -27,7 +27,7 @@ int main(int argc, char* const* argv)
                "Usage: walrus [options] file1 [file2 [...]]\r\n"
                "Options:\r\n\r\n"
                "  --help                   Displays this help message, but you already knew that\r\n"
-               "  --debug                  Outputs debugging information\r\n"
+               "  --debug                  Writes debugging information to a debug file\r\n"
                "  -p                       Scan and parse, but do not analyze\r\n"
                "  -s                       Scan only; do not parse or compile\r\n"
                "  -T, --print-tokens       Print out tokens as they are scanned\r\n\r\n"
