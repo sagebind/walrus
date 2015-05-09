@@ -104,7 +104,14 @@ Error walrus_compile(char* filename, Options options)
     if (!options.parse_only) {
         // if the program is perfect, start code generation
         if (!error_get_last()) {
+            // generate the ILOC code
             ILOCProgram* program = iloc_generator_generate(ast);
+
+            // write it to program.iloc
+            iloc_generator_write(program, "program.iloc");
+
+            // clean up
+            iloc_program_destroy(&program);
         }
 
         // destroy table

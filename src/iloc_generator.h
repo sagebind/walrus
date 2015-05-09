@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "ast.h"
+#include "error.h"
 
 
 /**
@@ -50,5 +51,29 @@ ILOCProgram* iloc_generator_generate(ASTNode* root);
  * @param file    An open file stream to write to.
  */
 void iloc_generator_write(ILOCProgram* program, FILE* file);
+
+/**
+ * Creates an ILOC assembly instruction.
+ *
+ * @return A new instruction structure.
+ */
+ILOCInstruction* iloc_instruction_create(void);
+
+/**
+ * Adds an ILOC instruction to a program.
+ *
+ * @param  program     The program to add to.
+ * @param  instruction The instruction to add.
+ * @return             An error code.
+ */
+Error iloc_add_instruction(ILOCProgram* program, ILOCInstruction* instruction);
+
+/**
+ * Destroys an ILOC program structure and frees its memory.
+ *
+ * @param  program A pointer to the program to destroy.
+ * @return         An error code.
+ */
+Error iloc_program_destroy(ILOCProgram** program);
 
 #endif
