@@ -51,6 +51,28 @@ typedef enum {
 } ILOCOpcode;
 
 /**
+ * Stores information about an operand for an ILOC instruction.
+ */
+typedef struct {
+    /**
+     * The type of operand.
+     */
+    enum {
+        ILOC_TYPE_REGISTER = 1,
+        ILOC_TYPE_NUM = 2,
+        ILOC_TYPE_LABEL = 3
+    } type;
+
+    /**
+     * A union of three possible value types.
+     */
+    union {
+        int num;
+        char* label;
+    };
+} ILOCOperand;
+
+/**
  * Stores a representation of a single ILOC instruction.
  */
 typedef struct ILOCInstruction {
@@ -62,12 +84,12 @@ typedef struct ILOCInstruction {
     /**
      * A pair of source arguments.
      */
-    char** sources;
+    ILOCOperand* sources;
 
     /**
      * A pair of target arguments.
      */
-    char** targets;
+    ILOCOperand* targets;
 
     /**
      * The name of a label to the instruction address, if any.
@@ -109,13 +131,13 @@ typedef struct {
 ILOCProgram* iloc_generator_generate(ASTNode* root);
 
 /**
- * Generates ILOC assembly code for an AST node.
+ * Generates ILOC assembly instructions for an AST node.
  *
  * @param  program The ILOC program to generate to
  * @param  node    The node of an abstract syntax tree.
  * @return         A structure representing an ILOC assembly program.
  */
-Error iloc_generator_node(ILOCProgram* program, ASTNode* node);
+Error iloc_generator_generate_instructions(ILOCProgram* program, ASTNode* node);
 
 /**
  * Writes an ILOC assembly program to file.

@@ -16,6 +16,11 @@ static const char* opcode_strings[] = {
     "cbr_le", "cbr_eq", "cbr_ge", "cbr_gt", "cbr_ne", "jumpi", "jump"
 };
 
+/**
+ * Used to determine the next available virtual register.
+ */
+static int next_register = 0;
+
 
 /**
  * Generates an ILOC assembly program from an abstract syntax tree.
@@ -26,7 +31,10 @@ ILOCProgram* iloc_generator_generate(ASTNode* root)
     program->first = NULL;
     program->last = NULL;
 
-    iloc_generator_node(program, root);
+    // first, generate the instructions
+    iloc_generator_generate_instructions(program, root);
+
+    // then, we need to assign real registers for each instruction
 
     return program;
 }
@@ -34,7 +42,7 @@ ILOCProgram* iloc_generator_generate(ASTNode* root)
 /**
  * Generates ILOC assembly code for an AST node.
  */
-Error iloc_generator_node(ILOCProgram* program, ASTNode* node)
+Error iloc_generator_generate_instructions(ILOCProgram* program, ASTNode* node)
 {
     // binary operation
     if (node->kind == AST_BINARY_OP) {
@@ -47,7 +55,7 @@ Error iloc_generator_node(ILOCProgram* program, ASTNode* node)
 
     // generate code for each child node
     for (int i = 0; i < node->child_count; ++i) {
-        iloc_generator_node(program, node->children[i]);
+        iloc_generator_generate_instructions(program, node->children[i]);
     }
 
     return E_SUCCESS;
@@ -65,11 +73,17 @@ void iloc_generator_write(ILOCProgram* program, char* filename)
         // first write the opcode string
         fprintf(stream, "%s", opcode_strings[instr->opcode]);
 
-        // write the source arguments
-        if (instr->sources[1] != NULL) {
-            fprintf(stream, " %s, %s", instr->sources[0], instr->sources[1]);
-        } else if (instr->sources[0] != NULL) {
-            fprintf(stream, " %s", instr->sources[0]);
+        // write the source operands
+        for (int i = 0; i < 2 && instr->sources[i].type != 0; ++i) {
+            // determine the operand type
+            if (instr->sources[i].type == ILOC_TYPE_LABEL) {
+                fprintf(stream, "%s %s", i > 0 ? "," : "", instr->sources[i].label);
+            } else {
+                fprintf(stream, "%s %s%d",
+                    i > 0 ? "," : "",
+                    instr->sources[i].type == ILOC_TYPE_REGISTER ? "r" : "",
+                    instr->sources[i].num);
+            }
         }
 
         // write the correct arrow type
@@ -87,11 +101,17 @@ void iloc_generator_write(ILOCProgram* program, char* filename)
             fprintf(stream, " =>");
         }
 
-        // write the target arguments
-        if (instr->targets[1] != NULL) {
-            fprintf(stream, " %s, %s", instr->targets[0], instr->targets[1]);
-        } else if (instr->targets[0] != NULL) {
-            fprintf(stream, " %s", instr->targets[0]);
+        // write the target operands
+        for (int i = 0; i < 2 && instr->targets[i].type != 0; ++i) {
+            // determine the operand type
+            if (instr->targets[i].type == ILOC_TYPE_LABEL) {
+                fprintf(stream, "%s %s", i > 0 ? "," : "", instr->targets[i].label);
+            } else {
+                fprintf(stream, "%s %s%d",
+                    i > 0 ? "," : "",
+                    instr->targets[i].type == ILOC_TYPE_REGISTER ? "r" : "",
+                    instr->targets[i].num);
+            }
         }
 
         fprintf(stream, "\n");
@@ -114,10 +134,8 @@ ILOCInstruction* iloc_instruction_create(ILOCOpcode opcode)
     instruction->opcode = opcode;
 
     // allocate source and target arrays
-    instruction->sources = malloc(sizeof(char*) * 2);
-    instruction->sources[0] = instruction->sources[1] = NULL;
-    instruction->targets = malloc(sizeof(char*) * 2);
-    instruction->targets[0] = instruction->targets[1] = NULL;
+    instruction->sources = calloc(2, sizeof(ILOCOperand));
+    instruction->targets = calloc(2, sizeof(ILOCOperand));
 
     return instruction;
 }
