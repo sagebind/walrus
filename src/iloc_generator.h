@@ -7,9 +7,63 @@
 
 
 /**
+ * An enumerated list of possible ILOC opcodes.
+ */
+typedef enum {
+    ILOC_ADD,
+    ILOC_SUB,
+    ILOC_MULT,
+    ILOC_DIV,
+    ILOC_LSHIFT,
+    ILOC_RSHIFT,
+    ILOC_LOAD,
+    ILOC_LOAD_AI,
+    ILOC_LOAD_AO,
+    ILOC_CLOAD,
+    ILOC_CLOAD_AI,
+    ILOC_CLOAD_AO,
+    ILOC_STORE,
+    ILOC_STORE_AI,
+    ILOC_STORE_AO,
+    ILOC_CSTORE,
+    ILOC_CSTORE_AI,
+    ILOC_CSTORE_AO,
+    ILOC_I2I,
+    ILOC_C2C,
+    ILOC_C2I,
+    ILOC_I2C,
+    ILOC_COMP,
+    ILOC_CMP_LT,
+    ILOC_CMP_LE,
+    ILOC_CMP_EQ,
+    ILOC_CMP_GE,
+    ILOC_CMP_GT,
+    ILOC_CMP_NE,
+    ILOC_CBR,
+    ILOC_CBR_LT,
+    ILOC_CBR_LE,
+    ILOC_CBR_EQ,
+    ILOC_CBR_GE,
+    ILOC_CBR_GT,
+    ILOC_CBR_NE,
+    ILOC_JUMPI,
+    ILOC_JUMP
+} ILOCOpcode;
+
+/**
  * Stores a representation of a single ILOC instruction.
  */
 typedef struct ILOCInstruction {
+    /**
+     * The instruction opcode.
+     */
+    ILOCOpcode opcode;
+
+    /**
+     * The name of a label to the instruction address, if any.
+     */
+    char* label;
+
     /**
      * A pointer to the previous instruction.
      */
@@ -45,6 +99,15 @@ typedef struct {
 ILOCProgram* iloc_generator_generate(ASTNode* root);
 
 /**
+ * Generates ILOC assembly code for an AST node.
+ *
+ * @param  program The ILOC program to generate to
+ * @param  root    The node of an abstract syntax tree.
+ * @return         A structure representing an ILOC assembly program.
+ */
+Error iloc_generator_node(ILOCProgram* program, ASTNode* root);
+
+/**
  * Writes an ILOC assembly program to file.
  *
  * @param program An ILOC program to write.
@@ -55,9 +118,10 @@ void iloc_generator_write(ILOCProgram* program, FILE* file);
 /**
  * Creates an ILOC assembly instruction.
  *
- * @return A new instruction structure.
+ * @param  opcode The instruction opcode.
+ * @return        A new instruction structure.
  */
-ILOCInstruction* iloc_instruction_create(void);
+ILOCInstruction* iloc_instruction_create(ILOCOpcode opcode);
 
 /**
  * Adds an ILOC instruction to a program.

@@ -16,6 +16,14 @@ ILOCProgram* iloc_generator_generate(ASTNode* root)
 }
 
 /**
+ * Generates ILOC assembly code for an AST node.
+ */
+Error iloc_generator_node(ILOCProgram* program, ASTNode* root)
+{
+    return E_SUCCESS;
+}
+
+/**
  * Writes an ILOC assembly program to file.
  */
 void iloc_generator_write(ILOCProgram* program, FILE* file)
