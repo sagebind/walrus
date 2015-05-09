@@ -35,6 +35,8 @@ void iloc_generator_write(ILOCProgram* program, char* filename)
 ILOCInstruction* iloc_instruction_create(ILOCOpcode opcode)
 {
     ILOCInstruction* instruction = malloc(sizeof(ILOCInstruction));
+    instruction->sources = malloc(sizeof(char*) * 2);
+    instruction->targets = malloc(sizeof(char*) * 2);
     instruction->previous = NULL;
     instruction->next = NULL;
 
@@ -71,6 +73,8 @@ Error iloc_program_destroy(ILOCProgram** program)
     // free each instruction
     for (ILOCInstruction* i = (*program)->first; i != NULL; i = i->next) {
         if (i->previous != NULL) {
+            free(i->previous->sources);
+            free(i->previous->targets);
             free(i->previous);
         }
     }

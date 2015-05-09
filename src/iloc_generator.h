@@ -60,6 +60,16 @@ typedef struct ILOCInstruction {
     ILOCOpcode opcode;
 
     /**
+     * A pair of source arguments.
+     */
+    char** sources;
+
+    /**
+     * A pair of target arguments.
+     */
+    char** targets;
+
+    /**
      * The name of a label to the instruction address, if any.
      */
     char* label;
