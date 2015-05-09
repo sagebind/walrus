@@ -49,6 +49,12 @@ Error iloc_generator_generate_instructions(ILOCProgram* program, ASTNode* node)
         // addition
         if (strcmp(((ASTOperation*)node)->operator, "+") == 0) {
             ILOCInstruction* instr = iloc_instruction_create(ILOC_ADD);
+            instr->sources[0].type = ILOC_TYPE_REGISTER;
+            instr->sources[0].num = next_register++;
+            instr->sources[1].type = ILOC_TYPE_REGISTER;
+            instr->sources[1].num = next_register++;
+            instr->targets[0].type = ILOC_TYPE_REGISTER;
+            instr->targets[0].num = next_register++;
             iloc_add_instruction(program, instr);
         }
     }
