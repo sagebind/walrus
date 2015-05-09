@@ -35,4 +35,4 @@ obj/
 *.sublime-workspace
 
 # Walrus debug files
-.dbg
+*.dbg
