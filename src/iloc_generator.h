@@ -112,10 +112,10 @@ ILOCProgram* iloc_generator_generate(ASTNode* root);
  * Generates ILOC assembly code for an AST node.
  *
  * @param  program The ILOC program to generate to
- * @param  root    The node of an abstract syntax tree.
+ * @param  node    The node of an abstract syntax tree.
  * @return         A structure representing an ILOC assembly program.
  */
-Error iloc_generator_node(ILOCProgram* program, ASTNode* root);
+Error iloc_generator_node(ILOCProgram* program, ASTNode* node);
 
 /**
  * Writes an ILOC assembly program to file.
