@@ -98,10 +98,11 @@ Error walrus_compile(char* filename, Options options)
 
     // print the ast if the user wants to see it
     if (options.debug) {
-        ast_print(ast);
-        if (!options.parse_only) {
-            symbol_table_print(table);
-        }
+        analyzer_write_debug_info(ast, table);
+        //ast_print(ast);
+        //if (!options.parse_only) {
+            //symbol_table_print(table);
+        //}
     }
 
     if (!options.parse_only) {

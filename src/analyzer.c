@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include "analyzer.h"
 #include "ast.h"
@@ -365,4 +366,220 @@ Error analyzer_fix_minus_int(ASTNode** node)
         // so that things don't blow up
         *node = int_literal;
     }
+}
+
+/**
+ * Pretty-prints an abstract syntax tree to the console.
+ *
+ * @param  parent  The subtree to print.
+ * @param  prefix  The string prefix for the current level.
+ * @param  is_tail Indicates if the current level is a tail child to the parent.
+ * @return         An error code.
+ *
+ * Here there be dragons, because string manipulation is not fun in C.
+ */
+static Error analyzer_write_subtree(FILE* stream, ASTNode* parent, int depth)
+{
+    for (int i = 0; i < depth; ++i) {
+        fprintf(stream, "  ");
+    }
+
+    char* tag_name;
+
+    // print out a unique readable string identifying the node kind and attributes
+    switch (parent->kind) {
+        // generic kinds
+        case AST_BLOCK:
+            tag_name = "block";
+            break;
+        case AST_IF_STATEMENT:
+            tag_name = "if";
+            break;
+        case AST_ELSE_STATEMENT:
+            tag_name = "else";
+            break;
+        case AST_FOR_STATEMENT:
+            tag_name = "for";
+            break;
+        case AST_BREAK_STATEMENT:
+            tag_name = "break";
+            break;
+        case AST_CONTINUE_STATEMENT:
+            tag_name = "continue";
+            break;
+        case AST_RETURN_STATEMENT:
+            tag_name = "return";
+            break;
+        // literals
+        case AST_INT_LITERAL:
+            tag_name = "int";
+            break;
+        case AST_BOOLEAN_LITERAL:
+            tag_name = "bool";
+            break;
+        case AST_CHAR_LITERAL:
+            tag_name = "char";
+            break;
+        case AST_STRING_LITERAL:
+            tag_name = "string";
+            break;
+        // declaration kinds
+        case AST_CLASS_DECL:
+            tag_name = "class";
+            break;
+        case AST_FIELD_DECL:
+            tag_name = "field";
+            break;
+        case AST_METHOD_DECL:
+            tag_name = "method";
+            break;
+        case AST_VAR_DECL:
+            tag_name = "var";
+            break;
+        case AST_PARAM_DECL:
+            tag_name = "param";
+            break;
+        // reference kinds
+        case AST_LOCATION:
+            tag_name = "location";
+            break;
+        case AST_METHOD_CALL:
+            tag_name = "method_call";
+            break;
+        case AST_CALLOUT:
+            tag_name = "callout";
+            break;
+        // operator kinds
+        case AST_UNARY_OP:
+            tag_name = "unary_op";
+            break;
+        case AST_BINARY_OP:
+            tag_name = "binary_op";
+            break;
+        case AST_ASSIGN_OP:
+            tag_name = "assign_op";
+            break;
+        // unknown
+        default:
+            tag_name = "unknown";
+    }
+
+    fprintf(stream, "<%s", tag_name);
+
+    // write file position
+    fprintf(stream, " line=\"%d\" column=\"%d\"", parent->line, parent->column);
+
+    // print out the datatype of the node if it has one
+    if (parent->type != TYPE_NONE) {
+        fprintf(stream, " type=\"%s\"", data_type_string(parent->type));
+    }
+
+    // decl node
+    if ((parent->kind & 0xF) == AST_DECL || (parent->kind & 0xF) == AST_REFERENCE) {
+        fprintf(stream, " identifier=\"%s\"", ((ASTDecl*)parent)->identifier);
+    }
+
+    // op expression node
+    else if ((parent->kind & 0xF) == AST_OP_EXPR) {
+        fprintf(stream, " operator=\"%s\"", ((ASTOperation*)parent)->operator);
+    }
+
+    if (parent->kind == AST_FIELD_DECL) {
+        fprintf(stream, " length=\"%d\"", ((ASTDecl*)parent)->length);
+    }
+
+    else if (parent->kind == AST_INT_LITERAL) {
+        fprintf(stream, " value=\"%d\"", *(int*)parent->value);
+    }
+
+    else if (parent->kind == AST_BOOLEAN_LITERAL) {
+        fprintf(stream, " value=\"%s\"", (*(bool*)parent->value) ? "true" : "false");
+    }
+
+    else if (parent->kind == AST_CHAR_LITERAL || parent->kind == AST_STRING_LITERAL) {
+        fprintf(stream, " value=\"%s\"", (char*)parent->value);
+    }
+
+    if (parent->child_count > 0) {
+        fprintf(stream, ">\n");
+    } else {
+        fprintf(stream, "/>\n");
+        return E_SUCCESS;
+    }
+
+    // print every child node recursively
+    for (int i = 0; i < parent->child_count; i++) {
+        // print the child
+        Error e;
+        if ((e = analyzer_write_subtree(stream, parent->children[i], depth + 1)) != E_SUCCESS) {
+            return e;
+        }
+    }
+
+    for (int i = 0; i < depth; ++i) {
+        fprintf(stream, "  ");
+    }
+    fprintf(stream, "</%s>\n", tag_name);
+
+    return E_SUCCESS;
+}
+
+/**
+ * Writes out debugging info to a file.
+ */
+Error analyzer_write_debug_info(ASTNode* root, SymbolTable* table)
+{
+    // append .dbg to the filename to write to
+    char* filename = malloc(strlen(root->file) + 5);
+    strcpy(filename, root->file);
+    strncat(filename, ".dbg", 4);
+
+    // open the dbg file for writing
+    FILE* stream = fopen(filename, "w");
+    if (stream == NULL) {
+        return error(E_FILE_NOT_FOUND, "The file '%s' could not be opened.", filename);
+    }
+
+    // write debug info as xml
+    fprintf(stream, "<?xml version=\"1.0\"?>\n");
+    fprintf(stream, "<debug file=\"%s\">\n", root->file);
+
+    // write the contents of the symbol table
+    fprintf(stream, "  <symbols>\n");
+    int scope_id = 0;
+    for (SymbolMap* map = table->sheaf_tail; map != NULL; map = map->previous) {
+        for (int i = 0; i < SYMBOL_MAP_SIZE; i++) {
+            for (SymbolEntry* entry = map->entries[i]; entry != NULL; entry = entry->next) {
+                fprintf(stream, "    <symbol name=\"%s\" scope=\"%d\" type=\"%s\"",
+                    entry->symbol,
+                    scope_id,
+                    data_type_string(entry->type));
+
+                if ((entry->flags & SYMBOL_FUNCTION) == SYMBOL_FUNCTION) {
+                    fprintf(stream, " function=\"true\"");
+                }
+
+                if ((entry->flags & SYMBOL_ARRAY) == SYMBOL_ARRAY) {
+                    fprintf(stream, " array=\"true\"");
+                }
+
+                fprintf(stream, "/>\n");
+            }
+        }
+
+        scope_id++;
+    }
+    fprintf(stream, "  </symbols>\n");
+
+    // write the ast
+    fprintf(stream, "\n  <ast>\n");
+    analyzer_write_subtree(stream, root, 2);
+    fprintf(stream, "  </ast>\n");
+
+    fprintf(stream, "</debug>\n");
+
+    // close the file
+    fclose(stream);
+
+    return E_SUCCESS;
 }

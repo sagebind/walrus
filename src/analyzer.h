@@ -59,4 +59,13 @@ Error analyzer_check_method_arguments(ASTNode* node, SymbolTable* table);
  */
 Error analyzer_fix_minus_int(ASTNode** node);
 
+/**
+ * Writes out debugging info to a file.
+ *
+ * @param  root  The root node of the abstract syntax tree.
+ * @param  table The program's symbol table.
+ * @return       AN error code.
+ */
+Error analyzer_write_debug_info(ASTNode* root, SymbolTable* table);
+
 #endif
