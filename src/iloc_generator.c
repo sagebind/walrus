@@ -35,6 +35,7 @@ ILOCProgram* iloc_generator_generate(ASTNode* root)
     iloc_generator_generate_instructions(program, root);
 
     // then, we need to assign real registers for each instruction
+    // @TODO
 
     return program;
 }
