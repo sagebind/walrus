@@ -1,6 +1,8 @@
 # Walrus
 A lightweight compiler for the Decaf programming language.
 
+[![Build Status](https://img.shields.io/travis/coderstephen/walrus.svg)](https://travis-ci.org/coderstephen/walrus)
+
 ## Compiling the source
 You will need a GNU compiler in your `$PATH` installed to compile. [Cygwin](http://cygwin.com) or [MinGW-w64](http://mingw-w64.sourceforge.net) should be sufficient for compiling on Windows machines, as Walrus is POSIX-compatible and uses minimal library functions.
 
